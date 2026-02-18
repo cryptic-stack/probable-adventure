@@ -1,6 +1,7 @@
 const $ = (id) => document.getElementById(id);
 let es = null;
 let currentRangeId = null;
+let templateCache = [];
 
 function setStatus(text, isError = false) {
   const el = $("status");
@@ -28,17 +29,30 @@ function closeEvents() {
 }
 
 function renderTemplates(items) {
+  templateCache = Array.isArray(items) ? items : [];
   const el = $("templates");
   if (!Array.isArray(items) || items.length === 0) {
     el.innerHTML = '<div class="item muted">No templates</div>';
+    renderTemplateOptions([]);
     return;
   }
   el.innerHTML = items.map((t) => {
     return `<div class="item"><span><strong>${t.name}</strong> v${t.version} (${t.display_name})</span><button data-template="${t.id}">Use ${t.id}</button></div>`;
   }).join("");
+  renderTemplateOptions(items);
   el.querySelectorAll("button[data-template]").forEach((btn) => {
     btn.onclick = () => { $("templateId").value = btn.dataset.template; };
   });
+}
+
+function renderTemplateOptions(items) {
+  const select = $("templateId");
+  if (!select) return;
+  if (!Array.isArray(items) || items.length === 0) {
+    select.innerHTML = '<option value="">No templates</option>';
+    return;
+  }
+  select.innerHTML = items.map((t) => `<option value="${t.id}">${t.id} - ${t.display_name} (${t.name} v${t.version})</option>`).join("");
 }
 
 function renderRanges(items) {
@@ -84,12 +98,33 @@ async function loadTemplates() {
   const r = await api("/api/templates");
   if (!r.ok) {
     setStatus(`templates error (${r.status})`, true);
+    renderTemplateOptions([]);
     return;
   }
   renderTemplates(r.data);
   if (Array.isArray(r.data) && r.data.length > 0 && !Number($("templateId").value)) {
     $("templateId").value = r.data[0].id;
   }
+}
+
+function renderImageOptions(items) {
+  const select = $("imageRef");
+  if (!select) return;
+  if (!Array.isArray(items) || items.length === 0) {
+    select.innerHTML = '<option value="">No images found</option>';
+    return;
+  }
+  select.innerHTML = items.map((i) => `<option value="${i.image}">${i.image}</option>`).join("");
+}
+
+async function loadImageCatalog() {
+  const r = await api("/api/catalog/images");
+  if (!r.ok) {
+    setStatus(`images catalog error (${r.status})`, true);
+    renderImageOptions([]);
+    return;
+  }
+  renderImageOptions(r.data);
 }
 
 async function loadRanges() {
@@ -149,6 +184,45 @@ async function createRange() {
   await loadRanges();
 }
 
+async function createTemplate() {
+  const image = $("imageRef").value;
+  const name = $("tplName").value.trim();
+  const displayName = $("tplDisplayName").value.trim();
+  const description = $("tplDescription").value.trim();
+  const serviceName = $("tplServiceName").value.trim() || "service";
+  const quota = Number($("tplQuota").value) || 1;
+  const containerPort = Number($("tplContainerPort").value);
+
+  if (!name || !displayName || !image) {
+    setStatus("template name, display name, and image are required", true);
+    return;
+  }
+
+  const ports = Number.isInteger(containerPort) && containerPort > 0
+    ? [{ container: containerPort, host: 0 }]
+    : [];
+
+  const body = {
+    name,
+    display_name: displayName,
+    description,
+    quota,
+    definition_json: {
+      name,
+      services: [{ name: serviceName, image, ports }],
+    },
+  };
+
+  const r = await api("/api/templates", { method: "POST", body: JSON.stringify(body) });
+  if (!r.ok) {
+    const detail = typeof r.data === "string" ? r.data : JSON.stringify(r.data);
+    setStatus(`create template failed (${r.status}): ${detail}`, true);
+    return;
+  }
+  setStatus(`Template created (#${r.data.id})`);
+  await loadTemplates();
+}
+
 async function destroyRange() {
   const id = Number($("rangeId").value || currentRangeId);
   if (!id) return;
@@ -182,9 +256,11 @@ $("logout").onclick = async () => {
 };
 
 $("refreshTemplates").onclick = loadTemplates;
+$("refreshImages").onclick = loadImageCatalog;
 $("refreshRanges").onclick = loadRanges;
 $("loadRange").onclick = loadRangeDetail;
 $("createRange").onclick = createRange;
+$("createTemplate").onclick = createTemplate;
 $("destroyRange").onclick = destroyRange;
 $("resetRange").onclick = resetRange;
 
@@ -192,6 +268,7 @@ window.addEventListener("beforeunload", closeEvents);
 
 (async function init() {
   await loadMe();
+  await loadImageCatalog();
   await loadTemplates();
   await loadRanges();
 })();

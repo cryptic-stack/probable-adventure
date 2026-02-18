@@ -83,6 +83,7 @@ Open:
 Dashboard supports:
 - Login/logout
 - List templates
+- Create templates from a Docker Hub image dropdown (`/api/catalog/images`)
 - Create range
 - List ranges
 - View range details + port mappings
@@ -115,6 +116,11 @@ curl -X POST http://localhost:8080/api/templates \
 ### 2) List templates
 ```bash
 curl http://localhost:8080/api/templates
+```
+
+### 2b) List Docker Hub catalog images used by template creator
+```bash
+curl http://localhost:8080/api/catalog/images
 ```
 
 ### 3) Create range (queues provision job)

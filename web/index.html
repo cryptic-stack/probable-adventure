@@ -64,10 +64,27 @@
           <strong>Create Range</strong>
           <div class="toolbar" style="margin-top: 8px;">
             <input id="teamId" type="number" value="1" placeholder="team_id" />
-            <input id="templateId" type="number" placeholder="template_id" />
+            <select id="templateId"></select>
             <input id="rangeName" placeholder="range name" />
             <button id="createRange" class="primary">Create</button>
           </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <strong>Create Template (Admin)</strong>
+        <div class="toolbar" style="margin-top: 8px;">
+          <input id="tplName" placeholder="template name (e.g. base-user)" />
+          <input id="tplDisplayName" placeholder="display name" />
+          <input id="tplDescription" placeholder="description" />
+          <input id="tplQuota" type="number" min="1" value="1" style="max-width: 90px;" />
+        </div>
+        <div class="toolbar" style="margin-top: 8px;">
+          <input id="tplServiceName" placeholder="service name" value="desktop" />
+          <input id="tplContainerPort" type="number" min="0" max="65535" placeholder="container port (optional)" style="max-width: 220px;" />
+          <select id="imageRef" style="min-width: 340px;"></select>
+          <button id="refreshImages">Refresh Images</button>
+          <button id="createTemplate" class="primary">Create Template</button>
         </div>
       </div>
 

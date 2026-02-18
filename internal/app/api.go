@@ -62,6 +62,7 @@ func (s *Server) Router() http.Handler {
 
 		api.Group(func(pr chi.Router) {
 			pr.Use(auth.RequireUser)
+			pr.Get("/catalog/images", s.listImageCatalog)
 			pr.Get("/templates", s.listTemplates)
 			pr.Get("/templates/{id}", s.getTemplate)
 			pr.Get("/ranges", s.listRanges)
@@ -179,6 +180,15 @@ func (s *Server) listTemplates(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	auth.JSON(w, 200, t)
+}
+
+func (s *Server) listImageCatalog(w http.ResponseWriter, r *http.Request) {
+	images, err := listDockerHubImages(r.Context(), s.cfg)
+	if err != nil {
+		auth.JSON(w, 502, map[string]string{"error": "docker hub catalog unavailable"})
+		return
+	}
+	auth.JSON(w, 200, images)
 }
 
 func (s *Server) getTemplate(w http.ResponseWriter, r *http.Request) {
