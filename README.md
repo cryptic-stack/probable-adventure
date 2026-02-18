@@ -38,8 +38,8 @@ GOOGLE_REDIRECT_URL=http://localhost:8080/auth/google/callback
 
 WORKER_ID=provisioner-1
 DOCKER_HOST=unix:///var/run/docker.sock
-DOCKERHUB_REPOS=crypticstack/probable-adventure-base-server,crypticstack/probable-adventure-base-user,crypticstack/probable-adventure-attack-box,crypticstack/probable-adventure-web-lab
-DOCKERHUB_IMAGE_REFS=crypticstack/probable-adventure-base-server:bookworm,crypticstack/probable-adventure-base-user:bookworm-xfce,crypticstack/probable-adventure-attack-box:bookworm,crypticstack/probable-adventure-web-lab:bookworm
+DOCKERHUB_REPOS=crypticstack/probable-adventure-base-server,crypticstack/probable-adventure-base-user,crypticstack/probable-adventure-attack-box,crypticstack/probable-adventure-web-lab,crypticstack/probable-adventure-desktop-web
+DOCKERHUB_IMAGE_REFS=crypticstack/probable-adventure-base-server:bookworm,crypticstack/probable-adventure-base-user:bookworm-xfce,crypticstack/probable-adventure-attack-box:bookworm,crypticstack/probable-adventure-web-lab:bookworm,crypticstack/probable-adventure-desktop-web:bookworm-novnc
 ```
 
 ## Start / Stop
@@ -90,6 +90,7 @@ Dashboard supports:
 - Create range
 - List ranges
 - View range details + port mappings
+- Clickable access links for published service ports (including web desktop templates)
 - Destroy/reset range
 - Live SSE event stream for selected range
 
@@ -103,6 +104,7 @@ Push images:
 ```powershell
 docker push crypticstack/probable-adventure-attack-box:bookworm
 docker push crypticstack/probable-adventure-web-lab:bookworm
+docker push crypticstack/probable-adventure-desktop-web:bookworm-novnc
 ```
 
 Load matching templates:
@@ -115,6 +117,7 @@ This loads starter templates for:
 - `netbird` (`netbird-relay`)
 - `corporate` (`corporate-web-lab`)
 - `guest` (`guest-web-kiosk`)
+- `guest` browser desktop (`guest-desktop-browser`, noVNC on published port)
 
 ## API Workflow (CLI)
 ### 1) Create template (admin)

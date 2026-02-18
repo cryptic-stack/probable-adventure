@@ -85,6 +85,36 @@ function renderPorts(rangeData) {
   $("ports").textContent = lines.join("\n");
 }
 
+function renderAccessLinks(rangeData) {
+  const host = window.location.hostname || "localhost";
+  const ports = rangeData?.range?.metadata_json?.ports;
+  const links = [];
+  if (ports && typeof ports === "object") {
+    for (const [serviceName, mapping] of Object.entries(ports)) {
+      if (!mapping || typeof mapping !== "object") continue;
+      for (const [containerProto, hostBindings] of Object.entries(mapping)) {
+        if (!Array.isArray(hostBindings)) continue;
+        for (const bind of hostBindings) {
+          const hostPort = bind?.HostPort;
+          if (!hostPort) continue;
+          const containerPort = Number((containerProto || "").split("/")[0] || 0);
+          const scheme = containerPort === 443 ? "https" : "http";
+          const href = `${scheme}://${host}:${hostPort}`;
+          links.push({ serviceName, href, containerProto });
+        }
+      }
+    }
+  }
+  const el = $("accessLinks");
+  if (!links.length) {
+    el.textContent = "No published links";
+    return;
+  }
+  el.innerHTML = links.map((l) =>
+    `<div><a href="${l.href}" target="_blank" rel="noopener noreferrer">${l.serviceName}: ${l.href}</a> <span class="muted">(${l.containerProto})</span></div>`
+  ).join("");
+}
+
 async function loadMe() {
   const r = await api("/api/me");
   if (r.ok) {
@@ -157,6 +187,7 @@ async function loadRangeDetail() {
   }
   currentRangeId = id;
   $("rangeDetail").textContent = JSON.stringify(r.data, null, 2);
+  renderAccessLinks(r.data);
   renderPorts(r.data);
   attachEvents(id);
   setStatus(`Loaded range #${id}`);

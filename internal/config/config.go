@@ -29,8 +29,8 @@ func Load() Config {
 			admins[e] = struct{}{}
 		}
 	}
-	repos := splitCSV(getenv("DOCKERHUB_REPOS", "crypticstack/probable-adventure-base-server,crypticstack/probable-adventure-base-user,crypticstack/probable-adventure-attack-box,crypticstack/probable-adventure-web-lab"))
-	imageRefs := splitCSV(getenv("DOCKERHUB_IMAGE_REFS", "crypticstack/probable-adventure-base-server:bookworm,crypticstack/probable-adventure-base-user:bookworm-xfce,crypticstack/probable-adventure-attack-box:bookworm,crypticstack/probable-adventure-web-lab:bookworm"))
+	repos := splitCSV(getenv("DOCKERHUB_REPOS", "crypticstack/probable-adventure-base-server,crypticstack/probable-adventure-base-user,crypticstack/probable-adventure-attack-box,crypticstack/probable-adventure-web-lab,crypticstack/probable-adventure-desktop-web"))
+	imageRefs := splitCSV(getenv("DOCKERHUB_IMAGE_REFS", "crypticstack/probable-adventure-base-server:bookworm,crypticstack/probable-adventure-base-user:bookworm-xfce,crypticstack/probable-adventure-attack-box:bookworm,crypticstack/probable-adventure-web-lab:bookworm,crypticstack/probable-adventure-desktop-web:bookworm-novnc"))
 	return Config{
 		Env:                getenv("APP_ENV", "dev"),
 		HTTPAddr:           getenv("HTTP_ADDR", ":8080"),

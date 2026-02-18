@@ -2,7 +2,8 @@ param(
   [string]$ApiBase = "http://localhost:8080",
   [string]$AttackImage = "crypticstack/probable-adventure-attack-box:bookworm",
   [string]$WebLabImage = "crypticstack/probable-adventure-web-lab:bookworm",
-  [string]$BaseServerImage = "crypticstack/probable-adventure-base-server:bookworm"
+  [string]$BaseServerImage = "crypticstack/probable-adventure-base-server:bookworm",
+  [string]$DesktopImage = "crypticstack/probable-adventure-desktop-web:bookworm-novnc"
 )
 
 $attackTemplate = @{
@@ -108,6 +109,29 @@ $guestTemplate = @{
   }
 } | ConvertTo-Json -Depth 8
 
+$desktopTemplate = @{
+  name = "guest-desktop-browser"
+  display_name = "Guest Browser Desktop (noVNC)"
+  description = "XFCE desktop accessible from browser via noVNC on port 6080."
+  quota = 10
+  definition_json = @{
+    name = "guest-desktop-browser"
+    services = @(
+      @{
+        name = "desktop"
+        image = $DesktopImage
+        network = "guest"
+        ports = @(
+          @{
+            container = 6080
+            host = 0
+          }
+        )
+      }
+    )
+  }
+} | ConvertTo-Json -Depth 8
+
 Write-Host "Loading redteam-attack-box template..."
 Invoke-RestMethod -Uri "$ApiBase/api/templates" -Method POST -ContentType "application/json" -Body $attackTemplate | Out-Null
 
@@ -122,5 +146,8 @@ Invoke-RestMethod -Uri "$ApiBase/api/templates" -Method POST -ContentType "appli
 
 Write-Host "Loading guest-web-kiosk template..."
 Invoke-RestMethod -Uri "$ApiBase/api/templates" -Method POST -ContentType "application/json" -Body $guestTemplate | Out-Null
+
+Write-Host "Loading guest-desktop-browser template..."
+Invoke-RestMethod -Uri "$ApiBase/api/templates" -Method POST -ContentType "application/json" -Body $desktopTemplate | Out-Null
 
 Write-Host "Done."
