@@ -190,6 +190,7 @@ async function createTemplate() {
   const displayName = $("tplDisplayName").value.trim();
   const description = $("tplDescription").value.trim();
   const serviceName = $("tplServiceName").value.trim() || "service";
+  const network = $("tplNetwork").value || "corporate";
   const quota = Number($("tplQuota").value) || 1;
   const containerPort = Number($("tplContainerPort").value);
 
@@ -209,7 +210,7 @@ async function createTemplate() {
     quota,
     definition_json: {
       name,
-      services: [{ name: serviceName, image, ports }],
+      services: [{ name: serviceName, image, network, ports }],
     },
   };
 

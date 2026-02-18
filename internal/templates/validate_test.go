@@ -3,7 +3,7 @@ package templates
 import "testing"
 
 func TestValidateDefinitionOK(t *testing.T) {
-	in := []byte(`{"name":"linux-lab","services":[{"name":"web","image":"nginx:alpine","ports":[{"container":80,"host":0}]}]}`)
+	in := []byte(`{"name":"linux-lab","services":[{"name":"web","image":"nginx:alpine","network":"corporate","ports":[{"container":80,"host":0}]}]}`)
 	if err := ValidateDefinition(in); err != nil {
 		t.Fatalf("expected valid definition, got %v", err)
 	}
@@ -23,10 +23,17 @@ func TestValidateDefinitionRequiresFields(t *testing.T) {
 		[]byte(`{"name":"x","services":[{"name":"","image":"nginx"}]}`),
 		[]byte(`{"name":"x","services":[{"name":"web","image":"","ports":[{"container":80,"host":0}]}]}`),
 		[]byte(`{"name":"x","services":[{"name":"web","image":"nginx","ports":[{"container":70000,"host":0}]}]}`),
+		[]byte(`{"name":"x","services":[{"name":"web","image":"nginx","network":"unknown"}]}`),
 	}
 	for i, in := range cases {
 		if err := ValidateDefinition(in); err == nil {
 			t.Fatalf("case %d expected error", i)
 		}
+	}
+}
+
+func TestNormalizeNetworkDefault(t *testing.T) {
+	if got := NormalizeNetwork(""); got != "corporate" {
+		t.Fatalf("expected corporate, got %q", got)
 	}
 }

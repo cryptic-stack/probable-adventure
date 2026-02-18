@@ -86,6 +86,7 @@ Dashboard supports:
 - Login/logout
 - List templates
 - Create templates from a Docker Hub image dropdown (`/api/catalog/images`)
+- Select service network segment when creating templates (`redteam`, `blueteam`, `netbird`, `corporate`, `guest`)
 - Create range
 - List ranges
 - View range details + port mappings
@@ -108,6 +109,12 @@ Load matching templates:
 ```powershell
 pwsh ./scripts/load-range-templates.ps1 -ApiBase http://localhost:8080
 ```
+This loads starter templates for:
+- `redteam` (`redteam-attack-box`)
+- `blueteam` (`blueteam-analyst`)
+- `netbird` (`netbird-relay`)
+- `corporate` (`corporate-web-lab`)
+- `guest` (`guest-web-kiosk`)
 
 ## API Workflow (CLI)
 ### 1) Create template (admin)
@@ -125,6 +132,7 @@ curl -X POST http://localhost:8080/api/templates \
         {
           "name":"web",
           "image":"nginx:alpine",
+          "network":"corporate",
           "ports":[{"container":80,"host":0}]
         }
       ]

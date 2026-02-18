@@ -102,16 +102,33 @@ func (w *Worker) provision(ctx context.Context, job *jobs.ClaimedJob) error {
 	if err := json.Unmarshal(rawDef, &def); err != nil {
 		return err
 	}
-	netName := fmt.Sprintf("range_%d_net", job.RangeID)
-	netID, err := w.ensureNetwork(ctx, job, templateID, netName)
-	if err != nil {
-		return fmt.Errorf("ensure network: %w", err)
+	segments := map[string]struct{}{}
+	for _, svc := range def.Services {
+		segments[tmpl.NormalizeNetwork(svc.Network)] = struct{}{}
 	}
-	_ = w.emit(ctx, job.RangeID, &job.ID, "info", "provision.network", "network ready", map[string]any{"network_id": netID, "name": netName})
-	resources := []jobs.Resource{{ResourceType: "network", DockerID: netID, ServiceName: "network", Metadata: []byte(`{"name":"` + netName + `"}`)}}
+	networkNames := map[string]string{}
+	networkIDs := map[string]string{}
+	resources := []jobs.Resource{}
+	for segment := range segments {
+		netName := fmt.Sprintf("range_%d_%s", job.RangeID, segment)
+		netID, err := w.ensureNetwork(ctx, job, templateID, segment, netName)
+		if err != nil {
+			return fmt.Errorf("ensure network %s: %w", segment, err)
+		}
+		networkNames[segment] = netName
+		networkIDs[segment] = netID
+		_ = w.emit(ctx, job.RangeID, &job.ID, "info", "provision.network", "network ready", map[string]any{"network_id": netID, "name": netName, "segment": segment})
+		resources = append(resources, jobs.Resource{
+			ResourceType: "network",
+			DockerID:     netID,
+			ServiceName:  "network-" + segment,
+			Metadata:     []byte(`{"name":"` + netName + `","segment":"` + segment + `"}`),
+		})
+	}
 
 	portsMeta := map[string]any{}
 	for _, svc := range def.Services {
+		segment := tmpl.NormalizeNetwork(svc.Network)
 		if err := w.pullImage(ctx, svc.Image); err != nil {
 			return fmt.Errorf("pull image %s: %w", svc.Image, err)
 		}
@@ -129,7 +146,9 @@ func (w *Worker) provision(ctx context.Context, job *jobs.ClaimedJob) error {
 		}
 		cfg := &container.Config{Image: svc.Image, Cmd: svc.Command, ExposedPorts: exposed, Labels: labels(job.RangeID, job.TeamID, templateID, svc.Name)}
 		hcfg := &container.HostConfig{PortBindings: bindings}
-		ncfg := &network.NetworkingConfig{EndpointsConfig: map[string]*network.EndpointSettings{netName: {NetworkID: netID}}}
+		ncfg := &network.NetworkingConfig{EndpointsConfig: map[string]*network.EndpointSettings{
+			networkNames[segment]: &network.EndpointSettings{NetworkID: networkIDs[segment]},
+		}}
 		name := fmt.Sprintf("range_%d_%s", job.RangeID, svc.Name)
 		containerID, created, err := w.ensureContainer(ctx, job, templateID, svc.Name, name, cfg, hcfg, ncfg)
 		if err != nil {
@@ -153,7 +172,12 @@ func (w *Worker) provision(ctx context.Context, job *jobs.ClaimedJob) error {
 		if err == nil {
 			portsMeta[svc.Name] = inspect.NetworkSettings.Ports
 		}
-		resources = append(resources, jobs.Resource{ResourceType: "container", DockerID: containerID, ServiceName: svc.Name, Metadata: []byte("{}")})
+		resources = append(resources, jobs.Resource{
+			ResourceType: "container",
+			DockerID:     containerID,
+			ServiceName:  svc.Name,
+			Metadata:     []byte(`{"network":"` + segment + `"}`),
+		})
 		_ = w.emit(ctx, job.RangeID, &job.ID, "info", "provision.service", "started service "+svc.Name, map[string]any{"docker_id": containerID})
 		_ = w.emit(ctx, job.RangeID, &job.ID, "info", "provision.health", "healthy service "+svc.Name, nil)
 	}
@@ -228,13 +252,14 @@ func (w *Worker) pullImage(ctx context.Context, imageRef string) error {
 	return nil
 }
 
-func (w *Worker) ensureNetwork(ctx context.Context, job *jobs.ClaimedJob, templateID int64, netName string) (string, error) {
-	labels := labels(job.RangeID, job.TeamID, templateID, "network")
+func (w *Worker) ensureNetwork(ctx context.Context, job *jobs.ClaimedJob, templateID int64, segment, netName string) (string, error) {
+	lbls := labels(job.RangeID, job.TeamID, templateID, "network-"+segment)
+	lbls["network_segment"] = segment
 	fl := filters.NewArgs(
 		filters.Arg("label", "range_id="+strconv.FormatInt(job.RangeID, 10)),
 		filters.Arg("label", "team_id="+strconv.FormatInt(job.TeamID, 10)),
 		filters.Arg("label", "template_id="+strconv.FormatInt(templateID, 10)),
-		filters.Arg("label", "service_name=network"),
+		filters.Arg("label", "service_name=network-"+segment),
 	)
 	networks, err := w.docker.NetworkList(ctx, network.ListOptions{Filters: fl})
 	if err != nil {
@@ -243,7 +268,7 @@ func (w *Worker) ensureNetwork(ctx context.Context, job *jobs.ClaimedJob, templa
 	if len(networks) > 0 {
 		return networks[0].ID, nil
 	}
-	created, err := w.docker.NetworkCreate(ctx, netName, network.CreateOptions{Labels: labels})
+	created, err := w.docker.NetworkCreate(ctx, netName, network.CreateOptions{Labels: lbls})
 	if err != nil {
 		return "", err
 	}

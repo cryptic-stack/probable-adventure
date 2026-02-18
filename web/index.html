@@ -81,6 +81,13 @@
         </div>
         <div class="toolbar" style="margin-top: 8px;">
           <input id="tplServiceName" placeholder="service name" value="desktop" />
+          <select id="tplNetwork">
+            <option value="corporate">corporate</option>
+            <option value="redteam">redteam</option>
+            <option value="blueteam">blueteam</option>
+            <option value="netbird">netbird</option>
+            <option value="guest">guest</option>
+          </select>
           <input id="tplContainerPort" type="number" min="0" max="65535" placeholder="container port (optional)" style="max-width: 220px;" />
           <select id="imageRef" style="min-width: 340px;"></select>
           <button id="refreshImages">Refresh Images</button>

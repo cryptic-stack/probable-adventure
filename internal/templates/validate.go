@@ -14,6 +14,7 @@ type Definition struct {
 type Service struct {
 	Name         string   `json:"name"`
 	Image        string   `json:"image"`
+	Network      string   `json:"network"`
 	Command      []string `json:"command"`
 	ExposedPorts []Port   `json:"ports"`
 	Healthcheck  string   `json:"healthcheck"`
@@ -22,6 +23,21 @@ type Service struct {
 type Port struct {
 	Container int `json:"container"`
 	Host      int `json:"host"`
+}
+
+var allowedNetworks = map[string]struct{}{
+	"redteam":   {},
+	"blueteam":  {},
+	"netbird":   {},
+	"corporate": {},
+	"guest":     {},
+}
+
+func NormalizeNetwork(n string) string {
+	if n == "" {
+		return "corporate"
+	}
+	return n
 }
 
 func ValidateDefinition(raw json.RawMessage) error {
@@ -38,6 +54,9 @@ func ValidateDefinition(raw json.RawMessage) error {
 	for _, s := range d.Services {
 		if s.Name == "" || s.Image == "" {
 			return errors.New("service name and image are required")
+		}
+		if _, ok := allowedNetworks[NormalizeNetwork(s.Network)]; !ok {
+			return errors.New("invalid network (allowed: redteam, blueteam, netbird, corporate, guest)")
 		}
 		for _, p := range s.ExposedPorts {
 			if p.Container <= 0 || p.Container > 65535 || p.Host < 0 || p.Host > 65535 {
