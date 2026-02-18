@@ -6,7 +6,7 @@ require (
 	github.com/coreos/go-oidc/v3 v3.12.0
 	github.com/docker/docker v28.0.1+incompatible
 	github.com/docker/go-connections v0.5.0
-	github.com/go-chi/chi/v5 v5.2.0
+	github.com/go-chi/chi/v5 v5.2.2
 	github.com/gorilla/sessions v1.4.0
 	github.com/jackc/pgx/v5 v5.7.2
 	golang.org/x/oauth2 v0.24.0
