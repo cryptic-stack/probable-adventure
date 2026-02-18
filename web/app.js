@@ -3,6 +3,20 @@ let es = null;
 let currentRangeId = null;
 let templateCache = [];
 
+function parseMaybeJSON(v) {
+  if (typeof v === "string") {
+    try { return JSON.parse(v); } catch { return v; }
+  }
+  return v;
+}
+
+function getPortsMap(rangeData) {
+  const metadata = parseMaybeJSON(rangeData?.range?.metadata_json);
+  const ports = parseMaybeJSON(metadata?.ports);
+  if (!ports || typeof ports !== "object") return {};
+  return ports;
+}
+
 function setStatus(text, isError = false) {
   const el = $("status");
   el.textContent = text || "";
@@ -73,7 +87,7 @@ function renderRanges(items) {
 }
 
 function renderPorts(rangeData) {
-  const ports = rangeData?.range?.metadata_json?.ports;
+  const ports = getPortsMap(rangeData);
   if (!ports || Object.keys(ports).length === 0) {
     $("ports").textContent = "No published ports";
     return;
@@ -87,7 +101,7 @@ function renderPorts(rangeData) {
 
 function renderAccessLinks(rangeData) {
   const host = window.location.hostname || "localhost";
-  const ports = rangeData?.range?.metadata_json?.ports;
+  const ports = getPortsMap(rangeData);
   const links = [];
   if (ports && typeof ports === "object") {
     for (const [serviceName, mapping] of Object.entries(ports)) {
@@ -110,7 +124,11 @@ function renderAccessLinks(rangeData) {
   }
   const el = $("accessLinks");
   if (!links.length) {
-    el.textContent = "No published links";
+    if (rangeData?.range?.status !== "ready") {
+      el.textContent = "Range is not ready yet. Links will appear after provisioning completes.";
+    } else {
+      el.textContent = "No published links. This template version may not expose web ports. Create a new range with the latest template version.";
+    }
     return;
   }
   el.innerHTML = links.map((l) =>
@@ -150,6 +168,14 @@ function renderImageOptions(items) {
   select.innerHTML = items.map((i) => `<option value="${i.image}">${i.image}</option>`).join("");
 }
 
+function inferDefaultContainerPort(image) {
+  const x = (image || "").toLowerCase();
+  if (x.includes("desktop") || x.includes("xfce") || x.includes("novnc") || x.includes("base-user")) return 6080;
+  if (x.includes("web") || x.includes("nginx")) return 8080;
+  if (x.includes("base-server") || x.includes("attack-box") || x.includes("shellinabox")) return 7681;
+  return 0;
+}
+
 async function loadImageCatalog() {
   const r = await api("/api/catalog/images");
   if (!r.ok) {
@@ -174,7 +200,24 @@ function attachEvents(rangeId) {
   $("events").textContent = "";
   es = new EventSource(`/api/ranges/${rangeId}/events`, { withCredentials: true });
   es.addEventListener("event", (ev) => {
-    $("events").textContent += ev.data + "\n";
+    let line = ev.data;
+    try {
+      const e = JSON.parse(ev.data);
+      const ts = e?.created_at ? new Date(e.created_at).toLocaleTimeString() : new Date().toLocaleTimeString();
+      const level = (e?.level || "info").toUpperCase();
+      const kind = e?.kind || "event";
+      const msg = e?.message || "";
+      let suffix = "";
+      const payload = parseMaybeJSON(e?.payload_json);
+      if (payload && typeof payload === "object") {
+        const keys = Object.keys(payload);
+        if (keys.length > 0) {
+          suffix = " | " + keys.map((k) => `${k}=${JSON.stringify(payload[k])}`).join(" ");
+        }
+      }
+      line = `${ts} | ${level} | ${kind} | ${msg}${suffix}`;
+    } catch {}
+    $("events").textContent += line + "\n";
     $("events").scrollTop = $("events").scrollHeight;
   });
   es.onerror = () => setStatus("SSE disconnected/retrying", true);
@@ -226,7 +269,10 @@ async function createTemplate() {
   const serviceName = $("tplServiceName").value.trim() || "service";
   const network = $("tplNetwork").value || "corporate";
   const quota = Number($("tplQuota").value) || 1;
-  const containerPort = Number($("tplContainerPort").value);
+  let containerPort = Number($("tplContainerPort").value);
+  if (!Number.isInteger(containerPort) || containerPort <= 0) {
+    containerPort = inferDefaultContainerPort(image);
+  }
 
   if (!name || !displayName || !image) {
     setStatus("template name, display name, and image are required", true);
