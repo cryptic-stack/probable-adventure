@@ -309,7 +309,16 @@ func (s *Server) getRange(w http.ResponseWriter, r *http.Request) {
 			})
 		}
 	}
-	auth.JSON(w, 200, map[string]any{"range": rg, "resources": resources})
+	templateDef := json.RawMessage(`{}`)
+	if t, err := s.q.GetTemplateByID(r.Context(), rg.TemplateID); err == nil {
+		templateDef = t.Definition
+	}
+	viewerHint := strings.TrimSpace(u.Name)
+	if viewerHint == "" {
+		viewerHint = strings.SplitN(strings.TrimSpace(u.Email), "@", 2)[0]
+	}
+	access := buildRangeAccessLinks(rg.ID, rg.Metadata, templateDef, viewerHint)
+	auth.JSON(w, 200, map[string]any{"range": rg, "resources": resources, "access": access})
 }
 
 func (s *Server) enqueueAction(w http.ResponseWriter, r *http.Request, action string) {
@@ -383,27 +392,13 @@ func (s *Server) proxyRangeService(w http.ResponseWriter, r *http.Request) {
 		auth.JSON(w, 404, map[string]string{"error": "range not found"})
 		return
 	}
-	type hostBinding struct {
-		HostIP   string `json:"HostIp"`
-		HostPort string `json:"HostPort"`
-	}
-	type portsMap map[string]map[string][]hostBinding
-	var pm struct {
-		Ports portsMap `json:"ports"`
-	}
-	_ = json.Unmarshal(rg.Metadata, &pm)
+	pm := parseRangeMetadata(rg.Metadata)
 	svc := pm.Ports[service]
 	if len(svc) == 0 {
 		auth.JSON(w, 404, map[string]string{"error": "service has no published ports"})
 		return
 	}
-	var hostPort string
-	for _, binds := range svc {
-		if len(binds) > 0 && binds[0].HostPort != "" {
-			hostPort = binds[0].HostPort
-			break
-		}
-	}
+	hostPort := preferredHostPort(svc)
 	if hostPort == "" {
 		auth.JSON(w, 404, map[string]string{"error": "service has no host port"})
 		return

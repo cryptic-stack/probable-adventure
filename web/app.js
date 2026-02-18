@@ -17,14 +17,6 @@ function getPortsMap(rangeData) {
   return ports;
 }
 
-function slugify(s) {
-  return String(s || "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 48);
-}
-
 function setStatus(text, isError = false) {
   const el = $("status");
   el.textContent = text || "";
@@ -107,120 +99,21 @@ function renderPorts(rangeData) {
   $("ports").textContent = lines.join("\n");
 }
 
-function getTemplateByID(templateID) {
-  return templateCache.find((t) => Number(t?.id) === Number(templateID));
-}
-
-function parseNekoCredsFromTemplate(template) {
-  const def = parseMaybeJSON(template?.definition_json);
-  const room = def?.room || {};
-  let user = room.user_pass || "";
-  let admin = room.admin_pass || "";
-  const services = Array.isArray(def?.services) ? def.services : [];
-  if (!user || !admin) {
-    for (const svc of services) {
-      const env = Array.isArray(svc?.env) ? svc.env : [];
-      for (const kv of env) {
-        if (!user && kv.startsWith("NEKO_MEMBER_MULTIUSER_USER_PASSWORD=")) {
-          user = kv.split("=").slice(1).join("=");
-        }
-        if (!admin && kv.startsWith("NEKO_MEMBER_MULTIUSER_ADMIN_PASSWORD=")) {
-          admin = kv.split("=").slice(1).join("=");
-        }
-      }
-    }
-  }
-  return { user, admin };
-}
-
 function renderAccessLinks(rangeData) {
-  const host = window.location.hostname || "localhost";
-  const rangeId = rangeData?.range?.id;
-  const ports = getPortsMap(rangeData);
-  const resourceImageByService = {};
-  const resources = Array.isArray(rangeData?.resources) ? rangeData.resources : [];
-  for (const r of resources) {
-    if (r?.resource_type !== "container" || !r?.service_name) continue;
-    const md = parseMaybeJSON(r?.metadata);
-    if (md?.image) resourceImageByService[r.service_name] = md.image;
-  }
-
-  const links = [];
-  const seen = new Set();
-  if (ports && typeof ports === "object") {
-    for (const [serviceName, mapping] of Object.entries(ports)) {
-      if (!mapping || typeof mapping !== "object") continue;
-      for (const [containerProto, hostBindings] of Object.entries(mapping)) {
-        if (!Array.isArray(hostBindings)) continue;
-        for (const bind of hostBindings) {
-          const hostPort = bind?.HostPort;
-          if (!hostPort) continue;
-          const containerPort = Number((containerProto || "").split("/")[0] || 0);
-          const scheme = containerPort === 443 ? "https" : "http";
-          const pathSuffix = containerPort === 6080 ? "/vnc.html?autoconnect=1&resize=scale" : "";
-          const proxyHref = `/api/ranges/${rangeId}/access/${encodeURIComponent(serviceName)}${containerPort === 6080 ? "/vnc.html?autoconnect=1&resize=scale" : ""}`;
-          const proxyKey = `${serviceName}|${proxyHref}|proxy`;
-          if (!seen.has(proxyKey)) {
-            seen.add(proxyKey);
-            links.push({ serviceName, href: proxyHref, containerProto, flavor: "proxy" });
-          }
-
-          const directHref = `${scheme}://${host}:${hostPort}${pathSuffix}`;
-          const directKey = `${serviceName}|${directHref}|direct`;
-          if (!seen.has(directKey)) {
-            seen.add(directKey);
-            links.push({ serviceName, href: directHref, containerProto, flavor: "nat-port" });
-          }
-
-          if (rangeId) {
-            const svcHost = `${slugify(serviceName)}-r${rangeId}.localhost`;
-            const svcHref = `${scheme}://${svcHost}:${hostPort}${pathSuffix}`;
-            const svcKey = `${serviceName}|${svcHref}|svc`;
-            if (!seen.has(svcKey)) {
-              seen.add(svcKey);
-              links.push({ serviceName, href: svcHref, containerProto, flavor: "hostname" });
-            }
-
-            const image = resourceImageByService[serviceName];
-            if (image) {
-              const imageSlug = slugify(image.split(":")[0].split("/").pop());
-              if (imageSlug) {
-                const imgHost = `${imageSlug}-r${rangeId}.localhost`;
-                const imgHref = `${scheme}://${imgHost}:${hostPort}${pathSuffix}`;
-                const imgKey = `${serviceName}|${imgHref}|img`;
-                if (!seen.has(imgKey)) {
-                  seen.add(imgKey);
-                  links.push({ serviceName, href: imgHref, containerProto, flavor: "image-hostname" });
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
+  const links = Array.isArray(rangeData?.access) ? rangeData.access : [];
   const el = $("accessLinks");
   if (!links.length) {
     if (rangeData?.range?.status !== "ready") {
       el.textContent = "Range is not ready yet. Links will appear after provisioning completes.";
     } else {
-      el.textContent = "No published links. This template version may not expose web ports. Create a new range with the latest template version.";
+      el.textContent = "No web access links were generated for this range.";
     }
     return;
   }
-  const t = getTemplateByID(rangeData?.range?.template_id);
-  const creds = parseNekoCredsFromTemplate(t);
-  let credsLine = "";
-  if (creds.user || creds.admin) {
-    const chunks = [];
-    if (creds.user) chunks.push(`user=${creds.user}`);
-    if (creds.admin) chunks.push(`admin=${creds.admin}`);
-    credsLine = `<div><strong>Credentials:</strong> <span class="mono">${chunks.join(" ")}</span></div>`;
-  }
   const linksHtml = links.map((l) =>
-    `<div><a href="${l.href}" target="_blank" rel="noopener noreferrer">${l.serviceName}: ${l.href}</a> <span class="muted">(${l.containerProto}, ${l.flavor})</span></div>`
+    `<div><a href="${l.url}" target="_blank" rel="noopener noreferrer">${l.service_name}: ${l.url}</a></div>`
   ).join("");
-  el.innerHTML = credsLine + linksHtml;
+  el.innerHTML = linksHtml;
 }
 
 async function loadMe() {

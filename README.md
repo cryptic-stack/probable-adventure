@@ -91,8 +91,8 @@ Dashboard supports:
 - Create range
 - List ranges
 - View range details + port mappings
-- Clickable access links for published service ports (including web desktop templates)
- - Stable same-origin access proxy links: `/api/ranges/{id}/access/{service}`
+- One canonical access link per service/container (Neko-style room entrypoint)
+- Access links use same-origin proxy URLs: `/api/ranges/{id}/access/{service}/?usr=<name>&pwd=<room_user_password>`
 - Destroy/reset range
 - Live SSE event stream for selected range
 
@@ -176,6 +176,11 @@ curl -X POST http://localhost:8080/api/ranges \
 ### 4) List ranges
 ```bash
 curl http://localhost:8080/api/ranges
+```
+
+### 4b) Get one range with canonical access links
+```bash
+curl http://localhost:8080/api/ranges/1
 ```
 
 ### 5) Watch live events for a range
