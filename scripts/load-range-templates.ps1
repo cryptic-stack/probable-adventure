@@ -13,17 +13,17 @@ $attackTemplate = @{
   quota = 10
   definition_json = @{
     name = "redteam-attack-box"
+    room = @{
+      user_pass = "neko"
+      admin_pass = "admin"
+      max_connections = 8
+      control_protection = $true
+    }
     services = @(
       @{
         name = "attacker"
         image = $AttackImage
         network = "redteam"
-        env = @(
-          "NEKO_MEMBER_MULTIUSER_USER_PASSWORD=neko",
-          "NEKO_MEMBER_MULTIUSER_ADMIN_PASSWORD=admin",
-          "NEKO_WEBRTC_ICELITE=1",
-          "NEKO_WEBRTC_EPR=52000-52000"
-        )
         ports = @(
           @{
             container = 8080
@@ -48,17 +48,17 @@ $webTemplate = @{
   quota = 10
   definition_json = @{
     name = "corporate-web-lab"
+    room = @{
+      user_pass = "neko"
+      admin_pass = "admin"
+      max_connections = 8
+      control_protection = $true
+    }
     services = @(
       @{
         name = "web"
         image = $WebLabImage
         network = "corporate"
-        env = @(
-          "NEKO_MEMBER_MULTIUSER_USER_PASSWORD=neko",
-          "NEKO_MEMBER_MULTIUSER_ADMIN_PASSWORD=admin",
-          "NEKO_WEBRTC_ICELITE=1",
-          "NEKO_WEBRTC_EPR=52000-52000"
-        )
         ports = @(
           @{
             container = 8080
@@ -83,17 +83,17 @@ $webTemplate = @{
   quota = 10
   definition_json = @{
     name = "blueteam-analyst"
+    room = @{
+      user_pass = "neko"
+      admin_pass = "admin"
+      max_connections = 8
+      control_protection = $true
+    }
     services = @(
       @{
         name = "analyst"
         image = $BaseServerImage
         network = "blueteam"
-        env = @(
-          "NEKO_MEMBER_MULTIUSER_USER_PASSWORD=neko",
-          "NEKO_MEMBER_MULTIUSER_ADMIN_PASSWORD=admin",
-          "NEKO_WEBRTC_ICELITE=1",
-          "NEKO_WEBRTC_EPR=52000-52000"
-        )
         ports = @(
           @{
             container = 8080
@@ -118,17 +118,17 @@ $netbirdTemplate = @{
   quota = 10
   definition_json = @{
     name = "netbird-relay"
+    room = @{
+      user_pass = "neko"
+      admin_pass = "admin"
+      max_connections = 8
+      control_protection = $true
+    }
     services = @(
       @{
         name = "relay"
         image = $BaseServerImage
         network = "netbird"
-        env = @(
-          "NEKO_MEMBER_MULTIUSER_USER_PASSWORD=neko",
-          "NEKO_MEMBER_MULTIUSER_ADMIN_PASSWORD=admin",
-          "NEKO_WEBRTC_ICELITE=1",
-          "NEKO_WEBRTC_EPR=52000-52000"
-        )
         ports = @(
           @{
             container = 8080
@@ -153,17 +153,17 @@ $guestTemplate = @{
   quota = 10
   definition_json = @{
     name = "guest-web-kiosk"
+    room = @{
+      user_pass = "neko"
+      admin_pass = "admin"
+      max_connections = 8
+      control_protection = $true
+    }
     services = @(
       @{
         name = "kiosk"
         image = $WebLabImage
         network = "guest"
-        env = @(
-          "NEKO_MEMBER_MULTIUSER_USER_PASSWORD=neko",
-          "NEKO_MEMBER_MULTIUSER_ADMIN_PASSWORD=admin",
-          "NEKO_WEBRTC_ICELITE=1",
-          "NEKO_WEBRTC_EPR=52000-52000"
-        )
         ports = @(
           @{
             container = 8080
@@ -188,17 +188,17 @@ $desktopTemplate = @{
   quota = 10
   definition_json = @{
     name = "guest-desktop-browser"
+    room = @{
+      user_pass = "neko"
+      admin_pass = "admin"
+      max_connections = 8
+      control_protection = $true
+    }
     services = @(
       @{
         name = "desktop"
         image = $DesktopImage
         network = "guest"
-        env = @(
-          "NEKO_MEMBER_MULTIUSER_USER_PASSWORD=neko",
-          "NEKO_MEMBER_MULTIUSER_ADMIN_PASSWORD=admin",
-          "NEKO_WEBRTC_ICELITE=1",
-          "NEKO_WEBRTC_EPR=52000-52000"
-        )
         ports = @(
           @{
             container = 8080

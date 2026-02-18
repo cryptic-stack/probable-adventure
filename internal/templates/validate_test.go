@@ -25,6 +25,8 @@ func TestValidateDefinitionRequiresFields(t *testing.T) {
 		[]byte(`{"name":"x","services":[{"name":"web","image":"nginx","ports":[{"container":70000,"host":0}]}]}`),
 		[]byte(`{"name":"x","services":[{"name":"web","image":"nginx","ports":[{"container":80,"host":0,"protocol":"icmp"}]}]}`),
 		[]byte(`{"name":"x","services":[{"name":"web","image":"nginx","network":"unknown"}]}`),
+		[]byte(`{"name":"x","room":{"max_connections":-1},"services":[{"name":"web","image":"nginx"}]}`),
+		[]byte(`{"name":"x","room":{"max_connections":501},"services":[{"name":"web","image":"nginx"}]}`),
 	}
 	for i, in := range cases {
 		if err := ValidateDefinition(in); err == nil {

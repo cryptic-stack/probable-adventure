@@ -11,17 +11,17 @@ $serverTemplate = @{
   quota = 10
   definition_json = @{
     name = "base-server"
+    room = @{
+      user_pass = "neko"
+      admin_pass = "admin"
+      max_connections = 8
+      control_protection = $true
+    }
     services = @(
       @{
         name = "server"
         image = $ServerImage
         network = "corporate"
-        env = @(
-          "NEKO_MEMBER_MULTIUSER_USER_PASSWORD=neko",
-          "NEKO_MEMBER_MULTIUSER_ADMIN_PASSWORD=admin",
-          "NEKO_WEBRTC_ICELITE=1",
-          "NEKO_WEBRTC_EPR=52000-52000"
-        )
         ports = @(
           @{
             container = 8080
@@ -46,17 +46,17 @@ $userTemplate = @{
   quota = 10
   definition_json = @{
     name = "base-user-xfce"
+    room = @{
+      user_pass = "neko"
+      admin_pass = "admin"
+      max_connections = 8
+      control_protection = $true
+    }
     services = @(
       @{
         name = "desktop"
         image = $UserImage
         network = "guest"
-        env = @(
-          "NEKO_MEMBER_MULTIUSER_USER_PASSWORD=neko",
-          "NEKO_MEMBER_MULTIUSER_ADMIN_PASSWORD=admin",
-          "NEKO_WEBRTC_ICELITE=1",
-          "NEKO_WEBRTC_EPR=52000-52000"
-        )
         ports = @(
           @{
             container = 8080

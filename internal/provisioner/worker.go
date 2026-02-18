@@ -151,7 +151,7 @@ func (w *Worker) provision(ctx context.Context, job *jobs.ClaimedJob) error {
 			}
 			bindings[port] = []nat.PortBinding{{HostIP: "0.0.0.0", HostPort: hp}}
 		}
-		cfg := &container.Config{Image: svc.Image, Cmd: svc.Command, Env: svc.Env, ExposedPorts: exposed, Labels: labels(job.RangeID, job.TeamID, templateID, svc.Name)}
+		cfg := &container.Config{Image: svc.Image, Cmd: svc.Command, Env: buildServiceEnv(def, svc), ExposedPorts: exposed, Labels: labels(job.RangeID, job.TeamID, templateID, svc.Name)}
 		hcfg := &container.HostConfig{PortBindings: bindings}
 		ncfg := &network.NetworkingConfig{EndpointsConfig: map[string]*network.EndpointSettings{
 			networkNames[segment]: &network.EndpointSettings{NetworkID: networkIDs[segment]},

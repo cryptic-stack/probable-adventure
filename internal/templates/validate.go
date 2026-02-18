@@ -7,8 +7,17 @@ import (
 )
 
 type Definition struct {
-	Name     string    `json:"name"`
-	Services []Service `json:"services"`
+	Name     string      `json:"name"`
+	Room     RoomOptions `json:"room"`
+	Services []Service   `json:"services"`
+}
+
+type RoomOptions struct {
+	UserPass          string `json:"user_pass"`
+	AdminPass         string `json:"admin_pass"`
+	MaxConnections    int    `json:"max_connections"`
+	ControlProtection *bool  `json:"control_protection"`
+	ImplicitControl   *bool  `json:"implicit_control"`
 }
 
 type Service struct {
@@ -72,6 +81,9 @@ func ValidateDefinition(raw json.RawMessage) error {
 				return errors.New("invalid port mapping")
 			}
 		}
+	}
+	if d.Room.MaxConnections < 0 || d.Room.MaxConnections > 500 {
+		return errors.New("invalid room.max_connections (allowed: 0-500)")
 	}
 	return nil
 }

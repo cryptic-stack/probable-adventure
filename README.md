@@ -86,7 +86,7 @@ Dashboard supports:
 - Login/logout
 - List templates
 - Create templates from a Docker Hub image dropdown (`/api/catalog/images`)
-- Define Neko user/admin credentials in the template form (stored as service env vars)
+- Define Neko user/admin credentials in a template `room` profile (aligned with `m1k1o/neko-rooms` style room settings)
 - Select service network segment when creating templates (`redteam`, `blueteam`, `netbird`, `corporate`, `guest`)
 - Create range
 - List ranges
@@ -130,8 +130,7 @@ Web interaction defaults:
 - Starter templates now include:
   - `8080/tcp` (web UI/signaling)
   - `52000/udp` (WebRTC media EPR)
-  - `NEKO_MEMBER_MULTIUSER_USER_PASSWORD` / `NEKO_MEMBER_MULTIUSER_ADMIN_PASSWORD`
-  - `NEKO_WEBRTC_ICELITE=1`, `NEKO_WEBRTC_EPR=52000-52000`
+  - `definition_json.room` with `user_pass`, `admin_pass`, `max_connections`, `control_protection`
 
 ## API Workflow (CLI)
 ### 1) Create template (admin)
@@ -212,6 +211,7 @@ docker compose exec -T postgres psql -U range -d rangedb -c "select range_id,res
 - Instrument every range with endpoint/network telemetry so students can validate detections.
 
 References:
+- neko-rooms: https://github.com/m1k1o/neko-rooms
 - NIST SP 800-115 (security testing methodology): https://csrc.nist.gov/pubs/sp/800/115/final
 - NIST SP 800-207 (zero trust segmentation principles): https://csrc.nist.gov/pubs/sp/800/207/final
 - CISA Zero Trust Maturity Model: https://www.cisa.gov/resources-tools/resources/zero-trust-maturity-model

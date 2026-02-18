@@ -107,6 +107,32 @@ function renderPorts(rangeData) {
   $("ports").textContent = lines.join("\n");
 }
 
+function getTemplateByID(templateID) {
+  return templateCache.find((t) => Number(t?.id) === Number(templateID));
+}
+
+function parseNekoCredsFromTemplate(template) {
+  const def = parseMaybeJSON(template?.definition_json);
+  const room = def?.room || {};
+  let user = room.user_pass || "";
+  let admin = room.admin_pass || "";
+  const services = Array.isArray(def?.services) ? def.services : [];
+  if (!user || !admin) {
+    for (const svc of services) {
+      const env = Array.isArray(svc?.env) ? svc.env : [];
+      for (const kv of env) {
+        if (!user && kv.startsWith("NEKO_MEMBER_MULTIUSER_USER_PASSWORD=")) {
+          user = kv.split("=").slice(1).join("=");
+        }
+        if (!admin && kv.startsWith("NEKO_MEMBER_MULTIUSER_ADMIN_PASSWORD=")) {
+          admin = kv.split("=").slice(1).join("=");
+        }
+      }
+    }
+  }
+  return { user, admin };
+}
+
 function renderAccessLinks(rangeData) {
   const host = window.location.hostname || "localhost";
   const rangeId = rangeData?.range?.id;
@@ -182,9 +208,19 @@ function renderAccessLinks(rangeData) {
     }
     return;
   }
-  el.innerHTML = links.map((l) =>
+  const t = getTemplateByID(rangeData?.range?.template_id);
+  const creds = parseNekoCredsFromTemplate(t);
+  let credsLine = "";
+  if (creds.user || creds.admin) {
+    const chunks = [];
+    if (creds.user) chunks.push(`user=${creds.user}`);
+    if (creds.admin) chunks.push(`admin=${creds.admin}`);
+    credsLine = `<div><strong>Credentials:</strong> <span class="mono">${chunks.join(" ")}</span></div>`;
+  }
+  const linksHtml = links.map((l) =>
     `<div><a href="${l.href}" target="_blank" rel="noopener noreferrer">${l.serviceName}: ${l.href}</a> <span class="muted">(${l.containerProto}, ${l.flavor})</span></div>`
   ).join("");
+  el.innerHTML = credsLine + linksHtml;
 }
 
 async function loadMe() {
@@ -319,8 +355,10 @@ async function createTemplate() {
   const serviceName = $("tplServiceName").value.trim() || "service";
   const network = $("tplNetwork").value || "corporate";
   const proto = ($("tplPortProto")?.value || "tcp").toLowerCase();
+  const nekoProfile = !!$("tplNekoProfile")?.checked;
   const nekoUserPass = ($("tplNekoUserPass")?.value || "").trim();
   const nekoAdminPass = ($("tplNekoAdminPass")?.value || "").trim();
+  const nekoMaxConn = Number($("tplNekoMaxConn")?.value || 0);
   const quota = Number($("tplQuota").value) || 1;
   let containerPort = Number($("tplContainerPort").value);
   if (!Number.isInteger(containerPort) || containerPort <= 0) {
@@ -332,16 +370,11 @@ async function createTemplate() {
     return;
   }
 
-  const ports = Number.isInteger(containerPort) && containerPort > 0
+  let ports = Number.isInteger(containerPort) && containerPort > 0
     ? [{ container: containerPort, host: 0, protocol: (proto === "udp" ? "udp" : "tcp") }]
     : [];
-  const env = [];
-  if (nekoUserPass || nekoAdminPass) {
-    env.push("NEKO_MEMBER_PROVIDER=multiuser");
-    if (nekoUserPass) env.push(`NEKO_MEMBER_MULTIUSER_USER_PASSWORD=${nekoUserPass}`);
-    if (nekoAdminPass) env.push(`NEKO_MEMBER_MULTIUSER_ADMIN_PASSWORD=${nekoAdminPass}`);
-    env.push("NEKO_WEBRTC_ICELITE=1");
-    env.push("NEKO_WEBRTC_EPR=52000-52000");
+  if (nekoProfile) {
+    ports = [{ container: 8080, host: 0, protocol: "tcp" }, { container: 52000, host: 0, protocol: "udp" }];
   }
 
   const body = {
@@ -351,7 +384,13 @@ async function createTemplate() {
     quota,
     definition_json: {
       name,
-      services: [{ name: serviceName, image, network, ports, env }],
+      room: nekoProfile ? {
+        user_pass: nekoUserPass,
+        admin_pass: nekoAdminPass,
+        max_connections: Number.isInteger(nekoMaxConn) && nekoMaxConn > 0 ? nekoMaxConn : 0,
+        control_protection: true,
+      } : undefined,
+      services: [{ name: serviceName, image, network, ports }],
     },
   };
 
