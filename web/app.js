@@ -2,6 +2,7 @@ const $ = (id) => document.getElementById(id);
 let es = null;
 let currentRangeId = null;
 let templateCache = [];
+let currentRoomMap = {};
 
 function parseMaybeJSON(v) {
   if (typeof v === "string") {
@@ -116,6 +117,27 @@ function renderAccessLinks(rangeData) {
   el.innerHTML = linksHtml;
 }
 
+function renderRoomEditor(rangeData) {
+  currentRoomMap = {};
+  const rooms = Array.isArray(rangeData?.rooms) ? rangeData.rooms : [];
+  for (const room of rooms) {
+    if (room?.service_name) currentRoomMap[room.service_name] = room;
+  }
+  if (rooms.length === 0) {
+    $("roomService").value = "";
+    $("roomUserPass").value = "";
+    $("roomAdminPass").value = "";
+    $("roomMaxConn").value = "";
+    return;
+  }
+  const first = rooms[0];
+  const settings = parseMaybeJSON(first.settings_json) || {};
+  $("roomService").value = first.service_name || "";
+  $("roomUserPass").value = settings.user_pass || "";
+  $("roomAdminPass").value = settings.admin_pass || "";
+  $("roomMaxConn").value = Number.isInteger(settings.max_connections) ? settings.max_connections : "";
+}
+
 async function loadMe() {
   const r = await api("/api/me");
   if (r.ok) {
@@ -213,6 +235,7 @@ async function loadRangeDetail() {
   currentRangeId = id;
   $("rangeDetail").textContent = JSON.stringify(r.data, null, 2);
   renderAccessLinks(r.data);
+  renderRoomEditor(r.data);
   renderPorts(r.data);
   attachEvents(id);
   setStatus(`Loaded range #${id}`);
@@ -321,6 +344,33 @@ async function resetRange() {
   await loadRanges();
 }
 
+async function updateRoom() {
+  const id = Number($("rangeId").value || currentRangeId);
+  const service = ($("roomService").value || "").trim();
+  if (!id || !service) {
+    setStatus("range id and room service are required", true);
+    return;
+  }
+  const room = {
+    user_pass: ($("roomUserPass").value || "").trim(),
+    admin_pass: ($("roomAdminPass").value || "").trim(),
+    max_connections: Number($("roomMaxConn").value || 0),
+    control_protection: true,
+  };
+  const body = { room, reconcile: true };
+  const r = await api(`/api/ranges/${id}/rooms/${encodeURIComponent(service)}`, {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) {
+    const detail = typeof r.data === "string" ? r.data : JSON.stringify(r.data);
+    setStatus(`update room failed (${r.status}): ${detail}`, true);
+    return;
+  }
+  setStatus(`Room settings updated for ${service}; reset queued`);
+  await loadRangeDetail();
+}
+
 $("login").onclick = () => { window.location = "/auth/google/login"; };
 $("logout").onclick = async () => {
   await api("/auth/logout", { method: "POST" });
@@ -337,6 +387,7 @@ $("createRange").onclick = createRange;
 $("createTemplate").onclick = createTemplate;
 $("destroyRange").onclick = destroyRange;
 $("resetRange").onclick = resetRange;
+$("updateRoom").onclick = updateRoom;
 
 window.addEventListener("beforeunload", closeEvents);
 

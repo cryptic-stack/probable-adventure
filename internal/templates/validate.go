@@ -82,7 +82,14 @@ func ValidateDefinition(raw json.RawMessage) error {
 			}
 		}
 	}
-	if d.Room.MaxConnections < 0 || d.Room.MaxConnections > 500 {
+	if err := ValidateRoomOptions(d.Room); err != nil {
+		return err
+	}
+	return nil
+}
+
+func ValidateRoomOptions(room RoomOptions) error {
+	if room.MaxConnections < 0 || room.MaxConnections > 500 {
 		return errors.New("invalid room.max_connections (allowed: 0-500)")
 	}
 	return nil

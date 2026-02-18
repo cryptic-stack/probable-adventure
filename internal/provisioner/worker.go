@@ -3,8 +3,10 @@ package provisioner
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -18,6 +20,7 @@ import (
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -133,6 +136,14 @@ func (w *Worker) provision(ctx context.Context, job *jobs.ClaimedJob) error {
 			return fmt.Errorf("pull image %s: %w", svc.Image, err)
 		}
 		_ = w.emit(ctx, job.RangeID, &job.ID, "info", "provision.image", "image ready "+svc.Image, map[string]any{"service_name": svc.Name})
+		roomInst, roomErr := w.q.GetRoomInstanceByRangeService(ctx, job.RangeID, svc.Name)
+		if roomErr != nil && !errors.Is(roomErr, pgx.ErrNoRows) {
+			return roomErr
+		}
+		effectiveRoom := def.Room
+		if roomErr == nil {
+			effectiveRoom = effectiveRoomOptions(def, roomInst)
+		}
 		exposed := nat.PortSet{}
 		bindings := nat.PortMap{}
 		for _, p := range svc.ExposedPorts {
@@ -151,7 +162,7 @@ func (w *Worker) provision(ctx context.Context, job *jobs.ClaimedJob) error {
 			}
 			bindings[port] = []nat.PortBinding{{HostIP: "0.0.0.0", HostPort: hp}}
 		}
-		cfg := &container.Config{Image: svc.Image, Cmd: svc.Command, Env: buildServiceEnv(def, svc), ExposedPorts: exposed, Labels: labels(job.RangeID, job.TeamID, templateID, svc.Name)}
+		cfg := &container.Config{Image: svc.Image, Cmd: svc.Command, Env: buildServiceEnv(effectiveRoom, svc), ExposedPorts: exposed, Labels: labels(job.RangeID, job.TeamID, templateID, svc.Name)}
 		hcfg := &container.HostConfig{PortBindings: bindings}
 		ncfg := &network.NetworkingConfig{EndpointsConfig: map[string]*network.EndpointSettings{
 			networkNames[segment]: &network.EndpointSettings{NetworkID: networkIDs[segment]},
@@ -185,6 +196,19 @@ func (w *Worker) provision(ctx context.Context, job *jobs.ClaimedJob) error {
 			ServiceName:  svc.Name,
 			Metadata:     []byte(`{"network":"` + segment + `","image":"` + svc.Image + `"}`),
 		})
+		_, upErr := w.q.UpsertRoomInstance(
+			ctx,
+			job.RangeID,
+			job.TeamID,
+			svc.Name,
+			"running",
+			fmt.Sprintf("/api/ranges/%d/access/%s/", job.RangeID, url.PathEscape(svc.Name)),
+			roomOptionsJSON(effectiveRoom),
+			nil,
+		)
+		if upErr != nil {
+			return upErr
+		}
 		_ = w.emit(ctx, job.RangeID, &job.ID, "info", "provision.service", "started service "+svc.Name, map[string]any{"docker_id": containerID})
 		_ = w.emit(ctx, job.RangeID, &job.ID, "info", "provision.health", "healthy service "+svc.Name, nil)
 	}
@@ -224,6 +248,11 @@ func (w *Worker) destroy(ctx context.Context, job *jobs.ClaimedJob) error {
 
 	if err := w.store.ReplaceRangeResources(ctx, job.RangeID, nil); err != nil {
 		return err
+	}
+	if job.JobType != "reset" {
+		if err := w.q.DeleteRoomInstancesByRange(ctx, job.RangeID); err != nil {
+			return err
+		}
 	}
 	if err := w.store.UpdateRangeStatus(ctx, job.RangeID, "destroyed", []byte(`{"ports":{}}`)); err != nil {
 		return err

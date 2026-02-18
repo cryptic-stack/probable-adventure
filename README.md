@@ -93,6 +93,7 @@ Dashboard supports:
 - View range details + port mappings
 - One canonical access link per service/container (Neko-style room entrypoint)
 - Access links use same-origin proxy URLs: `/api/ranges/{id}/access/{service}/?usr=<name>&pwd=<room_user_password>`
+- Room settings API per service (`/api/ranges/{id}/rooms/{service}`) for admin-driven credential/concurrency updates
 - Destroy/reset range
 - Live SSE event stream for selected range
 
@@ -181,6 +182,26 @@ curl http://localhost:8080/api/ranges
 ### 4b) Get one range with canonical access links
 ```bash
 curl http://localhost:8080/api/ranges/1
+```
+
+### 4c) Get room settings for one service
+```bash
+curl http://localhost:8080/api/ranges/1/rooms/desktop
+```
+
+### 4d) Update room settings (admin)
+```bash
+curl -X PUT http://localhost:8080/api/ranges/1/rooms/desktop \
+  -H "Content-Type: application/json" \
+  -d '{
+    "room": {
+      "user_pass":"student",
+      "admin_pass":"instructor",
+      "max_connections":8,
+      "control_protection":true
+    },
+    "reconcile": true
+  }'
 ```
 
 ### 5) Watch live events for a range

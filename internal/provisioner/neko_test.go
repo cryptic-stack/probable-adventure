@@ -8,13 +8,11 @@ import (
 
 func TestBuildServiceEnvFromRoomOptions(t *testing.T) {
 	trueVal := true
-	def := tmpl.Definition{
-		Room: tmpl.RoomOptions{
-			UserPass:          "u1",
-			AdminPass:         "a1",
-			MaxConnections:    7,
-			ControlProtection: &trueVal,
-		},
+	room := tmpl.RoomOptions{
+		UserPass:          "u1",
+		AdminPass:         "a1",
+		MaxConnections:    7,
+		ControlProtection: &trueVal,
 	}
 	svc := tmpl.Service{
 		Env: []string{
@@ -22,7 +20,7 @@ func TestBuildServiceEnvFromRoomOptions(t *testing.T) {
 			"CUSTOM=1",
 		},
 	}
-	got := buildServiceEnv(def, svc)
+	got := buildServiceEnv(room, svc)
 	joined := map[string]string{}
 	for _, kv := range got {
 		k := kv

@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/cryptic-stack/probable-adventure/internal/db/sqlc"
 	tpl "github.com/cryptic-stack/probable-adventure/internal/templates"
 )
 
@@ -94,12 +95,34 @@ func defaultNekoPassword(templateDef json.RawMessage) string {
 	return strings.TrimSpace(def.Room.UserPass)
 }
 
-func buildRangeAccessLinks(rangeID int64, rangeMeta json.RawMessage, templateDef json.RawMessage, viewerHint string) []accessLink {
+func roomPasswordByService(rooms []sqlc.RoomInstance) map[string]string {
+	out := map[string]string{}
+	for _, room := range rooms {
+		var opts tpl.RoomOptions
+		if err := json.Unmarshal(room.Settings, &opts); err != nil {
+			continue
+		}
+		if strings.TrimSpace(opts.UserPass) == "" {
+			continue
+		}
+		out[room.ServiceName] = strings.TrimSpace(opts.UserPass)
+	}
+	return out
+}
+
+func buildRangeAccessLinks(rangeID int64, rangeMeta json.RawMessage, templateDef json.RawMessage, rooms []sqlc.RoomInstance, viewerHint string) []accessLink {
 	pm := parseRangeMetadata(rangeMeta)
 	if len(pm.Ports) == 0 {
 		return nil
 	}
-	pwd := defaultNekoPassword(templateDef)
+	defaultPwd := defaultNekoPassword(templateDef)
+	roomPwd := roomPasswordByService(rooms)
+	roomPath := map[string]string{}
+	for _, r := range rooms {
+		if strings.TrimSpace(r.EntryPath) != "" {
+			roomPath[r.ServiceName] = strings.TrimSpace(r.EntryPath)
+		}
+	}
 	usr := viewerNameHint(viewerHint)
 
 	services := make([]string, 0, len(pm.Ports))
@@ -113,9 +136,16 @@ func buildRangeAccessLinks(rangeID int64, rangeMeta json.RawMessage, templateDef
 		if preferredHostPort(pm.Ports[svc]) == "" {
 			continue
 		}
-		path := fmt.Sprintf("/api/ranges/%d/access/%s/", rangeID, url.PathEscape(svc))
+		path := roomPath[svc]
+		if path == "" {
+			path = fmt.Sprintf("/api/ranges/%d/access/%s/", rangeID, url.PathEscape(svc))
+		}
 		q := url.Values{}
 		q.Set("usr", usr)
+		pwd := roomPwd[svc]
+		if pwd == "" {
+			pwd = defaultPwd
+		}
 		if pwd != "" {
 			q.Set("pwd", pwd)
 		}
@@ -126,4 +156,3 @@ func buildRangeAccessLinks(rangeID int64, rangeMeta json.RawMessage, templateDef
 	}
 	return links
 }
-

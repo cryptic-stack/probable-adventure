@@ -1,36 +1,73 @@
 package provisioner
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
 
+	"github.com/cryptic-stack/probable-adventure/internal/db/sqlc"
 	tmpl "github.com/cryptic-stack/probable-adventure/internal/templates"
 )
 
-func buildServiceEnv(def tmpl.Definition, svc tmpl.Service) []string {
+func buildServiceEnv(room tmpl.RoomOptions, svc tmpl.Service) []string {
 	base := []string{}
-	if def.Room.UserPass != "" || def.Room.AdminPass != "" || def.Room.MaxConnections > 0 || def.Room.ControlProtection != nil || def.Room.ImplicitControl != nil {
+	if room.UserPass != "" || room.AdminPass != "" || room.MaxConnections > 0 || room.ControlProtection != nil || room.ImplicitControl != nil {
 		base = append(base, "NEKO_MEMBER_PROVIDER=multiuser")
 		base = append(base, "NEKO_WEBRTC_ICELITE=1")
 		base = append(base, "NEKO_WEBRTC_EPR=52000-52000")
-		if def.Room.UserPass != "" {
-			base = append(base, "NEKO_MEMBER_MULTIUSER_USER_PASSWORD="+def.Room.UserPass)
+		if room.UserPass != "" {
+			base = append(base, "NEKO_MEMBER_MULTIUSER_USER_PASSWORD="+room.UserPass)
 		}
-		if def.Room.AdminPass != "" {
-			base = append(base, "NEKO_MEMBER_MULTIUSER_ADMIN_PASSWORD="+def.Room.AdminPass)
+		if room.AdminPass != "" {
+			base = append(base, "NEKO_MEMBER_MULTIUSER_ADMIN_PASSWORD="+room.AdminPass)
 		}
-		if def.Room.MaxConnections > 0 {
-			base = append(base, "NEKO_SERVER_CONCURRENCY="+strconv.Itoa(def.Room.MaxConnections))
+		if room.MaxConnections > 0 {
+			base = append(base, "NEKO_SERVER_CONCURRENCY="+strconv.Itoa(room.MaxConnections))
 		}
-		if def.Room.ControlProtection != nil {
-			base = append(base, fmt.Sprintf("NEKO_CONTROL_PROTECTION=%t", *def.Room.ControlProtection))
+		if room.ControlProtection != nil {
+			base = append(base, fmt.Sprintf("NEKO_CONTROL_PROTECTION=%t", *room.ControlProtection))
 		}
-		if def.Room.ImplicitControl != nil {
-			base = append(base, fmt.Sprintf("NEKO_IMPLICIT_CONTROL=%t", *def.Room.ImplicitControl))
+		if room.ImplicitControl != nil {
+			base = append(base, fmt.Sprintf("NEKO_IMPLICIT_CONTROL=%t", *room.ImplicitControl))
 		}
 	}
 	return mergeEnv(base, svc.Env)
+}
+
+func effectiveRoomOptions(def tmpl.Definition, room sqlc.RoomInstance) tmpl.RoomOptions {
+	out := def.Room
+	if len(room.Settings) == 0 {
+		return out
+	}
+	var override tmpl.RoomOptions
+	if err := json.Unmarshal(room.Settings, &override); err != nil {
+		return out
+	}
+	if override.UserPass != "" {
+		out.UserPass = override.UserPass
+	}
+	if override.AdminPass != "" {
+		out.AdminPass = override.AdminPass
+	}
+	if override.MaxConnections > 0 {
+		out.MaxConnections = override.MaxConnections
+	}
+	if override.ControlProtection != nil {
+		out.ControlProtection = override.ControlProtection
+	}
+	if override.ImplicitControl != nil {
+		out.ImplicitControl = override.ImplicitControl
+	}
+	return out
+}
+
+func roomOptionsJSON(room tmpl.RoomOptions) []byte {
+	b, err := json.Marshal(room)
+	if err != nil {
+		return []byte(`{}`)
+	}
+	return b
 }
 
 func mergeEnv(base, overrides []string) []string {

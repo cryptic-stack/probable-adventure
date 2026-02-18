@@ -125,6 +125,16 @@
             <div id="accessLinks" class="ports mono muted">No published links</div>
           </div>
           <div style="margin-bottom: 8px;">
+            <strong>Room Settings (Admin)</strong>
+            <div class="toolbar" style="margin: 6px 0;">
+              <input id="roomService" placeholder="service (e.g. desktop)" />
+              <input id="roomUserPass" placeholder="user password" />
+              <input id="roomAdminPass" placeholder="admin password" />
+              <input id="roomMaxConn" type="number" min="0" max="500" placeholder="max conn" style="max-width: 110px;" />
+              <button id="updateRoom" class="primary">Update Room</button>
+            </div>
+          </div>
+          <div style="margin-bottom: 8px;">
             <strong>Port Mappings</strong>
             <div id="ports" class="ports mono muted">No range loaded</div>
           </div>

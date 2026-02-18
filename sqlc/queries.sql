@@ -90,3 +90,36 @@ ORDER BY id ASC;
 -- name: InsertAuditLog :exec
 INSERT INTO audit_log (actor_user_id, team_id, range_id, action, details_json)
 VALUES ($1, $2, $3, $4, $5);
+
+-- name: ListRoomInstancesByRange :many
+SELECT id, range_id, team_id, service_name, status, entry_path, settings_json, last_error, created_at, updated_at
+FROM room_instances
+WHERE range_id = $1
+ORDER BY service_name ASC;
+
+-- name: GetRoomInstanceByRangeService :one
+SELECT id, range_id, team_id, service_name, status, entry_path, settings_json, last_error, created_at, updated_at
+FROM room_instances
+WHERE range_id = $1 AND service_name = $2;
+
+-- name: UpsertRoomInstance :one
+INSERT INTO room_instances (range_id, team_id, service_name, status, entry_path, settings_json, last_error)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+ON CONFLICT (range_id, service_name)
+DO UPDATE SET
+  team_id = EXCLUDED.team_id,
+  status = EXCLUDED.status,
+  entry_path = EXCLUDED.entry_path,
+  settings_json = EXCLUDED.settings_json,
+  last_error = EXCLUDED.last_error,
+  updated_at = now()
+RETURNING id, range_id, team_id, service_name, status, entry_path, settings_json, last_error, created_at, updated_at;
+
+-- name: UpdateRoomInstanceSettings :one
+UPDATE room_instances
+SET settings_json = $3, updated_at = now()
+WHERE range_id = $1 AND service_name = $2
+RETURNING id, range_id, team_id, service_name, status, entry_path, settings_json, last_error, created_at, updated_at;
+
+-- name: DeleteRoomInstancesByRange :exec
+DELETE FROM room_instances WHERE range_id = $1;

@@ -92,6 +92,19 @@ type RangeResource struct {
 	Metadata     json.RawMessage `json:"metadata_json"`
 }
 
+type RoomInstance struct {
+	ID          int64           `json:"id"`
+	RangeID     int64           `json:"range_id"`
+	TeamID      int64           `json:"team_id"`
+	ServiceName string          `json:"service_name"`
+	Status      string          `json:"status"`
+	EntryPath   string          `json:"entry_path"`
+	Settings    json.RawMessage `json:"settings_json"`
+	LastError   *string         `json:"last_error"`
+	CreatedAt   time.Time       `json:"created_at"`
+	UpdatedAt   time.Time       `json:"updated_at"`
+}
+
 func (q *Queries) Ping(ctx context.Context) error {
 	var n int
 	if err := q.db.QueryRow(ctx, "SELECT 1").Scan(&n); err != nil {
@@ -294,5 +307,68 @@ func (q *Queries) ListEventsAfterIDByRange(ctx context.Context, rangeID, afterID
 
 func (q *Queries) InsertAuditLog(ctx context.Context, actorUserID int64, teamID, rangeID *int64, action string, details json.RawMessage) error {
 	_, err := q.db.Exec(ctx, `INSERT INTO audit_log (actor_user_id, team_id, range_id, action, details_json) VALUES ($1, $2, $3, $4, $5)`, actorUserID, teamID, rangeID, action, details)
+	return err
+}
+
+func (q *Queries) ListRoomInstancesByRange(ctx context.Context, rangeID int64) ([]RoomInstance, error) {
+	rows, err := q.db.Query(ctx, `SELECT id, range_id, team_id, service_name, status, entry_path, settings_json, last_error, created_at, updated_at
+FROM room_instances
+WHERE range_id = $1
+ORDER BY service_name ASC`, rangeID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := make([]RoomInstance, 0)
+	for rows.Next() {
+		var r RoomInstance
+		if err := rows.Scan(&r.ID, &r.RangeID, &r.TeamID, &r.ServiceName, &r.Status, &r.EntryPath, &r.Settings, &r.LastError, &r.CreatedAt, &r.UpdatedAt); err != nil {
+			return nil, err
+		}
+		out = append(out, r)
+	}
+	return out, rows.Err()
+}
+
+func (q *Queries) GetRoomInstanceByRangeService(ctx context.Context, rangeID int64, serviceName string) (RoomInstance, error) {
+	var r RoomInstance
+	err := q.db.QueryRow(ctx, `SELECT id, range_id, team_id, service_name, status, entry_path, settings_json, last_error, created_at, updated_at
+FROM room_instances
+WHERE range_id = $1 AND service_name = $2`, rangeID, serviceName).
+		Scan(&r.ID, &r.RangeID, &r.TeamID, &r.ServiceName, &r.Status, &r.EntryPath, &r.Settings, &r.LastError, &r.CreatedAt, &r.UpdatedAt)
+	return r, err
+}
+
+func (q *Queries) UpsertRoomInstance(ctx context.Context, rangeID, teamID int64, serviceName, status, entryPath string, settings json.RawMessage, lastError *string) (RoomInstance, error) {
+	var r RoomInstance
+	err := q.db.QueryRow(ctx, `INSERT INTO room_instances (range_id, team_id, service_name, status, entry_path, settings_json, last_error)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+ON CONFLICT (range_id, service_name)
+DO UPDATE SET
+  team_id = EXCLUDED.team_id,
+  status = EXCLUDED.status,
+  entry_path = EXCLUDED.entry_path,
+  settings_json = EXCLUDED.settings_json,
+  last_error = EXCLUDED.last_error,
+  updated_at = now()
+RETURNING id, range_id, team_id, service_name, status, entry_path, settings_json, last_error, created_at, updated_at`,
+		rangeID, teamID, serviceName, status, entryPath, settings, lastError).
+		Scan(&r.ID, &r.RangeID, &r.TeamID, &r.ServiceName, &r.Status, &r.EntryPath, &r.Settings, &r.LastError, &r.CreatedAt, &r.UpdatedAt)
+	return r, err
+}
+
+func (q *Queries) UpdateRoomInstanceSettings(ctx context.Context, rangeID int64, serviceName string, settings json.RawMessage) (RoomInstance, error) {
+	var r RoomInstance
+	err := q.db.QueryRow(ctx, `UPDATE room_instances
+SET settings_json = $3, updated_at = now()
+WHERE range_id = $1 AND service_name = $2
+RETURNING id, range_id, team_id, service_name, status, entry_path, settings_json, last_error, created_at, updated_at`,
+		rangeID, serviceName, settings).
+		Scan(&r.ID, &r.RangeID, &r.TeamID, &r.ServiceName, &r.Status, &r.EntryPath, &r.Settings, &r.LastError, &r.CreatedAt, &r.UpdatedAt)
+	return r, err
+}
+
+func (q *Queries) DeleteRoomInstancesByRange(ctx context.Context, rangeID int64) error {
+	_, err := q.db.Exec(ctx, `DELETE FROM room_instances WHERE range_id = $1`, rangeID)
 	return err
 }

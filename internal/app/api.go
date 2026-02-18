@@ -71,6 +71,7 @@ func (s *Server) Router() http.Handler {
 			pr.Get("/templates/{id}", s.getTemplate)
 			pr.Get("/ranges", s.listRanges)
 			pr.Get("/ranges/{id}", s.getRange)
+			pr.Get("/ranges/{id}/rooms/{service}", s.getRoomSettings)
 			pr.Get("/ranges/{id}/access/{service}", s.proxyRangeService)
 			pr.Get("/ranges/{id}/access/{service}/*", s.proxyRangeService)
 			pr.Get("/ranges/{id}/events", s.streamRangeEvents)
@@ -80,6 +81,7 @@ func (s *Server) Router() http.Handler {
 			sw.Use(auth.RequireUser)
 			sw.With(rbac.RequireRole("admin")).Post("/templates", s.createTemplate)
 			sw.Post("/ranges", s.createRange)
+			sw.Put("/ranges/{id}/rooms/{service}", s.updateRoomSettings)
 			sw.Post("/ranges/{id}/destroy", s.destroyRange)
 			sw.Post("/ranges/{id}/reset", s.resetRange)
 		})
@@ -317,8 +319,9 @@ func (s *Server) getRange(w http.ResponseWriter, r *http.Request) {
 	if viewerHint == "" {
 		viewerHint = strings.SplitN(strings.TrimSpace(u.Email), "@", 2)[0]
 	}
-	access := buildRangeAccessLinks(rg.ID, rg.Metadata, templateDef, viewerHint)
-	auth.JSON(w, 200, map[string]any{"range": rg, "resources": resources, "access": access})
+	rooms, _ := s.q.ListRoomInstancesByRange(r.Context(), rg.ID)
+	access := buildRangeAccessLinks(rg.ID, rg.Metadata, templateDef, rooms, viewerHint)
+	auth.JSON(w, 200, map[string]any{"range": rg, "resources": resources, "rooms": rooms, "access": access})
 }
 
 func (s *Server) enqueueAction(w http.ResponseWriter, r *http.Request, action string) {
@@ -349,6 +352,115 @@ func (s *Server) destroyRange(w http.ResponseWriter, r *http.Request) {
 	s.enqueueAction(w, r, "destroy")
 }
 func (s *Server) resetRange(w http.ResponseWriter, r *http.Request) { s.enqueueAction(w, r, "reset") }
+
+func (s *Server) getRoomSettings(w http.ResponseWriter, r *http.Request) {
+	u, _ := auth.CurrentUser(r)
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
+		auth.JSON(w, 400, map[string]string{"error": "invalid id"})
+		return
+	}
+	service := strings.TrimSpace(chi.URLParam(r, "service"))
+	if service == "" {
+		auth.JSON(w, 400, map[string]string{"error": "invalid service"})
+		return
+	}
+	rg, err := s.q.GetRangeByIDForUser(r.Context(), id, u.ID)
+	if err != nil {
+		auth.JSON(w, 404, map[string]string{"error": "range not found"})
+		return
+	}
+	room, err := s.q.GetRoomInstanceByRangeService(r.Context(), rg.ID, service)
+	if err == nil {
+		auth.JSON(w, 200, room)
+		return
+	}
+	if !errors.Is(err, pgx.ErrNoRows) {
+		auth.JSON(w, 500, map[string]string{"error": "db error"})
+		return
+	}
+	tplRec, err := s.q.GetTemplateByID(r.Context(), rg.TemplateID)
+	if err != nil {
+		auth.JSON(w, 500, map[string]string{"error": "template lookup failed"})
+		return
+	}
+	var def tpl.Definition
+	if err := json.Unmarshal(tplRec.Definition, &def); err != nil {
+		auth.JSON(w, 500, map[string]string{"error": "template parse failed"})
+		return
+	}
+	settings, _ := json.Marshal(def.Room)
+	auth.JSON(w, 200, map[string]any{
+		"range_id":     rg.ID,
+		"team_id":      rg.TeamID,
+		"service_name": service,
+		"status":       "pending",
+		"entry_path":   fmt.Sprintf("/api/ranges/%d/access/%s/", rg.ID, url.PathEscape(service)),
+		"settings_json": json.RawMessage(settings),
+	})
+}
+
+type updateRoomSettingsReq struct {
+	Room      tpl.RoomOptions `json:"room"`
+	Reconcile *bool           `json:"reconcile"`
+}
+
+func (s *Server) updateRoomSettings(w http.ResponseWriter, r *http.Request) {
+	u, _ := auth.CurrentUser(r)
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
+		auth.JSON(w, 400, map[string]string{"error": "invalid id"})
+		return
+	}
+	service := strings.TrimSpace(chi.URLParam(r, "service"))
+	if service == "" {
+		auth.JSON(w, 400, map[string]string{"error": "invalid service"})
+		return
+	}
+	rg, err := s.q.GetRangeByIDForUser(r.Context(), id, u.ID)
+	if err != nil {
+		auth.JSON(w, 404, map[string]string{"error": "range not found"})
+		return
+	}
+	var req updateRoomSettingsReq
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		auth.JSON(w, 400, map[string]string{"error": "invalid json"})
+		return
+	}
+	if err := tpl.ValidateRoomOptions(req.Room); err != nil {
+		auth.JSON(w, 400, map[string]string{"error": err.Error()})
+		return
+	}
+	shouldReconcile := true
+	if req.Reconcile != nil {
+		shouldReconcile = *req.Reconcile
+	}
+	settings, _ := json.Marshal(req.Room)
+	room, err := s.q.UpsertRoomInstance(
+		r.Context(),
+		rg.ID,
+		rg.TeamID,
+		service,
+		"running",
+		fmt.Sprintf("/api/ranges/%d/access/%s/", rg.ID, url.PathEscape(service)),
+		settings,
+		nil,
+	)
+	if err != nil {
+		auth.JSON(w, 500, map[string]string{"error": "room settings update failed"})
+		return
+	}
+	if shouldReconcile {
+		job, err := s.q.CreateJob(r.Context(), rg.ID, rg.TeamID, "reset", "queued", []byte(`{"source":"room.settings.update"}`), u.ID)
+		if err == nil {
+			_, _ = s.q.InsertEvent(r.Context(), rg.ID, &job.ID, "info", "room.settings.update", "room settings updated, reset queued", []byte(`{}`))
+		}
+	}
+	team := rg.TeamID
+	rid := rg.ID
+	s.audit.Log(r.Context(), u.ID, &team, &rid, "room.settings.update", map[string]any{"service_name": service})
+	auth.JSON(w, 200, room)
+}
 
 func (s *Server) streamRangeEvents(w http.ResponseWriter, r *http.Request) {
 	u, _ := auth.CurrentUser(r)
