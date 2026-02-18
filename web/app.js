@@ -319,6 +319,8 @@ async function createTemplate() {
   const serviceName = $("tplServiceName").value.trim() || "service";
   const network = $("tplNetwork").value || "corporate";
   const proto = ($("tplPortProto")?.value || "tcp").toLowerCase();
+  const nekoUserPass = ($("tplNekoUserPass")?.value || "").trim();
+  const nekoAdminPass = ($("tplNekoAdminPass")?.value || "").trim();
   const quota = Number($("tplQuota").value) || 1;
   let containerPort = Number($("tplContainerPort").value);
   if (!Number.isInteger(containerPort) || containerPort <= 0) {
@@ -333,6 +335,14 @@ async function createTemplate() {
   const ports = Number.isInteger(containerPort) && containerPort > 0
     ? [{ container: containerPort, host: 0, protocol: (proto === "udp" ? "udp" : "tcp") }]
     : [];
+  const env = [];
+  if (nekoUserPass || nekoAdminPass) {
+    env.push("NEKO_MEMBER_PROVIDER=multiuser");
+    if (nekoUserPass) env.push(`NEKO_MEMBER_MULTIUSER_USER_PASSWORD=${nekoUserPass}`);
+    if (nekoAdminPass) env.push(`NEKO_MEMBER_MULTIUSER_ADMIN_PASSWORD=${nekoAdminPass}`);
+    env.push("NEKO_WEBRTC_ICELITE=1");
+    env.push("NEKO_WEBRTC_EPR=52000-52000");
+  }
 
   const body = {
     name,
@@ -341,7 +351,7 @@ async function createTemplate() {
     quota,
     definition_json: {
       name,
-      services: [{ name: serviceName, image, network, ports }],
+      services: [{ name: serviceName, image, network, ports, env }],
     },
   };
 

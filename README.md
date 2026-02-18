@@ -86,6 +86,7 @@ Dashboard supports:
 - Login/logout
 - List templates
 - Create templates from a Docker Hub image dropdown (`/api/catalog/images`)
+- Define Neko user/admin credentials in the template form (stored as service env vars)
 - Select service network segment when creating templates (`redteam`, `blueteam`, `netbird`, `corporate`, `guest`)
 - Create range
 - List ranges
