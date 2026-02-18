@@ -9,7 +9,7 @@ require (
 	github.com/go-chi/chi/v5 v5.2.0
 	github.com/gorilla/sessions v1.4.0
 	github.com/jackc/pgx/v5 v5.7.2
-	golang.org/x/oauth2 v0.24.0
+	golang.org/x/oauth2 v0.27.0
 )
 
 require (
