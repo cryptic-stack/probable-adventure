@@ -6,146 +6,186 @@
   <title>Cyber Range Dashboard</title>
   <style>
     :root {
-      --bg: #eef2f5;
+      --bg: #f5f6f8;
       --card: #ffffff;
-      --ink: #142433;
-      --muted: #5b6a77;
-      --line: #d8e0e7;
-      --accent: #0a7ea8;
-      --danger: #a72c2c;
+      --ink: #0f1720;
+      --muted: #596573;
+      --line: #d9dde2;
+      --accent: #1570ef;
+      --accent-2: #0f5bc2;
+      --danger: #b42318;
     }
-    * { box-sizing: border-box; }
-    body { margin: 0; font-family: "Segoe UI", Tahoma, sans-serif; background: var(--bg); color: var(--ink); }
-    .wrap { max-width: 1100px; margin: 20px auto; padding: 0 12px; }
-    h1 { margin: 0 0 12px; }
-    .grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
-    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+    * { box-sizing: border-box; font-family: "Segoe UI", Tahoma, sans-serif; }
+    body { margin: 0; background: var(--bg); color: var(--ink); }
+    .app { max-width: 1280px; margin: 0 auto; padding: 12px; }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .title { font-weight: 700; }
+    .subtitle { color: var(--muted); font-size: 12px; }
     .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .toolbar input, .toolbar select { padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; }
-    button { border: 1px solid var(--line); background: #fff; color: var(--ink); border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+    .grid { display: grid; grid-template-columns: 340px 1fr; gap: 12px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+    .section-title { font-weight: 700; margin-bottom: 8px; }
+    input, select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+    .row { display: grid; gap: 8px; margin-bottom: 8px; }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    button {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 8px 10px;
+      cursor: pointer;
+    }
     button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    button.primary:hover { background: var(--accent-2); border-color: var(--accent-2); }
     button.danger { background: var(--danger); color: #fff; border-color: var(--danger); }
     .muted { color: var(--muted); }
-    .list { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
-    .item { padding: 8px 10px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 10px; }
+    .status { min-height: 18px; font-size: 13px; }
+    .list { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; max-height: 380px; overflow-y: auto; }
+    .item { padding: 8px 10px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 8px; align-items: center; }
     .item:last-child { border-bottom: 0; }
-    .mono { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
-    pre { margin: 0; background: #0f1c28; color: #dde7ef; border-radius: 8px; padding: 10px; max-height: 250px; overflow: auto; }
-    .ports { border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
-    .status { min-height: 20px; }
-    @media (max-width: 840px) { .row2 { grid-template-columns: 1fr; } }
+    .mono { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12px; }
+    .hero {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #f8fbff 0%, #eef5ff 100%);
+    }
+    .hero strong { font-size: 18px; display: block; margin-bottom: 4px; }
+    .links { border: 1px solid var(--line); border-radius: 10px; padding: 10px; min-height: 72px; }
+    pre { margin: 0; background: #111827; color: #e5e7eb; border-radius: 10px; padding: 10px; max-height: 280px; overflow: auto; }
+    details { border: 1px solid var(--line); border-radius: 10px; padding: 10px; margin-top: 10px; background: #fff; }
+    summary { cursor: pointer; font-weight: 600; }
+    @media (max-width: 1000px) {
+      .grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>Cyber Range Dashboard</h1>
-
-    <div class="card">
+  <div class="app">
+    <div class="topbar">
       <div class="toolbar">
-        <button id="login">Login with Google</button>
-        <button id="logout">Logout</button>
-        <strong>Me:</strong> <span id="me" class="muted">unknown</span>
+        <div>
+          <div class="title">Range Rooms</div>
+          <div class="subtitle">Neko-style room control with one link per service</div>
+        </div>
       </div>
-      <div id="status" class="status muted"></div>
+      <div class="toolbar">
+        <span id="me" class="muted">anonymous</span>
+        <button id="login">Login</button>
+        <button id="logout">Logout</button>
+        <button id="refreshAll">Refresh</button>
+      </div>
     </div>
+    <div id="status" class="status muted"></div>
 
     <div class="grid">
-      <div class="row2">
-        <div class="card">
-          <div class="toolbar" style="justify-content: space-between; margin-bottom: 8px;">
-            <strong>Templates</strong>
-            <button id="refreshTemplates">Refresh</button>
-          </div>
-          <div id="templates" class="list"></div>
+      <aside class="card">
+        <div class="section-title">Create Range</div>
+        <div class="row">
+          <input id="teamId" type="number" value="1" placeholder="team_id" />
+          <select id="templateId"></select>
+          <input id="rangeName" placeholder="range name (optional)" />
+          <button id="createRange" class="primary">Create Range</button>
+        </div>
+        <div class="section-title">Ranges</div>
+        <div id="ranges" class="list"></div>
+      </aside>
+
+      <main class="card">
+        <div class="hero">
+          <strong id="activeRangeTitle">No Range Selected</strong>
+          <span id="activeRangeMeta" class="muted">Select a range from the left panel.</span>
         </div>
 
-        <div class="card">
-          <strong>Create Range</strong>
-          <div class="toolbar" style="margin-top: 8px;">
-            <input id="teamId" type="number" value="1" placeholder="team_id" />
-            <select id="templateId"></select>
-            <input id="rangeName" placeholder="range name" />
-            <button id="createRange" class="primary">Create</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <strong>Create Template (Admin)</strong>
-        <div class="toolbar" style="margin-top: 8px;">
-          <input id="tplName" placeholder="template name (e.g. base-user)" />
-          <input id="tplDisplayName" placeholder="display name" />
-          <input id="tplDescription" placeholder="description" />
-          <input id="tplQuota" type="number" min="1" value="1" style="max-width: 90px;" />
-        </div>
-        <div class="toolbar" style="margin-top: 8px;">
-          <input id="tplServiceName" placeholder="service name" value="desktop" />
-          <select id="tplNetwork">
-            <option value="corporate">corporate</option>
-            <option value="redteam">redteam</option>
-            <option value="blueteam">blueteam</option>
-            <option value="netbird">netbird</option>
-            <option value="guest">guest</option>
-          </select>
-          <select id="tplPortProto">
-            <option value="tcp">tcp</option>
-            <option value="udp">udp</option>
-          </select>
-          <label><input id="tplNekoProfile" type="checkbox" checked /> neko room profile</label>
-          <input id="tplNekoUserPass" placeholder="neko user password" value="neko" />
-          <input id="tplNekoAdminPass" placeholder="neko admin password" value="admin" />
-          <input id="tplNekoMaxConn" type="number" min="0" max="500" value="8" placeholder="max conn" style="max-width: 110px;" />
-          <input id="tplContainerPort" type="number" min="0" max="65535" placeholder="container port (optional)" style="max-width: 220px;" />
-          <select id="imageRef" style="min-width: 340px;"></select>
-          <button id="refreshImages">Refresh Images</button>
-          <button id="createTemplate" class="primary">Create Template</button>
-        </div>
-      </div>
-
-      <div class="row2">
-        <div class="card">
-          <div class="toolbar" style="justify-content: space-between; margin-bottom: 8px;">
-            <strong>Ranges</strong>
-            <button id="refreshRanges">Refresh</button>
-          </div>
-          <div id="ranges" class="list"></div>
-        </div>
-
-        <div class="card">
-          <div class="toolbar" style="margin-bottom: 8px;">
-            <strong>Range Detail</strong>
-            <input id="rangeId" type="number" placeholder="range id" />
+        <div class="row2" style="margin-bottom: 8px;">
+          <div class="section-title" style="margin: 0;">Access</div>
+          <div class="toolbar" style="justify-content: end;">
+            <input id="rangeId" type="number" placeholder="range id" style="max-width: 120px;" />
             <button id="loadRange">Load</button>
             <button id="destroyRange" class="danger">Destroy</button>
             <button id="resetRange">Reset</button>
           </div>
-          <div style="margin-bottom: 8px;">
-            <strong>Access Links</strong>
-            <div id="accessLinks" class="ports mono muted">No published links</div>
-          </div>
-          <div style="margin-bottom: 8px;">
-            <strong>Room Settings (Admin)</strong>
-            <div class="toolbar" style="margin: 6px 0;">
-              <input id="roomService" placeholder="service (e.g. desktop)" />
+        </div>
+        <div id="accessLinks" class="links mono muted">No published links</div>
+
+        <details open>
+          <summary>Room Settings</summary>
+          <div class="row" style="margin-top: 8px;">
+            <div class="row2">
+              <input id="roomService" placeholder="service (desktop)" />
+              <input id="roomMaxConn" type="number" min="0" max="500" placeholder="max connections" />
+            </div>
+            <div class="row2">
               <input id="roomUserPass" placeholder="user password" />
               <input id="roomAdminPass" placeholder="admin password" />
-              <input id="roomMaxConn" type="number" min="0" max="500" placeholder="max conn" style="max-width: 110px;" />
-              <button id="updateRoom" class="primary">Update Room</button>
+            </div>
+            <button id="updateRoom" class="primary">Save Room Settings</button>
+          </div>
+        </details>
+
+        <details>
+          <summary>Live Events</summary>
+          <pre id="events" class="mono"></pre>
+        </details>
+
+        <details>
+          <summary>Template Management (Admin)</summary>
+          <div class="row" style="margin-top: 8px;">
+            <div class="row3">
+              <input id="tplName" placeholder="template name" />
+              <input id="tplDisplayName" placeholder="display name" />
+              <input id="tplQuota" type="number" min="1" value="1" placeholder="quota" />
+            </div>
+            <input id="tplDescription" placeholder="description" />
+            <div class="row3">
+              <input id="tplServiceName" placeholder="service name" value="desktop" />
+              <select id="tplNetwork">
+                <option value="corporate">corporate</option>
+                <option value="redteam">redteam</option>
+                <option value="blueteam">blueteam</option>
+                <option value="netbird">netbird</option>
+                <option value="guest">guest</option>
+              </select>
+              <select id="imageRef"></select>
+            </div>
+            <div class="row3">
+              <input id="tplNekoUserPass" placeholder="user password" value="neko" />
+              <input id="tplNekoAdminPass" placeholder="admin password" value="admin" />
+              <input id="tplNekoMaxConn" type="number" min="0" max="500" value="8" placeholder="max connections" />
+            </div>
+            <div class="toolbar">
+              <button id="refreshImages">Refresh Images</button>
+              <button id="createTemplate" class="primary">Create Template</button>
             </div>
           </div>
-          <div style="margin-bottom: 8px;">
-            <strong>Port Mappings</strong>
-            <div id="ports" class="ports mono muted">No range loaded</div>
-          </div>
-          <pre id="rangeDetail" class="mono">{}</pre>
-        </div>
-      </div>
+          <div class="section-title" style="margin-top: 12px;">Templates</div>
+          <div id="templates" class="list"></div>
+        </details>
 
-      <div class="card">
-        <strong>Live Events (SSE)</strong>
-        <pre id="events" class="mono"></pre>
-      </div>
+        <details>
+          <summary>Raw Range Data</summary>
+          <pre id="rangeDetail" class="mono">{}</pre>
+        </details>
+      </main>
     </div>
   </div>
 

@@ -1,8 +1,9 @@
 const $ = (id) => document.getElementById(id);
+
 let es = null;
 let currentRangeId = null;
 let templateCache = [];
-let currentRoomMap = {};
+let currentRangeData = null;
 
 function parseMaybeJSON(v) {
   if (typeof v === "string") {
@@ -11,17 +12,10 @@ function parseMaybeJSON(v) {
   return v;
 }
 
-function getPortsMap(rangeData) {
-  const metadata = parseMaybeJSON(rangeData?.range?.metadata_json);
-  const ports = parseMaybeJSON(metadata?.ports);
-  if (!ports || typeof ports !== "object") return {};
-  return ports;
-}
-
 function setStatus(text, isError = false) {
   const el = $("status");
   el.textContent = text || "";
-  el.style.color = isError ? "#a72c2c" : "#5b6a77";
+  el.style.color = isError ? "#b42318" : "#596573";
 }
 
 async function api(path, opts = {}) {
@@ -45,40 +39,36 @@ function closeEvents() {
 
 function renderTemplates(items) {
   templateCache = Array.isArray(items) ? items : [];
-  const el = $("templates");
-  if (!Array.isArray(items) || items.length === 0) {
-    el.innerHTML = '<div class="item muted">No templates</div>';
-    renderTemplateOptions([]);
-    return;
-  }
-  el.innerHTML = items.map((t) => {
-    return `<div class="item"><span><strong>${t.name}</strong> v${t.version} (${t.display_name})</span><button data-template="${t.id}">Use ${t.id}</button></div>`;
-  }).join("");
-  renderTemplateOptions(items);
-  el.querySelectorAll("button[data-template]").forEach((btn) => {
-    btn.onclick = () => { $("templateId").value = btn.dataset.template; };
-  });
-}
-
-function renderTemplateOptions(items) {
   const select = $("templateId");
-  if (!select) return;
-  if (!Array.isArray(items) || items.length === 0) {
+  const list = $("templates");
+
+  if (!templateCache.length) {
     select.innerHTML = '<option value="">No templates</option>';
+    list.innerHTML = '<div class="item muted">No templates</div>';
     return;
   }
-  select.innerHTML = items.map((t) => `<option value="${t.id}">${t.id} - ${t.display_name} (${t.name} v${t.version})</option>`).join("");
+
+  select.innerHTML = templateCache.map((t) =>
+    `<option value="${t.id}">${t.id} - ${t.display_name} (${t.name} v${t.version})</option>`
+  ).join("");
+
+  list.innerHTML = templateCache.map((t) =>
+    `<div class="item"><span><strong>${t.name}</strong> v${t.version}</span><span class="muted">${t.display_name}</span></div>`
+  ).join("");
 }
 
 function renderRanges(items) {
   const el = $("ranges");
-  if (!Array.isArray(items) || items.length === 0) {
+  if (!Array.isArray(items) || !items.length) {
     el.innerHTML = '<div class="item muted">No ranges</div>';
     return;
   }
-  el.innerHTML = items.map((r) => {
-    return `<div class="item"><span><strong>#${r.id}</strong> ${r.name} <span class="muted">(${r.status})</span></span><button data-range="${r.id}">Open</button></div>`;
-  }).join("");
+  el.innerHTML = items.map((r) =>
+    `<div class="item">
+      <span><strong>#${r.id}</strong> ${r.name} <span class="muted">(${r.status})</span></span>
+      <button data-range="${r.id}">Open</button>
+    </div>`
+  ).join("");
   el.querySelectorAll("button[data-range]").forEach((btn) => {
     btn.onclick = async () => {
       $("rangeId").value = btn.dataset.range;
@@ -87,113 +77,60 @@ function renderRanges(items) {
   });
 }
 
-function renderPorts(rangeData) {
-  const ports = getPortsMap(rangeData);
-  if (!ports || Object.keys(ports).length === 0) {
-    $("ports").textContent = "No published ports";
+function renderHero(rangeData) {
+  const range = rangeData?.range;
+  if (!range) {
+    $("activeRangeTitle").textContent = "No Range Selected";
+    $("activeRangeMeta").textContent = "Select a range from the left panel.";
     return;
   }
-  const lines = [];
-  for (const [service, mapping] of Object.entries(ports)) {
-    lines.push(`${service}: ${JSON.stringify(mapping)}`);
-  }
-  $("ports").textContent = lines.join("\n");
+  $("activeRangeTitle").textContent = `#${range.id} ${range.name}`;
+  $("activeRangeMeta").textContent = `Team ${range.team_id} | Template ${range.template_id} | Status: ${range.status}`;
 }
 
 function renderAccessLinks(rangeData) {
   const links = Array.isArray(rangeData?.access) ? rangeData.access : [];
   const el = $("accessLinks");
   if (!links.length) {
-    if (rangeData?.range?.status !== "ready") {
-      el.textContent = "Range is not ready yet. Links will appear after provisioning completes.";
-    } else {
-      el.textContent = "No web access links were generated for this range.";
-    }
+    el.textContent = rangeData?.range?.status === "ready"
+      ? "No room access links available."
+      : "Range is not ready yet.";
     return;
   }
-  const linksHtml = links.map((l) =>
+  el.innerHTML = links.map((l) =>
     `<div><a href="${l.url}" target="_blank" rel="noopener noreferrer">${l.service_name}: ${l.url}</a></div>`
   ).join("");
-  el.innerHTML = linksHtml;
 }
 
-function renderRoomEditor(rangeData) {
-  currentRoomMap = {};
+function roomSettingsForService(rangeData, serviceName) {
   const rooms = Array.isArray(rangeData?.rooms) ? rangeData.rooms : [];
-  for (const room of rooms) {
-    if (room?.service_name) currentRoomMap[room.service_name] = room;
-  }
-  if (rooms.length === 0) {
-    $("roomService").value = "";
+  return rooms.find((r) => r.service_name === serviceName) || null;
+}
+
+function hydrateRoomEditor(rangeData) {
+  const links = Array.isArray(rangeData?.access) ? rangeData.access : [];
+  const firstService = links.length ? links[0].service_name : "";
+  $("roomService").value = firstService || "";
+
+  if (!firstService) {
     $("roomUserPass").value = "";
     $("roomAdminPass").value = "";
     $("roomMaxConn").value = "";
     return;
   }
-  const first = rooms[0];
-  const settings = parseMaybeJSON(first.settings_json) || {};
-  $("roomService").value = first.service_name || "";
+  const room = roomSettingsForService(rangeData, firstService);
+  const settings = parseMaybeJSON(room?.settings_json) || {};
   $("roomUserPass").value = settings.user_pass || "";
   $("roomAdminPass").value = settings.admin_pass || "";
   $("roomMaxConn").value = Number.isInteger(settings.max_connections) ? settings.max_connections : "";
 }
 
-async function loadMe() {
-  const r = await api("/api/me");
-  if (r.ok) {
-    $("me").textContent = `${r.data.email} (${r.data.role})`;
-  } else {
-    $("me").textContent = "anonymous";
-  }
-}
-
-async function loadTemplates() {
-  const r = await api("/api/templates");
-  if (!r.ok) {
-    setStatus(`templates error (${r.status})`, true);
-    renderTemplateOptions([]);
-    return;
-  }
-  renderTemplates(r.data);
-  if (Array.isArray(r.data) && r.data.length > 0 && !Number($("templateId").value)) {
-    $("templateId").value = r.data[0].id;
-  }
-}
-
-function renderImageOptions(items) {
-  const select = $("imageRef");
-  if (!select) return;
-  if (!Array.isArray(items) || items.length === 0) {
-    select.innerHTML = '<option value="">No images found</option>';
-    return;
-  }
-  select.innerHTML = items.map((i) => `<option value="${i.image}">${i.image}</option>`).join("");
-}
-
-function inferDefaultContainerPort(image) {
-  const x = (image || "").toLowerCase();
-  if (x.includes("desktop") || x.includes("xfce") || x.includes("novnc") || x.includes("base-user") || x.includes("base-server") || x.includes("attack-box")) return 8080;
-  if (x.includes("web") || x.includes("nginx")) return 8080;
-  return 0;
-}
-
-async function loadImageCatalog() {
-  const r = await api("/api/catalog/images");
-  if (!r.ok) {
-    setStatus(`images catalog error (${r.status})`, true);
-    renderImageOptions([]);
-    return;
-  }
-  renderImageOptions(r.data);
-}
-
-async function loadRanges() {
-  const r = await api("/api/ranges");
-  if (!r.ok) {
-    setStatus(`ranges error (${r.status})`, true);
-    return;
-  }
-  renderRanges(r.data);
+function renderRange(rangeData) {
+  currentRangeData = rangeData;
+  renderHero(rangeData);
+  renderAccessLinks(rangeData);
+  hydrateRoomEditor(rangeData);
+  $("rangeDetail").textContent = JSON.stringify(rangeData, null, 2);
 }
 
 function attachEvents(rangeId) {
@@ -206,22 +143,50 @@ function attachEvents(rangeId) {
       const e = JSON.parse(ev.data);
       const ts = e?.created_at ? new Date(e.created_at).toLocaleTimeString() : new Date().toLocaleTimeString();
       const level = (e?.level || "info").toUpperCase();
-      const kind = e?.kind || "event";
-      const msg = e?.message || "";
-      let suffix = "";
-      const payload = parseMaybeJSON(e?.payload_json);
-      if (payload && typeof payload === "object") {
-        const keys = Object.keys(payload);
-        if (keys.length > 0) {
-          suffix = " | " + keys.map((k) => `${k}=${JSON.stringify(payload[k])}`).join(" ");
-        }
-      }
-      line = `${ts} | ${level} | ${kind} | ${msg}${suffix}`;
+      line = `${ts} | ${level} | ${e?.kind || "event"} | ${e?.message || ""}`;
     } catch {}
     $("events").textContent += line + "\n";
     $("events").scrollTop = $("events").scrollHeight;
   });
   es.onerror = () => setStatus("SSE disconnected/retrying", true);
+}
+
+async function loadMe() {
+  const r = await api("/api/me");
+  if (!r.ok) {
+    $("me").textContent = "anonymous";
+    return;
+  }
+  $("me").textContent = `${r.data.email} (${r.data.role})`;
+}
+
+async function loadTemplates() {
+  const r = await api("/api/templates");
+  if (!r.ok) {
+    setStatus(`templates error (${r.status})`, true);
+    renderTemplates([]);
+    return;
+  }
+  renderTemplates(r.data);
+}
+
+async function loadImageCatalog() {
+  const select = $("imageRef");
+  const r = await api("/api/catalog/images");
+  if (!r.ok || !Array.isArray(r.data)) {
+    select.innerHTML = '<option value="">No images found</option>';
+    return;
+  }
+  select.innerHTML = r.data.map((i) => `<option value="${i.image}">${i.image}</option>`).join("");
+}
+
+async function loadRanges() {
+  const r = await api("/api/ranges");
+  if (!r.ok) {
+    setStatus(`ranges error (${r.status})`, true);
+    return;
+  }
+  renderRanges(r.data);
 }
 
 async function loadRangeDetail() {
@@ -233,26 +198,21 @@ async function loadRangeDetail() {
     return;
   }
   currentRangeId = id;
-  $("rangeDetail").textContent = JSON.stringify(r.data, null, 2);
-  renderAccessLinks(r.data);
-  renderRoomEditor(r.data);
-  renderPorts(r.data);
+  renderRange(r.data);
   attachEvents(id);
   setStatus(`Loaded range #${id}`);
 }
 
 async function createRange() {
-  const teamId = Number($("teamId").value);
-  const templateId = Number($("templateId").value);
-  if (!teamId || !templateId) {
+  const body = {
+    team_id: Number($("teamId").value),
+    template_id: Number($("templateId").value),
+    name: $("rangeName").value.trim(),
+  };
+  if (!body.team_id || !body.template_id) {
     setStatus("team_id and template_id are required", true);
     return;
   }
-  const body = {
-    team_id: teamId,
-    template_id: templateId,
-    name: $("rangeName").value,
-  };
   const r = await api("/api/ranges", { method: "POST", body: JSON.stringify(body) });
   if (!r.ok) {
     const detail = typeof r.data === "string" ? r.data : JSON.stringify(r.data);
@@ -260,56 +220,37 @@ async function createRange() {
     return;
   }
   setStatus(`Range queued (#${r.data.range.id})`);
+  $("rangeId").value = r.data.range.id;
   await loadRanges();
+  await loadRangeDetail();
 }
 
 async function createTemplate() {
-  const image = $("imageRef").value;
-  const name = $("tplName").value.trim();
-  const displayName = $("tplDisplayName").value.trim();
-  const description = $("tplDescription").value.trim();
-  const serviceName = $("tplServiceName").value.trim() || "service";
-  const network = $("tplNetwork").value || "corporate";
-  const proto = ($("tplPortProto")?.value || "tcp").toLowerCase();
-  const nekoProfile = !!$("tplNekoProfile")?.checked;
-  const nekoUserPass = ($("tplNekoUserPass")?.value || "").trim();
-  const nekoAdminPass = ($("tplNekoAdminPass")?.value || "").trim();
-  const nekoMaxConn = Number($("tplNekoMaxConn")?.value || 0);
-  const quota = Number($("tplQuota").value) || 1;
-  let containerPort = Number($("tplContainerPort").value);
-  if (!Number.isInteger(containerPort) || containerPort <= 0) {
-    containerPort = inferDefaultContainerPort(image);
-  }
-
-  if (!name || !displayName || !image) {
+  const body = {
+    name: $("tplName").value.trim(),
+    display_name: $("tplDisplayName").value.trim(),
+    description: $("tplDescription").value.trim(),
+    quota: Number($("tplQuota").value) || 1,
+    definition_json: {
+      name: $("tplName").value.trim(),
+      room: {
+        user_pass: $("tplNekoUserPass").value.trim(),
+        admin_pass: $("tplNekoAdminPass").value.trim(),
+        max_connections: Number($("tplNekoMaxConn").value) || 0,
+        control_protection: true,
+      },
+      services: [{
+        name: $("tplServiceName").value.trim() || "desktop",
+        image: $("imageRef").value,
+        network: $("tplNetwork").value || "guest",
+        ports: [{ container: 8080, host: 0, protocol: "tcp" }, { container: 52000, host: 0, protocol: "udp" }],
+      }],
+    },
+  };
+  if (!body.name || !body.display_name || !body.definition_json.services[0].image) {
     setStatus("template name, display name, and image are required", true);
     return;
   }
-
-  let ports = Number.isInteger(containerPort) && containerPort > 0
-    ? [{ container: containerPort, host: 0, protocol: (proto === "udp" ? "udp" : "tcp") }]
-    : [];
-  if (nekoProfile) {
-    ports = [{ container: 8080, host: 0, protocol: "tcp" }, { container: 52000, host: 0, protocol: "udp" }];
-  }
-
-  const body = {
-    name,
-    display_name: displayName,
-    description,
-    quota,
-    definition_json: {
-      name,
-      room: nekoProfile ? {
-        user_pass: nekoUserPass,
-        admin_pass: nekoAdminPass,
-        max_connections: Number.isInteger(nekoMaxConn) && nekoMaxConn > 0 ? nekoMaxConn : 0,
-        control_protection: true,
-      } : undefined,
-      services: [{ name: serviceName, image, network, ports }],
-    },
-  };
-
   const r = await api("/api/templates", { method: "POST", body: JSON.stringify(body) });
   if (!r.ok) {
     const detail = typeof r.data === "string" ? r.data : JSON.stringify(r.data);
@@ -318,6 +259,32 @@ async function createTemplate() {
   }
   setStatus(`Template created (#${r.data.id})`);
   await loadTemplates();
+}
+
+async function updateRoom() {
+  const id = Number($("rangeId").value || currentRangeId);
+  const service = $("roomService").value.trim();
+  if (!id || !service) {
+    setStatus("range id and service are required", true);
+    return;
+  }
+  const room = {
+    user_pass: $("roomUserPass").value.trim(),
+    admin_pass: $("roomAdminPass").value.trim(),
+    max_connections: Number($("roomMaxConn").value) || 0,
+    control_protection: true,
+  };
+  const r = await api(`/api/ranges/${id}/rooms/${encodeURIComponent(service)}`, {
+    method: "PUT",
+    body: JSON.stringify({ room, reconcile: true }),
+  });
+  if (!r.ok) {
+    const detail = typeof r.data === "string" ? r.data : JSON.stringify(r.data);
+    setStatus(`update room failed (${r.status}): ${detail}`, true);
+    return;
+  }
+  setStatus(`Room settings saved for ${service}. Reset job queued.`);
+  await loadRangeDetail();
 }
 
 async function destroyRange() {
@@ -344,31 +311,12 @@ async function resetRange() {
   await loadRanges();
 }
 
-async function updateRoom() {
-  const id = Number($("rangeId").value || currentRangeId);
-  const service = ($("roomService").value || "").trim();
-  if (!id || !service) {
-    setStatus("range id and room service are required", true);
-    return;
-  }
-  const room = {
-    user_pass: ($("roomUserPass").value || "").trim(),
-    admin_pass: ($("roomAdminPass").value || "").trim(),
-    max_connections: Number($("roomMaxConn").value || 0),
-    control_protection: true,
-  };
-  const body = { room, reconcile: true };
-  const r = await api(`/api/ranges/${id}/rooms/${encodeURIComponent(service)}`, {
-    method: "PUT",
-    body: JSON.stringify(body),
-  });
-  if (!r.ok) {
-    const detail = typeof r.data === "string" ? r.data : JSON.stringify(r.data);
-    setStatus(`update room failed (${r.status}): ${detail}`, true);
-    return;
-  }
-  setStatus(`Room settings updated for ${service}; reset queued`);
-  await loadRangeDetail();
+async function refreshAll() {
+  await loadMe();
+  await loadImageCatalog();
+  await loadTemplates();
+  await loadRanges();
+  if (Number($("rangeId").value || 0)) await loadRangeDetail();
 }
 
 $("login").onclick = () => { window.location = "/auth/google/login"; };
@@ -376,24 +324,19 @@ $("logout").onclick = async () => {
   await api("/auth/logout", { method: "POST" });
   closeEvents();
   setStatus("Logged out");
-  await loadMe();
+  await refreshAll();
 };
-
-$("refreshTemplates").onclick = loadTemplates;
-$("refreshImages").onclick = loadImageCatalog;
-$("refreshRanges").onclick = loadRanges;
-$("loadRange").onclick = loadRangeDetail;
+$("refreshAll").onclick = refreshAll;
 $("createRange").onclick = createRange;
-$("createTemplate").onclick = createTemplate;
+$("loadRange").onclick = loadRangeDetail;
+$("updateRoom").onclick = updateRoom;
 $("destroyRange").onclick = destroyRange;
 $("resetRange").onclick = resetRange;
-$("updateRoom").onclick = updateRoom;
+$("refreshImages").onclick = loadImageCatalog;
+$("createTemplate").onclick = createTemplate;
 
 window.addEventListener("beforeunload", closeEvents);
 
 (async function init() {
-  await loadMe();
-  await loadImageCatalog();
-  await loadTemplates();
-  await loadRanges();
+  await refreshAll();
 })();
