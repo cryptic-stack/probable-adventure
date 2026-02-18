@@ -12,3 +12,4 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 EXPOSE 8080
+EXPOSE 52000/udp

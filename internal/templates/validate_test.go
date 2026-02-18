@@ -23,6 +23,7 @@ func TestValidateDefinitionRequiresFields(t *testing.T) {
 		[]byte(`{"name":"x","services":[{"name":"","image":"nginx"}]}`),
 		[]byte(`{"name":"x","services":[{"name":"web","image":"","ports":[{"container":80,"host":0}]}]}`),
 		[]byte(`{"name":"x","services":[{"name":"web","image":"nginx","ports":[{"container":70000,"host":0}]}]}`),
+		[]byte(`{"name":"x","services":[{"name":"web","image":"nginx","ports":[{"container":80,"host":0,"protocol":"icmp"}]}]}`),
 		[]byte(`{"name":"x","services":[{"name":"web","image":"nginx","network":"unknown"}]}`),
 	}
 	for i, in := range cases {

@@ -16,10 +16,22 @@ $serverTemplate = @{
         name = "server"
         image = $ServerImage
         network = "corporate"
+        env = @(
+          "NEKO_MEMBER_MULTIUSER_USER_PASSWORD=neko",
+          "NEKO_MEMBER_MULTIUSER_ADMIN_PASSWORD=admin",
+          "NEKO_WEBRTC_ICELITE=1",
+          "NEKO_WEBRTC_EPR=52000-52000"
+        )
         ports = @(
           @{
             container = 8080
             host = 0
+            protocol = "tcp"
+          },
+          @{
+            container = 52000
+            host = 0
+            protocol = "udp"
           }
         )
       }
@@ -39,10 +51,22 @@ $userTemplate = @{
         name = "desktop"
         image = $UserImage
         network = "guest"
+        env = @(
+          "NEKO_MEMBER_MULTIUSER_USER_PASSWORD=neko",
+          "NEKO_MEMBER_MULTIUSER_ADMIN_PASSWORD=admin",
+          "NEKO_WEBRTC_ICELITE=1",
+          "NEKO_WEBRTC_EPR=52000-52000"
+        )
         ports = @(
           @{
             container = 8080
             host = 0
+            protocol = "tcp"
+          },
+          @{
+            container = 52000
+            host = 0
+            protocol = "udp"
           }
         )
       }

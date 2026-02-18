@@ -136,7 +136,14 @@ func (w *Worker) provision(ctx context.Context, job *jobs.ClaimedJob) error {
 		exposed := nat.PortSet{}
 		bindings := nat.PortMap{}
 		for _, p := range svc.ExposedPorts {
-			port := nat.Port(fmt.Sprintf("%d/tcp", p.Container))
+			proto := strings.ToLower(strings.TrimSpace(p.Protocol))
+			if proto == "" {
+				proto = "tcp"
+			}
+			if proto != "udp" {
+				proto = "tcp"
+			}
+			port := nat.Port(fmt.Sprintf("%d/%s", p.Container, proto))
 			exposed[port] = struct{}{}
 			hp := ""
 			if p.Host > 0 {
@@ -144,7 +151,7 @@ func (w *Worker) provision(ctx context.Context, job *jobs.ClaimedJob) error {
 			}
 			bindings[port] = []nat.PortBinding{{HostIP: "0.0.0.0", HostPort: hp}}
 		}
-		cfg := &container.Config{Image: svc.Image, Cmd: svc.Command, ExposedPorts: exposed, Labels: labels(job.RangeID, job.TeamID, templateID, svc.Name)}
+		cfg := &container.Config{Image: svc.Image, Cmd: svc.Command, Env: svc.Env, ExposedPorts: exposed, Labels: labels(job.RangeID, job.TeamID, templateID, svc.Name)}
 		hcfg := &container.HostConfig{PortBindings: bindings}
 		ncfg := &network.NetworkingConfig{EndpointsConfig: map[string]*network.EndpointSettings{
 			networkNames[segment]: &network.EndpointSettings{NetworkID: networkIDs[segment]},

@@ -18,10 +18,22 @@ $attackTemplate = @{
         name = "attacker"
         image = $AttackImage
         network = "redteam"
+        env = @(
+          "NEKO_MEMBER_MULTIUSER_USER_PASSWORD=neko",
+          "NEKO_MEMBER_MULTIUSER_ADMIN_PASSWORD=admin",
+          "NEKO_WEBRTC_ICELITE=1",
+          "NEKO_WEBRTC_EPR=52000-52000"
+        )
         ports = @(
           @{
             container = 8080
             host = 0
+            protocol = "tcp"
+          },
+          @{
+            container = 52000
+            host = 0
+            protocol = "udp"
           }
         )
       }
@@ -41,10 +53,22 @@ $webTemplate = @{
         name = "web"
         image = $WebLabImage
         network = "corporate"
+        env = @(
+          "NEKO_MEMBER_MULTIUSER_USER_PASSWORD=neko",
+          "NEKO_MEMBER_MULTIUSER_ADMIN_PASSWORD=admin",
+          "NEKO_WEBRTC_ICELITE=1",
+          "NEKO_WEBRTC_EPR=52000-52000"
+        )
         ports = @(
           @{
             container = 8080
             host = 0
+            protocol = "tcp"
+          },
+          @{
+            container = 52000
+            host = 0
+            protocol = "udp"
           }
         )
       }
@@ -64,10 +88,22 @@ $webTemplate = @{
         name = "analyst"
         image = $BaseServerImage
         network = "blueteam"
+        env = @(
+          "NEKO_MEMBER_MULTIUSER_USER_PASSWORD=neko",
+          "NEKO_MEMBER_MULTIUSER_ADMIN_PASSWORD=admin",
+          "NEKO_WEBRTC_ICELITE=1",
+          "NEKO_WEBRTC_EPR=52000-52000"
+        )
         ports = @(
           @{
             container = 8080
             host = 0
+            protocol = "tcp"
+          },
+          @{
+            container = 52000
+            host = 0
+            protocol = "udp"
           }
         )
       }
@@ -87,10 +123,22 @@ $netbirdTemplate = @{
         name = "relay"
         image = $BaseServerImage
         network = "netbird"
+        env = @(
+          "NEKO_MEMBER_MULTIUSER_USER_PASSWORD=neko",
+          "NEKO_MEMBER_MULTIUSER_ADMIN_PASSWORD=admin",
+          "NEKO_WEBRTC_ICELITE=1",
+          "NEKO_WEBRTC_EPR=52000-52000"
+        )
         ports = @(
           @{
             container = 8080
             host = 0
+            protocol = "tcp"
+          },
+          @{
+            container = 52000
+            host = 0
+            protocol = "udp"
           }
         )
       }
@@ -110,10 +158,22 @@ $guestTemplate = @{
         name = "kiosk"
         image = $WebLabImage
         network = "guest"
+        env = @(
+          "NEKO_MEMBER_MULTIUSER_USER_PASSWORD=neko",
+          "NEKO_MEMBER_MULTIUSER_ADMIN_PASSWORD=admin",
+          "NEKO_WEBRTC_ICELITE=1",
+          "NEKO_WEBRTC_EPR=52000-52000"
+        )
         ports = @(
           @{
             container = 8080
             host = 0
+            protocol = "tcp"
+          },
+          @{
+            container = 52000
+            host = 0
+            protocol = "udp"
           }
         )
       }
@@ -133,10 +193,22 @@ $desktopTemplate = @{
         name = "desktop"
         image = $DesktopImage
         network = "guest"
+        env = @(
+          "NEKO_MEMBER_MULTIUSER_USER_PASSWORD=neko",
+          "NEKO_MEMBER_MULTIUSER_ADMIN_PASSWORD=admin",
+          "NEKO_WEBRTC_ICELITE=1",
+          "NEKO_WEBRTC_EPR=52000-52000"
+        )
         ports = @(
           @{
             container = 8080
             host = 0
+            protocol = "tcp"
+          },
+          @{
+            container = 52000
+            host = 0
+            protocol = "udp"
           }
         )
       }

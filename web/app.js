@@ -318,6 +318,7 @@ async function createTemplate() {
   const description = $("tplDescription").value.trim();
   const serviceName = $("tplServiceName").value.trim() || "service";
   const network = $("tplNetwork").value || "corporate";
+  const proto = ($("tplPortProto")?.value || "tcp").toLowerCase();
   const quota = Number($("tplQuota").value) || 1;
   let containerPort = Number($("tplContainerPort").value);
   if (!Number.isInteger(containerPort) || containerPort <= 0) {
@@ -330,7 +331,7 @@ async function createTemplate() {
   }
 
   const ports = Number.isInteger(containerPort) && containerPort > 0
-    ? [{ container: containerPort, host: 0 }]
+    ? [{ container: containerPort, host: 0, protocol: (proto === "udp" ? "udp" : "tcp") }]
     : [];
 
   const body = {

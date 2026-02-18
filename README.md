@@ -124,8 +124,13 @@ This loads starter templates for:
 
 Web interaction defaults:
 - All curated images expose browser access on container port `8080`
-- Desktop access uses WebRTC via Selkies (base image for derived images)
-- Derived images (`base-server`, `attack-box`, `web-lab`, `desktop-web`) are built from the WebRTC base
+- Desktop/browser access uses `m1k1o/neko` WebRTC
+- Derived images (`base-server`, `attack-box`, `web-lab`, `desktop-web`) are built from the WebRTC base image
+- Starter templates now include:
+  - `8080/tcp` (web UI/signaling)
+  - `52000/udp` (WebRTC media EPR)
+  - `NEKO_MEMBER_MULTIUSER_USER_PASSWORD` / `NEKO_MEMBER_MULTIUSER_ADMIN_PASSWORD`
+  - `NEKO_WEBRTC_ICELITE=1`, `NEKO_WEBRTC_EPR=52000-52000`
 
 ## API Workflow (CLI)
 ### 1) Create template (admin)
@@ -213,6 +218,8 @@ References:
 - MITRE CALDERA: https://caldera.mitre.org/
 - Atomic Red Team: https://github.com/redcanaryco/atomic-red-team
 - Docker networking docs: https://docs.docker.com/engine/network/
+- Neko project: https://github.com/m1k1o/neko
+- Neko compose/env reference: https://raw.githubusercontent.com/m1k1o/neko/master/.github/examples/docker-compose.yaml
 
 ## Troubleshooting
 - Docker pull/login issues: run `docker login`.

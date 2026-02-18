@@ -2,3 +2,4 @@ ARG BASE_USER_IMAGE=crypticstack/probable-adventure-base-user:bookworm-xfce
 FROM ${BASE_USER_IMAGE}
 
 EXPOSE 8080
+EXPOSE 52000/udp

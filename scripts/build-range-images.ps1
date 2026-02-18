@@ -14,23 +14,23 @@ $webImage = "$DockerHubUser/probable-adventure-web-lab:$TagWeb"
 $desktopImage = "$DockerHubUser/probable-adventure-desktop-web:$TagDesktop"
 
 Write-Host "Building $baseServerImage"
-docker build -f Dockerfile.base-server -t $baseServerImage .
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-Write-Host "Building $baseUserImage"
 docker build -f Dockerfile.base-user -t $baseUserImage .
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
+Write-Host "Building $baseServerImage"
+docker build -f Dockerfile.base-server --build-arg BASE_USER_IMAGE=$baseUserImage -t $baseServerImage .
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
 Write-Host "Building $attackImage"
-docker build -f Dockerfile.range-attack-box -t $attackImage .
+docker build -f Dockerfile.range-attack-box --build-arg BASE_SERVER_IMAGE=$baseServerImage -t $attackImage .
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 Write-Host "Building $webImage"
-docker build -f Dockerfile.range-web-lab -t $webImage .
+docker build -f Dockerfile.range-web-lab --build-arg BASE_SERVER_IMAGE=$baseServerImage -t $webImage .
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 Write-Host "Building $desktopImage"
-docker build -f Dockerfile.range-desktop-web -t $desktopImage .
+docker build -f Dockerfile.range-desktop-web --build-arg BASE_USER_IMAGE=$baseUserImage -t $desktopImage .
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 Write-Host "Built images:"

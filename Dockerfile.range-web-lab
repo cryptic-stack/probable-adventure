@@ -15,3 +15,4 @@ RUN mkdir -p /opt/lab && \
       '</body></html>' > /opt/lab/index.html
 
 EXPOSE 8080
+EXPOSE 52000/udp

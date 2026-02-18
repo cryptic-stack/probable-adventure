@@ -16,13 +16,15 @@ type Service struct {
 	Image        string   `json:"image"`
 	Network      string   `json:"network"`
 	Command      []string `json:"command"`
+	Env          []string `json:"env"`
 	ExposedPorts []Port   `json:"ports"`
 	Healthcheck  string   `json:"healthcheck"`
 }
 
 type Port struct {
-	Container int `json:"container"`
-	Host      int `json:"host"`
+	Container int    `json:"container"`
+	Host      int    `json:"host"`
+	Protocol  string `json:"protocol"`
 }
 
 var allowedNetworks = map[string]struct{}{
@@ -59,6 +61,13 @@ func ValidateDefinition(raw json.RawMessage) error {
 			return errors.New("invalid network (allowed: redteam, blueteam, netbird, corporate, guest)")
 		}
 		for _, p := range s.ExposedPorts {
+			proto := p.Protocol
+			if proto == "" {
+				proto = "tcp"
+			}
+			if proto != "tcp" && proto != "udp" {
+				return errors.New("invalid port protocol (allowed: tcp, udp)")
+			}
 			if p.Container <= 0 || p.Container > 65535 || p.Host < 0 || p.Host > 65535 {
 				return errors.New("invalid port mapping")
 			}
