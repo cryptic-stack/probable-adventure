@@ -115,8 +115,25 @@
         <div class="section-title">Create Range</div>
         <div class="row">
           <input id="teamId" type="number" value="1" placeholder="team_id" />
-          <select id="templateId"></select>
           <input id="rangeName" placeholder="range name (optional)" />
+          <div class="row3">
+            <input id="newRoomName" placeholder="room name" value="desktop" />
+            <select id="newRoomNetwork">
+              <option value="guest">guest</option>
+              <option value="corporate">corporate</option>
+              <option value="redteam">redteam</option>
+              <option value="blueteam">blueteam</option>
+              <option value="netbird">netbird</option>
+            </select>
+            <select id="imageRef"></select>
+          </div>
+          <button id="addRoom">Add Room</button>
+          <div id="draftRooms" class="list"></div>
+          <div class="row3">
+            <input id="newRoomUserPass" placeholder="user password" value="neko" />
+            <input id="newRoomAdminPass" placeholder="admin password" value="admin" />
+            <input id="newRoomMaxConn" type="number" min="0" max="500" value="8" placeholder="max conn" />
+          </div>
           <button id="createRange" class="primary">Create Range</button>
         </div>
         <div class="section-title">Ranges</div>
@@ -158,39 +175,9 @@
           <pre id="events" class="mono"></pre>
         </details>
 
-        <details>
-          <summary>Template Management (Admin)</summary>
-          <div class="row" style="margin-top: 8px;">
-            <div class="row3">
-              <input id="tplName" placeholder="template name" />
-              <input id="tplDisplayName" placeholder="display name" />
-              <input id="tplQuota" type="number" min="1" value="1" placeholder="quota" />
-            </div>
-            <input id="tplDescription" placeholder="description" />
-            <div class="row3">
-              <input id="tplServiceName" placeholder="service name" value="desktop" />
-              <select id="tplNetwork">
-                <option value="corporate">corporate</option>
-                <option value="redteam">redteam</option>
-                <option value="blueteam">blueteam</option>
-                <option value="netbird">netbird</option>
-                <option value="guest">guest</option>
-              </select>
-              <select id="imageRef"></select>
-            </div>
-            <div class="row3">
-              <input id="tplNekoUserPass" placeholder="user password" value="neko" />
-              <input id="tplNekoAdminPass" placeholder="admin password" value="admin" />
-              <input id="tplNekoMaxConn" type="number" min="0" max="500" value="8" placeholder="max connections" />
-            </div>
-            <div class="toolbar">
-              <button id="refreshImages">Refresh Images</button>
-              <button id="createTemplate" class="primary">Create Template</button>
-            </div>
-          </div>
-          <div class="section-title" style="margin-top: 12px;">Templates</div>
-          <div id="templates" class="list"></div>
-        </details>
+        <div class="toolbar" style="margin-top: 10px;">
+          <button id="refreshImages">Refresh Images</button>
+        </div>
 
         <details>
           <summary>Raw Range Data</summary>

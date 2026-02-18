@@ -84,11 +84,9 @@ Open:
 
 Dashboard supports:
 - Login/logout
-- List templates
-- Create templates from a Docker Hub image dropdown (`/api/catalog/images`)
-- Define Neko user/admin credentials in a template `room` profile (aligned with `m1k1o/neko-rooms` style room settings)
-- Select service network segment when creating templates (`redteam`, `blueteam`, `netbird`, `corporate`, `guest`)
-- Create range
+- Create ranges directly from Docker Hub images (no template selection required in UI)
+- Add multiple rooms per range (range = group of rooms/containers)
+- Select room network segment (`redteam`, `blueteam`, `netbird`, `corporate`, `guest`)
 - List ranges
 - View range details + port mappings
 - One canonical access link per service/container (Neko-style room entrypoint)
@@ -134,62 +132,42 @@ Web interaction defaults:
   - `definition_json.room` with `user_pass`, `admin_pass`, `max_connections`, `control_protection`
 
 ## API Workflow (CLI)
-### 1) Create template (admin)
-```bash
-curl -X POST http://localhost:8080/api/templates \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name":"lab",
-    "display_name":"Lab",
-    "description":"Demo lab",
-    "quota":2,
-    "definition_json":{
-      "name":"linux-lab",
-      "services":[
-        {
-          "name":"web",
-          "image":"nginx:alpine",
-          "network":"corporate",
-          "ports":[{"container":80,"host":0}]
-        }
-      ]
-    }
-  }'
-```
-
-### 2) List templates
-```bash
-curl http://localhost:8080/api/templates
-```
-
-### 2b) List Docker Hub catalog images used by template creator
+### 1) List Docker Hub catalog images used by the range builder
 ```bash
 curl http://localhost:8080/api/catalog/images
 ```
 
-### 3) Create range (queues provision job)
+### 2) Create range from images/rooms (queues provision job)
 ```bash
 curl -X POST http://localhost:8080/api/ranges \
   -H "Content-Type: application/json" \
-  -d '{"team_id":1,"template_id":1,"name":"range-a"}'
+  -d '{
+    "team_id":1,
+    "name":"range-a",
+    "rooms":[
+      {"name":"desktop","image":"crypticstack/probable-adventure-desktop-web:bookworm-novnc","network":"guest"},
+      {"name":"attacker","image":"crypticstack/probable-adventure-attack-box:bookworm","network":"redteam"}
+    ],
+    "room":{"user_pass":"neko","admin_pass":"admin","max_connections":8,"control_protection":true}
+  }'
 ```
 
-### 4) List ranges
+### 3) List ranges
 ```bash
 curl http://localhost:8080/api/ranges
 ```
 
-### 4b) Get one range with canonical access links
+### 4) Get one range with canonical access links
 ```bash
 curl http://localhost:8080/api/ranges/1
 ```
 
-### 4c) Get room settings for one service
+### 5) Get room settings for one service
 ```bash
 curl http://localhost:8080/api/ranges/1/rooms/desktop
 ```
 
-### 4d) Update room settings (admin)
+### 6) Update room settings (admin)
 ```bash
 curl -X PUT http://localhost:8080/api/ranges/1/rooms/desktop \
   -H "Content-Type: application/json" \
@@ -204,12 +182,12 @@ curl -X PUT http://localhost:8080/api/ranges/1/rooms/desktop \
   }'
 ```
 
-### 5) Watch live events for a range
+### 7) Watch live events for a range
 ```bash
 curl -N http://localhost:8080/api/ranges/1/events
 ```
 
-### 6) Destroy / reset
+### 8) Destroy / reset
 ```bash
 curl -X POST http://localhost:8080/api/ranges/1/destroy
 curl -X POST http://localhost:8080/api/ranges/1/reset

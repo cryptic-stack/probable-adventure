@@ -2,9 +2,10 @@ const $ = (id) => document.getElementById(id);
 
 let es = null;
 let currentRangeId = null;
-let templateCache = [];
 let currentRangeData = null;
 let selectedRoomService = "";
+let imageCatalog = [];
+let draftRooms = [];
 
 function parseMaybeJSON(v) {
   if (typeof v === "string") {
@@ -38,26 +39,6 @@ function closeEvents() {
   }
 }
 
-function renderTemplates(items) {
-  templateCache = Array.isArray(items) ? items : [];
-  const select = $("templateId");
-  const list = $("templates");
-
-  if (!templateCache.length) {
-    select.innerHTML = '<option value="">No templates</option>';
-    list.innerHTML = '<div class="item muted">No templates</div>';
-    return;
-  }
-
-  select.innerHTML = templateCache.map((t) =>
-    `<option value="${t.id}">${t.id} - ${t.display_name} (${t.name} v${t.version})</option>`
-  ).join("");
-
-  list.innerHTML = templateCache.map((t) =>
-    `<div class="item"><span><strong>${t.name}</strong> v${t.version}</span><span class="muted">${t.display_name}</span></div>`
-  ).join("");
-}
-
 function renderRanges(items) {
   const el = $("ranges");
   if (!Array.isArray(items) || !items.length) {
@@ -78,6 +59,27 @@ function renderRanges(items) {
   });
 }
 
+function renderDraftRooms() {
+  const el = $("draftRooms");
+  if (!draftRooms.length) {
+    el.innerHTML = '<div class="item muted">No rooms added</div>';
+    return;
+  }
+  el.innerHTML = draftRooms.map((r, i) =>
+    `<div class="item">
+      <span><strong>${r.name}</strong> <span class="muted">(${r.network})</span><br><span class="mono muted">${r.image}</span></span>
+      <button data-draft-del="${i}">Remove</button>
+    </div>`
+  ).join("");
+  el.querySelectorAll("button[data-draft-del]").forEach((btn) => {
+    btn.onclick = () => {
+      const idx = Number(btn.dataset.draftDel);
+      if (Number.isInteger(idx) && idx >= 0) draftRooms.splice(idx, 1);
+      renderDraftRooms();
+    };
+  });
+}
+
 function renderHero(rangeData) {
   const range = rangeData?.range;
   if (!range) {
@@ -86,7 +88,7 @@ function renderHero(rangeData) {
     return;
   }
   $("activeRangeTitle").textContent = `#${range.id} ${range.name}`;
-  $("activeRangeMeta").textContent = `Team ${range.team_id} | Template ${range.template_id} | Status: ${range.status}`;
+  $("activeRangeMeta").textContent = `Team ${range.team_id} | Status: ${range.status}`;
 }
 
 function roomSettingsForService(rangeData, serviceName) {
@@ -128,6 +130,29 @@ function closeRoomModal() {
   $("roomModal").classList.remove("show");
 }
 
+function renderRoomDrawer(rangeData) {
+  const byService = getRoomAccessByService(rangeData);
+  const service = selectedRoomService || Object.keys(byService)[0] || "";
+  const room = roomSettingsForService(rangeData, service);
+  const link = byService[service] || "";
+
+  if (!service) {
+    $("roomDrawerTitle").textContent = "No Room Selected";
+    $("roomDrawerStatus").textContent = "Select a room card.";
+    $("roomDrawerLink").textContent = "No link";
+    $("openSelectedRoom").disabled = true;
+    $("editSelectedRoom").disabled = true;
+    return;
+  }
+  $("roomDrawerTitle").textContent = service;
+  $("roomDrawerStatus").textContent = `Status: ${room?.status || "pending"}`;
+  $("roomDrawerLink").innerHTML = link
+    ? `<a href="${link}" target="_blank" rel="noopener noreferrer">${link}</a>`
+    : "No room link yet";
+  $("openSelectedRoom").disabled = !link;
+  $("editSelectedRoom").disabled = false;
+}
+
 function renderRooms(rangeData) {
   const grid = $("roomsGrid");
   const rooms = Array.isArray(rangeData?.rooms) ? rangeData.rooms : [];
@@ -145,25 +170,22 @@ function renderRooms(rangeData) {
   if (!selectedRoomService || !ordered.includes(selectedRoomService)) {
     selectedRoomService = ordered[0] || "";
   }
-  const cards = [];
-  for (const serviceName of ordered) {
+  grid.innerHTML = ordered.map((serviceName) => {
     const room = roomSettingsForService(rangeData, serviceName);
     const status = room?.status || "pending";
     const link = byService[serviceName] || "";
-    cards.push(
-      `<div class="room-card ${selectedRoomService === serviceName ? "active" : ""}" data-room-select="${serviceName}">
-        <div class="room-head">
-          <strong>${serviceName}</strong>
-          <span class="pill">${status}</span>
-        </div>
-        <div class="toolbar">
-          <button data-room-open="${serviceName}" ${link ? "" : "disabled"}>Open</button>
-          <button data-room-edit="${serviceName}">Settings</button>
-        </div>
-      </div>`
-    );
-  }
-  grid.innerHTML = cards.join("");
+    return `<div class="room-card ${selectedRoomService === serviceName ? "active" : ""}" data-room-select="${serviceName}">
+      <div class="room-head">
+        <strong>${serviceName}</strong>
+        <span class="pill">${status}</span>
+      </div>
+      <div class="toolbar">
+        <button data-room-open="${serviceName}" ${link ? "" : "disabled"}>Open</button>
+        <button data-room-edit="${serviceName}">Settings</button>
+      </div>
+    </div>`;
+  }).join("");
+
   grid.querySelectorAll("button[data-room-open]").forEach((btn) => {
     btn.onclick = () => {
       const svc = btn.dataset.roomOpen;
@@ -184,30 +206,6 @@ function renderRooms(rangeData) {
   renderRoomDrawer(rangeData);
 }
 
-function renderRoomDrawer(rangeData) {
-  const byService = getRoomAccessByService(rangeData);
-  const service = selectedRoomService || Object.keys(byService)[0] || "";
-  const room = roomSettingsForService(rangeData, service);
-  const link = byService[service] || "";
-
-  if (!service) {
-    $("roomDrawerTitle").textContent = "No Room Selected";
-    $("roomDrawerStatus").textContent = "Select a room card.";
-    $("roomDrawerLink").textContent = "No link";
-    $("openSelectedRoom").disabled = true;
-    $("editSelectedRoom").disabled = true;
-    return;
-  }
-
-  $("roomDrawerTitle").textContent = service;
-  $("roomDrawerStatus").textContent = `Status: ${room?.status || "pending"}`;
-  $("roomDrawerLink").innerHTML = link
-    ? `<a href="${link}" target="_blank" rel="noopener noreferrer">${link}</a>`
-    : "No room link yet";
-  $("openSelectedRoom").disabled = !link;
-  $("editSelectedRoom").disabled = false;
-}
-
 function renderRange(rangeData) {
   currentRangeData = rangeData;
   renderHero(rangeData);
@@ -224,8 +222,7 @@ function attachEvents(rangeId) {
     try {
       const e = JSON.parse(ev.data);
       const ts = e?.created_at ? new Date(e.created_at).toLocaleTimeString() : new Date().toLocaleTimeString();
-      const level = (e?.level || "info").toUpperCase();
-      line = `${ts} | ${level} | ${e?.kind || "event"} | ${e?.message || ""}`;
+      line = `${ts} | ${(e?.level || "info").toUpperCase()} | ${e?.kind || "event"} | ${e?.message || ""}`;
     } catch {}
     $("events").textContent += line + "\n";
     $("events").scrollTop = $("events").scrollHeight;
@@ -235,31 +232,19 @@ function attachEvents(rangeId) {
 
 async function loadMe() {
   const r = await api("/api/me");
-  if (!r.ok) {
-    $("me").textContent = "anonymous";
-    return;
-  }
-  $("me").textContent = `${r.data.email} (${r.data.role})`;
-}
-
-async function loadTemplates() {
-  const r = await api("/api/templates");
-  if (!r.ok) {
-    setStatus(`templates error (${r.status})`, true);
-    renderTemplates([]);
-    return;
-  }
-  renderTemplates(r.data);
+  $("me").textContent = r.ok ? `${r.data.email} (${r.data.role})` : "anonymous";
 }
 
 async function loadImageCatalog() {
   const select = $("imageRef");
   const r = await api("/api/catalog/images");
   if (!r.ok || !Array.isArray(r.data)) {
+    imageCatalog = [];
     select.innerHTML = '<option value="">No images found</option>';
     return;
   }
-  select.innerHTML = r.data.map((i) => `<option value="${i.image}">${i.image}</option>`).join("");
+  imageCatalog = r.data.slice();
+  select.innerHTML = imageCatalog.map((i) => `<option value="${i.image}">${i.image}</option>`).join("");
 }
 
 async function loadRanges() {
@@ -285,16 +270,43 @@ async function loadRangeDetail() {
   setStatus(`Loaded range #${id}`);
 }
 
-async function createRange() {
-  const body = {
-    team_id: Number($("teamId").value),
-    template_id: Number($("templateId").value),
-    name: $("rangeName").value.trim(),
-  };
-  if (!body.team_id || !body.template_id) {
-    setStatus("team_id and template_id are required", true);
+function addDraftRoom() {
+  const name = ($("newRoomName").value || "").trim() || `room-${draftRooms.length + 1}`;
+  const image = ($("imageRef").value || "").trim();
+  const network = ($("newRoomNetwork").value || "guest").trim();
+  if (!image) {
+    setStatus("select an image first", true);
     return;
   }
+  if (draftRooms.find((r) => r.name === name)) {
+    setStatus("room name must be unique in this range", true);
+    return;
+  }
+  draftRooms.push({ name, image, network });
+  renderDraftRooms();
+}
+
+async function createRange() {
+  const teamID = Number($("teamId").value);
+  if (!teamID) {
+    setStatus("team_id is required", true);
+    return;
+  }
+  if (!draftRooms.length) {
+    setStatus("add at least one room", true);
+    return;
+  }
+  const body = {
+    team_id: teamID,
+    name: $("rangeName").value.trim(),
+    rooms: draftRooms.map((r) => ({ name: r.name, image: r.image, network: r.network })),
+    room: {
+      user_pass: $("newRoomUserPass").value.trim(),
+      admin_pass: $("newRoomAdminPass").value.trim(),
+      max_connections: Number($("newRoomMaxConn").value) || 0,
+      control_protection: true,
+    },
+  };
   const r = await api("/api/ranges", { method: "POST", body: JSON.stringify(body) });
   if (!r.ok) {
     const detail = typeof r.data === "string" ? r.data : JSON.stringify(r.data);
@@ -302,45 +314,11 @@ async function createRange() {
     return;
   }
   setStatus(`Range queued (#${r.data.range.id})`);
+  draftRooms = [];
+  renderDraftRooms();
   $("rangeId").value = r.data.range.id;
   await loadRanges();
   await loadRangeDetail();
-}
-
-async function createTemplate() {
-  const body = {
-    name: $("tplName").value.trim(),
-    display_name: $("tplDisplayName").value.trim(),
-    description: $("tplDescription").value.trim(),
-    quota: Number($("tplQuota").value) || 1,
-    definition_json: {
-      name: $("tplName").value.trim(),
-      room: {
-        user_pass: $("tplNekoUserPass").value.trim(),
-        admin_pass: $("tplNekoAdminPass").value.trim(),
-        max_connections: Number($("tplNekoMaxConn").value) || 0,
-        control_protection: true,
-      },
-      services: [{
-        name: $("tplServiceName").value.trim() || "desktop",
-        image: $("imageRef").value,
-        network: $("tplNetwork").value || "guest",
-        ports: [{ container: 8080, host: 0, protocol: "tcp" }, { container: 52000, host: 0, protocol: "udp" }],
-      }],
-    },
-  };
-  if (!body.name || !body.display_name || !body.definition_json.services[0].image) {
-    setStatus("template name, display name, and image are required", true);
-    return;
-  }
-  const r = await api("/api/templates", { method: "POST", body: JSON.stringify(body) });
-  if (!r.ok) {
-    const detail = typeof r.data === "string" ? r.data : JSON.stringify(r.data);
-    setStatus(`create template failed (${r.status}): ${detail}`, true);
-    return;
-  }
-  setStatus(`Template created (#${r.data.id})`);
-  await loadTemplates();
 }
 
 async function updateRoom() {
@@ -397,7 +375,6 @@ async function resetRange() {
 async function refreshAll() {
   await loadMe();
   await loadImageCatalog();
-  await loadTemplates();
   await loadRanges();
   if (Number($("rangeId").value || 0)) await loadRangeDetail();
 }
@@ -410,13 +387,13 @@ $("logout").onclick = async () => {
   await refreshAll();
 };
 $("refreshAll").onclick = refreshAll;
+$("refreshImages").onclick = loadImageCatalog;
+$("addRoom").onclick = addDraftRoom;
 $("createRange").onclick = createRange;
 $("loadRange").onclick = loadRangeDetail;
 $("updateRoom").onclick = updateRoom;
 $("destroyRange").onclick = destroyRange;
 $("resetRange").onclick = resetRange;
-$("refreshImages").onclick = loadImageCatalog;
-$("createTemplate").onclick = createTemplate;
 $("closeRoomModal").onclick = closeRoomModal;
 $("openSelectedRoom").onclick = () => {
   if (!currentRangeData) return;
@@ -435,5 +412,6 @@ $("roomModal").onclick = (ev) => {
 window.addEventListener("beforeunload", closeEvents);
 
 (async function init() {
+  renderDraftRooms();
   await refreshAll();
 })();

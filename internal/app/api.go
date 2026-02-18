@@ -221,6 +221,17 @@ type createRangeReq struct {
 	TeamID     int64  `json:"team_id"`
 	TemplateID int64  `json:"template_id"`
 	Name       string `json:"name"`
+	Room       *struct {
+		UserPass          string `json:"user_pass"`
+		AdminPass         string `json:"admin_pass"`
+		MaxConnections    int    `json:"max_connections"`
+		ControlProtection *bool  `json:"control_protection"`
+	} `json:"room"`
+	Rooms []struct {
+		Name    string `json:"name"`
+		Image   string `json:"image"`
+		Network string `json:"network"`
+	} `json:"rooms"`
 }
 
 func (s *Server) userInTeam(ctx context.Context, userID, teamID int64) (bool, error) {
@@ -239,12 +250,13 @@ func (s *Server) createRange(w http.ResponseWriter, r *http.Request) {
 		auth.JSON(w, 403, map[string]string{"error": "not in team"})
 		return
 	}
-	t, err := s.q.GetTemplateByID(r.Context(), req.TemplateID)
+
+	templateID, t, err := s.resolveTemplateForRange(r.Context(), req, u.ID)
 	if err != nil {
-		auth.JSON(w, 400, map[string]string{"error": "template not found"})
+		auth.JSON(w, 400, map[string]string{"error": err.Error()})
 		return
 	}
-	count, err := s.q.CountActiveRangesForTeamTemplate(r.Context(), req.TeamID, req.TemplateID)
+	count, err := s.q.CountActiveRangesForTeamTemplate(r.Context(), req.TeamID, templateID)
 	if err != nil {
 		auth.JSON(w, 500, map[string]string{"error": "db error"})
 		return
@@ -256,7 +268,7 @@ func (s *Server) createRange(w http.ResponseWriter, r *http.Request) {
 	if req.Name == "" {
 		req.Name = fmt.Sprintf("range-%d", time.Now().Unix())
 	}
-	rng, err := s.q.CreateRange(r.Context(), req.TeamID, req.TemplateID, u.ID, req.Name, "pending", []byte(`{"ports":{}}`))
+	rng, err := s.q.CreateRange(r.Context(), req.TeamID, templateID, u.ID, req.Name, "pending", []byte(`{"ports":{}}`))
 	if err != nil {
 		auth.JSON(w, 500, map[string]string{"error": "create range failed"})
 		return
@@ -271,6 +283,95 @@ func (s *Server) createRange(w http.ResponseWriter, r *http.Request) {
 	rid := rng.ID
 	s.audit.Log(r.Context(), u.ID, &team, &rid, "range.create", map[string]any{"job_id": job.ID})
 	auth.JSON(w, 201, map[string]any{"range": rng, "job": job})
+}
+
+func (s *Server) resolveTemplateForRange(ctx context.Context, req createRangeReq, userID int64) (int64, sqlc.Template, error) {
+	if req.TemplateID > 0 {
+		t, err := s.q.GetTemplateByID(ctx, req.TemplateID)
+		if err != nil {
+			return 0, sqlc.Template{}, fmt.Errorf("template not found")
+		}
+		return t.ID, t, nil
+	}
+	if len(req.Rooms) == 0 {
+		return 0, sqlc.Template{}, fmt.Errorf("template_id or rooms is required")
+	}
+
+	services := make([]tpl.Service, 0, len(req.Rooms))
+	for i, room := range req.Rooms {
+		name := strings.TrimSpace(room.Name)
+		image := strings.TrimSpace(room.Image)
+		if name == "" {
+			name = fmt.Sprintf("room-%d", i+1)
+		}
+		if image == "" {
+			return 0, sqlc.Template{}, fmt.Errorf("room image is required")
+		}
+		network := strings.TrimSpace(room.Network)
+		if network == "" {
+			network = "guest"
+		}
+		services = append(services, tpl.Service{
+			Name:    name,
+			Image:   image,
+			Network: network,
+			ExposedPorts: []tpl.Port{
+				{Container: 8080, Host: 0, Protocol: "tcp"},
+				{Container: 52000, Host: 0, Protocol: "udp"},
+			},
+		})
+	}
+
+	room := tpl.RoomOptions{
+		UserPass:       "neko",
+		AdminPass:      "admin",
+		MaxConnections: 8,
+	}
+	if req.Room != nil {
+		if strings.TrimSpace(req.Room.UserPass) != "" {
+			room.UserPass = strings.TrimSpace(req.Room.UserPass)
+		}
+		if strings.TrimSpace(req.Room.AdminPass) != "" {
+			room.AdminPass = strings.TrimSpace(req.Room.AdminPass)
+		}
+		if req.Room.MaxConnections > 0 {
+			room.MaxConnections = req.Room.MaxConnections
+		}
+		room.ControlProtection = req.Room.ControlProtection
+	}
+
+	def := tpl.Definition{
+		Name:     fmt.Sprintf("range-%d", time.Now().UnixNano()),
+		Room:     room,
+		Services: services,
+	}
+	raw, err := json.Marshal(def)
+	if err != nil {
+		return 0, sqlc.Template{}, fmt.Errorf("invalid room definition")
+	}
+	if err := tpl.ValidateDefinition(raw); err != nil {
+		return 0, sqlc.Template{}, fmt.Errorf("invalid room definition: %v", err)
+	}
+
+	tplName := fmt.Sprintf("adhoc-team-%d", req.TeamID)
+	latest, err := s.q.GetLatestTemplateVersionByName(ctx, tplName)
+	if err != nil {
+		return 0, sqlc.Template{}, fmt.Errorf("db error")
+	}
+	t, err := s.q.CreateTemplate(
+		ctx,
+		tplName,
+		latest+1,
+		fmt.Sprintf("Adhoc Team %d Range", req.TeamID),
+		"auto-generated from range rooms",
+		raw,
+		1,
+		userID,
+	)
+	if err != nil {
+		return 0, sqlc.Template{}, fmt.Errorf("create template failed")
+	}
+	return t.ID, t, nil
 }
 
 func (s *Server) listRanges(w http.ResponseWriter, r *http.Request) {
