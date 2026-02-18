@@ -1,6 +1,6 @@
 APP_NAME=probable-adventure
 
-.PHONY: dev up down logs build run-api run-provisioner migrate-up migrate-down sqlc
+.PHONY: dev up down logs build run-api run-provisioner migrate-up migrate-down sqlc build-range-images load-range-templates
 
 dev: up
 
@@ -30,3 +30,9 @@ migrate-down:
 
 sqlc:
 	sqlc generate -f sqlc/sqlc.yaml
+
+build-range-images:
+	powershell -ExecutionPolicy Bypass -File scripts/build-range-images.ps1 -DockerHubUser crypticstack
+
+load-range-templates:
+	powershell -ExecutionPolicy Bypass -File scripts/load-range-templates.ps1 -ApiBase http://localhost:8080

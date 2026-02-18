@@ -43,6 +43,8 @@ services:
       SESSION_KEY: dev-insecure-session-key-change-me
       DEV_AUTH_EMAIL: dev@example.com
       ADMIN_EMAILS: dev@example.com
+      DOCKERHUB_REPOS: crypticstack/probable-adventure-base-server,crypticstack/probable-adventure-base-user,crypticstack/probable-adventure-attack-box,crypticstack/probable-adventure-web-lab
+      DOCKERHUB_IMAGE_REFS: crypticstack/probable-adventure-base-server:bookworm,crypticstack/probable-adventure-base-user:bookworm-xfce,crypticstack/probable-adventure-attack-box:bookworm,crypticstack/probable-adventure-web-lab:bookworm
       GOOGLE_REDIRECT_URL: http://localhost:8080/auth/google/callback
     depends_on:
       migrate:

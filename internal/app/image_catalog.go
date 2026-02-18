@@ -28,6 +28,7 @@ type dockerHubTagsResponse struct {
 
 func listDockerHubImages(ctx context.Context, cfg config.Config) ([]imageCatalogItem, error) {
 	items := make([]imageCatalogItem, 0)
+	seen := map[string]struct{}{}
 	client := &http.Client{Timeout: 5 * time.Second}
 	for _, repo := range cfg.DockerHubRepos {
 		parts := strings.SplitN(repo, "/", 2)
@@ -56,13 +57,33 @@ func listDockerHubImages(ctx context.Context, cfg config.Config) ([]imageCatalog
 			return nil, err
 		}
 		for _, t := range body.Results {
-			items = append(items, imageCatalogItem{
+			item := imageCatalogItem{
 				Repository:  repo,
 				Tag:         t.Name,
 				Image:       repo + ":" + t.Name,
 				LastUpdated: t.LastUpdated,
-			})
+			}
+			if _, ok := seen[item.Image]; ok {
+				continue
+			}
+			seen[item.Image] = struct{}{}
+			items = append(items, item)
 		}
+	}
+	for _, ref := range cfg.DockerHubImageRefs {
+		repo, tag := splitImageRef(ref)
+		if repo == "" || tag == "" {
+			continue
+		}
+		if _, ok := seen[ref]; ok {
+			continue
+		}
+		seen[ref] = struct{}{}
+		items = append(items, imageCatalogItem{
+			Repository: repo,
+			Tag:        tag,
+			Image:      ref,
+		})
 	}
 	sort.Slice(items, func(i, j int) bool {
 		if items[i].Repository == items[j].Repository {
@@ -71,4 +92,17 @@ func listDockerHubImages(ctx context.Context, cfg config.Config) ([]imageCatalog
 		return items[i].Repository < items[j].Repository
 	})
 	return items, nil
+}
+
+func splitImageRef(ref string) (string, string) {
+	parts := strings.Split(ref, ":")
+	if len(parts) < 2 {
+		return "", ""
+	}
+	repo := strings.Join(parts[:len(parts)-1], ":")
+	tag := parts[len(parts)-1]
+	if strings.TrimSpace(repo) == "" || strings.TrimSpace(tag) == "" {
+		return "", ""
+	}
+	return repo, tag
 }

@@ -38,6 +38,8 @@ GOOGLE_REDIRECT_URL=http://localhost:8080/auth/google/callback
 
 WORKER_ID=provisioner-1
 DOCKER_HOST=unix:///var/run/docker.sock
+DOCKERHUB_REPOS=crypticstack/probable-adventure-base-server,crypticstack/probable-adventure-base-user,crypticstack/probable-adventure-attack-box,crypticstack/probable-adventure-web-lab
+DOCKERHUB_IMAGE_REFS=crypticstack/probable-adventure-base-server:bookworm,crypticstack/probable-adventure-base-user:bookworm-xfce,crypticstack/probable-adventure-attack-box:bookworm,crypticstack/probable-adventure-web-lab:bookworm
 ```
 
 ## Start / Stop
@@ -89,6 +91,23 @@ Dashboard supports:
 - View range details + port mappings
 - Destroy/reset range
 - Live SSE event stream for selected range
+
+## Build Range Images
+Build local images:
+```powershell
+pwsh ./scripts/build-range-images.ps1 -DockerHubUser crypticstack
+```
+
+Push images:
+```powershell
+docker push crypticstack/probable-adventure-attack-box:bookworm
+docker push crypticstack/probable-adventure-web-lab:bookworm
+```
+
+Load matching templates:
+```powershell
+pwsh ./scripts/load-range-templates.ps1 -ApiBase http://localhost:8080
+```
 
 ## API Workflow (CLI)
 ### 1) Create template (admin)
@@ -159,6 +178,22 @@ docker compose exec -T postgres psql -U range -d rangedb -c "select range_id,res
 - Do not use `DEV_AUTH_EMAIL` in production.
 - Set a strong `SESSION_KEY` in non-dev environments.
 - Do not put secrets in template definitions or event payloads.
+
+## Range Ops Recommendations
+- Base scenarios on ATT&CK techniques and map each exercise objective to a specific technique/test case.
+- Use Atomic Red Team tests (or CALDERA abilities) to create repeatable attacker actions.
+- Use one Docker network per range and enforce deny-by-default ingress/egress at host firewall boundaries.
+- Keep management/control plane separate from exercise traffic (dedicated network and credentials).
+- Instrument every range with endpoint/network telemetry so students can validate detections.
+
+References:
+- NIST SP 800-115 (security testing methodology): https://csrc.nist.gov/pubs/sp/800/115/final
+- NIST SP 800-207 (zero trust segmentation principles): https://csrc.nist.gov/pubs/sp/800/207/final
+- CISA Zero Trust Maturity Model: https://www.cisa.gov/resources-tools/resources/zero-trust-maturity-model
+- MITRE ATT&CK: https://attack.mitre.org/
+- MITRE CALDERA: https://caldera.mitre.org/
+- Atomic Red Team: https://github.com/redcanaryco/atomic-red-team
+- Docker networking docs: https://docs.docker.com/engine/network/
 
 ## Troubleshooting
 - Docker pull/login issues: run `docker login`.

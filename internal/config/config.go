@@ -13,6 +13,7 @@ type Config struct {
 	DevAuthEmail       string
 	AdminEmails        map[string]struct{}
 	DockerHubRepos     []string
+	DockerHubImageRefs []string
 	GoogleClientID     string
 	GoogleClientSecret string
 	GoogleRedirectURL  string
@@ -28,7 +29,8 @@ func Load() Config {
 			admins[e] = struct{}{}
 		}
 	}
-	repos := splitCSV(getenv("DOCKERHUB_REPOS", "crypticstack/probable-adventure-base-server,crypticstack/probable-adventure-base-user"))
+	repos := splitCSV(getenv("DOCKERHUB_REPOS", "crypticstack/probable-adventure-base-server,crypticstack/probable-adventure-base-user,crypticstack/probable-adventure-attack-box,crypticstack/probable-adventure-web-lab"))
+	imageRefs := splitCSV(getenv("DOCKERHUB_IMAGE_REFS", "crypticstack/probable-adventure-base-server:bookworm,crypticstack/probable-adventure-base-user:bookworm-xfce,crypticstack/probable-adventure-attack-box:bookworm,crypticstack/probable-adventure-web-lab:bookworm"))
 	return Config{
 		Env:                getenv("APP_ENV", "dev"),
 		HTTPAddr:           getenv("HTTP_ADDR", ":8080"),
@@ -37,6 +39,7 @@ func Load() Config {
 		DevAuthEmail:       strings.TrimSpace(os.Getenv("DEV_AUTH_EMAIL")),
 		AdminEmails:        admins,
 		DockerHubRepos:     repos,
+		DockerHubImageRefs: imageRefs,
 		GoogleClientID:     strings.TrimSpace(os.Getenv("GOOGLE_CLIENT_ID")),
 		GoogleClientSecret: strings.TrimSpace(os.Getenv("GOOGLE_CLIENT_SECRET")),
 		GoogleRedirectURL:  strings.TrimSpace(os.Getenv("GOOGLE_REDIRECT_URL")),
