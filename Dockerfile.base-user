@@ -1,0 +1,21 @@
+FROM debian:bookworm
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      ca-certificates \
+      curl \
+      git \
+      nano \
+      tini \
+      dbus-x11 \
+      xfce4 \
+      xfce4-terminal \
+      xfce4-goodies \
+      xauth \
+      x11vnc && \
+    rm -rf /var/lib/apt/lists/*
+
+ENTRYPOINT ["/usr/bin/tini", "--"]
+CMD ["bash", "-lc", "sleep infinity"]

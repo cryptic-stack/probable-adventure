@@ -213,6 +213,12 @@ func (w *Worker) emit(ctx context.Context, rangeID int64, jobID *int64, level, k
 }
 
 func (w *Worker) pullImage(ctx context.Context, imageRef string) error {
+	// If the image is already present locally (for example, locally built base images),
+	// skip remote pull and proceed.
+	if _, _, err := w.docker.ImageInspectWithRaw(ctx, imageRef); err == nil {
+		return nil
+	}
+
 	rc, err := w.docker.ImagePull(ctx, imageRef, image.PullOptions{})
 	if err != nil {
 		return err

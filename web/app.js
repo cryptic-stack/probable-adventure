@@ -87,6 +87,9 @@ async function loadTemplates() {
     return;
   }
   renderTemplates(r.data);
+  if (Array.isArray(r.data) && r.data.length > 0 && !Number($("templateId").value)) {
+    $("templateId").value = r.data[0].id;
+  }
 }
 
 async function loadRanges() {
@@ -125,14 +128,21 @@ async function loadRangeDetail() {
 }
 
 async function createRange() {
+  const teamId = Number($("teamId").value);
+  const templateId = Number($("templateId").value);
+  if (!teamId || !templateId) {
+    setStatus("team_id and template_id are required", true);
+    return;
+  }
   const body = {
-    team_id: Number($("teamId").value),
-    template_id: Number($("templateId").value),
+    team_id: teamId,
+    template_id: templateId,
     name: $("rangeName").value,
   };
   const r = await api("/api/ranges", { method: "POST", body: JSON.stringify(body) });
   if (!r.ok) {
-    setStatus(`create range failed (${r.status})`, true);
+    const detail = typeof r.data === "string" ? r.data : JSON.stringify(r.data);
+    setStatus(`create range failed (${r.status}): ${detail}`, true);
     return;
   }
   setStatus(`Range queued (#${r.data.range.id})`);
