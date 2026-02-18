@@ -221,9 +221,8 @@ function renderImageOptions(items) {
 
 function inferDefaultContainerPort(image) {
   const x = (image || "").toLowerCase();
-  if (x.includes("desktop") || x.includes("xfce") || x.includes("novnc") || x.includes("base-user")) return 6080;
+  if (x.includes("desktop") || x.includes("xfce") || x.includes("novnc") || x.includes("base-user") || x.includes("base-server") || x.includes("attack-box")) return 8080;
   if (x.includes("web") || x.includes("nginx")) return 8080;
-  if (x.includes("base-server") || x.includes("attack-box") || x.includes("shellinabox")) return 7681;
   return 0;
 }
 

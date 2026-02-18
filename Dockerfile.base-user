@@ -1,24 +1,17 @@
-FROM debian:bookworm
+FROM ghcr.io/selkies-project/selkies-gstreamer/gst-py-example:main-ubuntu24.04
 
-ENV DEBIAN_FRONTEND=noninteractive
+USER root
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       ca-certificates \
       curl \
       git \
-      nano \
-      tini \
-      dbus-x11 \
-      xfce4 \
-      xfce4-terminal \
-      x11vnc \
-      xvfb \
-      novnc \
-      websockify && \
+      nano && \
     rm -rf /var/lib/apt/lists/*
 
-EXPOSE 6080
+ENV SELKIES_BASIC_AUTH_USER=ubuntu
+ENV SELKIES_BASIC_AUTH_PASSWORD=mypasswd
+ENV SELKIES_ENABLE_HTTPS=false
 
-ENTRYPOINT ["/usr/bin/tini", "--"]
-CMD ["bash", "-lc", "Xvfb :1 -screen 0 1280x800x24 & export DISPLAY=:1; startxfce4 >/tmp/xfce.log 2>&1 & x11vnc -display :1 -forever -shared -nopw -listen 0.0.0.0 -rfbport 5900 >/tmp/x11vnc.log 2>&1 & websockify --web=/usr/share/novnc/ 0.0.0.0:6080 localhost:5900"]
+EXPOSE 8080

@@ -18,7 +18,7 @@ $serverTemplate = @{
         network = "corporate"
         ports = @(
           @{
-            container = 7681
+            container = 8080
             host = 0
           }
         )
@@ -41,7 +41,7 @@ $userTemplate = @{
         network = "guest"
         ports = @(
           @{
-            container = 6080
+            container = 8080
             host = 0
           }
         )

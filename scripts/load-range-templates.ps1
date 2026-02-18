@@ -20,7 +20,7 @@ $attackTemplate = @{
         network = "redteam"
         ports = @(
           @{
-            container = 7681
+            container = 8080
             host = 0
           }
         )
@@ -66,7 +66,7 @@ $webTemplate = @{
         network = "blueteam"
         ports = @(
           @{
-            container = 7681
+            container = 8080
             host = 0
           }
         )
@@ -89,7 +89,7 @@ $netbirdTemplate = @{
         network = "netbird"
         ports = @(
           @{
-            container = 7681
+            container = 8080
             host = 0
           }
         )
@@ -123,8 +123,8 @@ $guestTemplate = @{
 
 $desktopTemplate = @{
   name = "guest-desktop-browser"
-  display_name = "Guest Browser Desktop (noVNC)"
-  description = "XFCE desktop accessible from browser via noVNC on port 6080."
+  display_name = "Guest Browser Desktop (WebRTC)"
+  description = "XFCE desktop accessible from browser via WebRTC on port 8080."
   quota = 10
   definition_json = @{
     name = "guest-desktop-browser"
@@ -135,7 +135,7 @@ $desktopTemplate = @{
         network = "guest"
         ports = @(
           @{
-            container = 6080
+            container = 8080
             host = 0
           }
         )

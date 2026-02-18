@@ -120,12 +120,12 @@ This loads starter templates for:
 - `netbird` (`netbird-relay`)
 - `corporate` (`corporate-web-lab`)
 - `guest` (`guest-web-kiosk`)
-- `guest` browser desktop (`guest-desktop-browser`, noVNC on published port)
+- `guest` browser desktop (`guest-desktop-browser`, WebRTC on published port)
 
 Web interaction defaults:
-- CLI images (`base-server`, `attack-box`) expose web terminal on container port `7681` (`shellinabox`)
-- Desktop images (`base-user`, `desktop-web`) expose noVNC on container port `6080`
-- Web lab images expose HTTP on container port `8080`
+- All curated images expose browser access on container port `8080`
+- Desktop access uses WebRTC via Selkies (base image for derived images)
+- Derived images (`base-server`, `attack-box`, `web-lab`, `desktop-web`) are built from the WebRTC base
 
 ## API Workflow (CLI)
 ### 1) Create template (admin)

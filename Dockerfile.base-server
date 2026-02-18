@@ -1,18 +1,14 @@
-FROM debian:bookworm
+ARG BASE_USER_IMAGE=crypticstack/probable-adventure-base-user:bookworm-xfce
+FROM ${BASE_USER_IMAGE}
 
-ENV DEBIAN_FRONTEND=noninteractive
+USER root
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-      ca-certificates \
-      curl \
-      git \
-      nano \
-      tini \
-      shellinabox && \
+      iproute2 \
+      iputils-ping \
+      dnsutils \
+      net-tools && \
     rm -rf /var/lib/apt/lists/*
 
-EXPOSE 7681
-
-ENTRYPOINT ["/usr/bin/tini", "--"]
-CMD ["shellinaboxd", "-t", "--disable-ssl", "-s", "/:LOGIN", "-p", "7681"]
+EXPOSE 8080

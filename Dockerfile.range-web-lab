@@ -1,14 +1,9 @@
-FROM debian:bookworm
+ARG BASE_SERVER_IMAGE=crypticstack/probable-adventure-base-server:bookworm
+FROM ${BASE_SERVER_IMAGE}
 
-ENV DEBIAN_FRONTEND=noninteractive
-
+USER root
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-      ca-certificates \
-      curl \
-      git \
-      nano \
-      tini \
       python3 && \
     rm -rf /var/lib/apt/lists/*
 
@@ -20,6 +15,3 @@ RUN mkdir -p /opt/lab && \
       '</body></html>' > /opt/lab/index.html
 
 EXPOSE 8080
-
-ENTRYPOINT ["/usr/bin/tini", "--"]
-CMD ["python3", "-m", "http.server", "8080", "--directory", "/opt/lab"]
