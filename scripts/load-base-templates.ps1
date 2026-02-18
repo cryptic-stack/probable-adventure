@@ -16,8 +16,12 @@ $serverTemplate = @{
         name = "server"
         image = $ServerImage
         network = "corporate"
-        command = @("bash", "-lc", "sleep infinity")
-        ports = @()
+        ports = @(
+          @{
+            container = 7681
+            host = 0
+          }
+        )
       }
     )
   }
@@ -35,8 +39,12 @@ $userTemplate = @{
         name = "desktop"
         image = $UserImage
         network = "guest"
-        command = @("bash", "-lc", "sleep infinity")
-        ports = @()
+        ports = @(
+          @{
+            container = 6080
+            host = 0
+          }
+        )
       }
     )
   }

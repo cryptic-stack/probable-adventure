@@ -102,6 +102,8 @@ pwsh ./scripts/build-range-images.ps1 -DockerHubUser crypticstack
 
 Push images:
 ```powershell
+docker push crypticstack/probable-adventure-base-server:bookworm
+docker push crypticstack/probable-adventure-base-user:bookworm-xfce
 docker push crypticstack/probable-adventure-attack-box:bookworm
 docker push crypticstack/probable-adventure-web-lab:bookworm
 docker push crypticstack/probable-adventure-desktop-web:bookworm-novnc
@@ -118,6 +120,11 @@ This loads starter templates for:
 - `corporate` (`corporate-web-lab`)
 - `guest` (`guest-web-kiosk`)
 - `guest` browser desktop (`guest-desktop-browser`, noVNC on published port)
+
+Web interaction defaults:
+- CLI images (`base-server`, `attack-box`) expose web terminal on container port `7681` (`shellinabox`)
+- Desktop images (`base-user`, `desktop-web`) expose noVNC on container port `6080`
+- Web lab images expose HTTP on container port `8080`
 
 ## API Workflow (CLI)
 ### 1) Create template (admin)

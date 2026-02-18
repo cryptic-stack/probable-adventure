@@ -9,6 +9,7 @@ RUN apt-get update && \
       git \
       nano \
       tini \
+      shellinabox \
       iproute2 \
       iputils-ping \
       dnsutils \
@@ -18,5 +19,7 @@ RUN apt-get update && \
       traceroute && \
     rm -rf /var/lib/apt/lists/*
 
+EXPOSE 7681
+
 ENTRYPOINT ["/usr/bin/tini", "--"]
-CMD ["bash", "-lc", "sleep infinity"]
+CMD ["shellinaboxd", "-t", "--disable-ssl", "-s", "/:LOGIN", "-p", "7681"]

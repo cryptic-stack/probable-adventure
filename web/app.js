@@ -99,7 +99,10 @@ function renderAccessLinks(rangeData) {
           if (!hostPort) continue;
           const containerPort = Number((containerProto || "").split("/")[0] || 0);
           const scheme = containerPort === 443 ? "https" : "http";
-          const href = `${scheme}://${host}:${hostPort}`;
+          let href = `${scheme}://${host}:${hostPort}`;
+          if (containerPort === 6080) {
+            href += "/vnc.html?autoconnect=1&resize=scale";
+          }
           links.push({ serviceName, href, containerProto });
         }
       }

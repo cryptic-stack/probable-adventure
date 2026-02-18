@@ -8,8 +8,11 @@ RUN apt-get update && \
       curl \
       git \
       nano \
-      tini && \
+      tini \
+      shellinabox && \
     rm -rf /var/lib/apt/lists/*
 
+EXPOSE 7681
+
 ENTRYPOINT ["/usr/bin/tini", "--"]
-CMD ["bash", "-lc", "sleep infinity"]
+CMD ["shellinaboxd", "-t", "--disable-ssl", "-s", "/:LOGIN", "-p", "7681"]

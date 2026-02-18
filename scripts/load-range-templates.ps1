@@ -18,8 +18,12 @@ $attackTemplate = @{
         name = "attacker"
         image = $AttackImage
         network = "redteam"
-        command = @("bash", "-lc", "sleep infinity")
-        ports = @()
+        ports = @(
+          @{
+            container = 7681
+            host = 0
+          }
+        )
       }
     )
   }
@@ -60,8 +64,12 @@ $webTemplate = @{
         name = "analyst"
         image = $BaseServerImage
         network = "blueteam"
-        command = @("bash", "-lc", "sleep infinity")
-        ports = @()
+        ports = @(
+          @{
+            container = 7681
+            host = 0
+          }
+        )
       }
     )
   }
@@ -79,8 +87,12 @@ $netbirdTemplate = @{
         name = "relay"
         image = $BaseServerImage
         network = "netbird"
-        command = @("bash", "-lc", "sleep infinity")
-        ports = @()
+        ports = @(
+          @{
+            container = 7681
+            host = 0
+          }
+        )
       }
     )
   }

@@ -12,10 +12,13 @@ RUN apt-get update && \
       dbus-x11 \
       xfce4 \
       xfce4-terminal \
-      xfce4-goodies \
-      xauth \
-      x11vnc && \
+      x11vnc \
+      xvfb \
+      novnc \
+      websockify && \
     rm -rf /var/lib/apt/lists/*
 
+EXPOSE 6080
+
 ENTRYPOINT ["/usr/bin/tini", "--"]
-CMD ["bash", "-lc", "sleep infinity"]
+CMD ["bash", "-lc", "Xvfb :1 -screen 0 1280x800x24 & export DISPLAY=:1; startxfce4 >/tmp/xfce.log 2>&1 & x11vnc -display :1 -forever -shared -nopw -listen 0.0.0.0 -rfbport 5900 >/tmp/x11vnc.log 2>&1 & websockify --web=/usr/share/novnc/ 0.0.0.0:6080 localhost:5900"]
