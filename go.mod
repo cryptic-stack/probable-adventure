@@ -6,10 +6,10 @@ require (
 	github.com/coreos/go-oidc/v3 v3.12.0
 	github.com/docker/docker v28.0.1+incompatible
 	github.com/docker/go-connections v0.5.0
-	github.com/go-chi/chi/v5 v5.2.0
+	github.com/go-chi/chi/v5 v5.2.2
 	github.com/gorilla/sessions v1.4.0
 	github.com/jackc/pgx/v5 v5.7.2
-	golang.org/x/oauth2 v0.24.0
+	golang.org/x/oauth2 v0.27.0
 )
 
 require (
@@ -19,7 +19,7 @@ require (
 	github.com/distribution/reference v0.6.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
-	github.com/go-jose/go-jose/v4 v4.0.2 // indirect
+	github.com/go-jose/go-jose/v4 v4.0.5 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
