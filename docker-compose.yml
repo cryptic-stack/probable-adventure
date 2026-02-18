@@ -46,11 +46,15 @@ services:
       DOCKERHUB_REPOS: crypticstack/probable-adventure-base-server,crypticstack/probable-adventure-base-user,crypticstack/probable-adventure-attack-box,crypticstack/probable-adventure-web-lab,crypticstack/probable-adventure-desktop-web
       DOCKERHUB_IMAGE_REFS: crypticstack/probable-adventure-base-server:bookworm,crypticstack/probable-adventure-base-user:bookworm-xfce,crypticstack/probable-adventure-attack-box:bookworm,crypticstack/probable-adventure-web-lab:bookworm,crypticstack/probable-adventure-desktop-web:bookworm-novnc
       GOOGLE_REDIRECT_URL: http://localhost:8080/auth/google/callback
+      DOCKER_HOST: unix:///var/run/docker.sock
     depends_on:
       migrate:
         condition: service_completed_successfully
     ports:
       - "8080:8080"
+    user: "0:0"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
   provisioner:
     build:

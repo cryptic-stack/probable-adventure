@@ -207,8 +207,10 @@ func (w *Worker) provision(ctx context.Context, job *jobs.ClaimedJob) error {
 			nil,
 		)
 		if upErr != nil {
+			_ = w.emit(ctx, job.RangeID, &job.ID, "error", "room.sync.error", "room instance upsert failed", map[string]any{"service_name": svc.Name, "error": upErr.Error()})
 			return upErr
 		}
+		_ = w.emit(ctx, job.RangeID, &job.ID, "info", "room.sync", "room instance synced", map[string]any{"service_name": svc.Name})
 		_ = w.emit(ctx, job.RangeID, &job.ID, "info", "provision.service", "started service "+svc.Name, map[string]any{"docker_id": containerID})
 		_ = w.emit(ctx, job.RangeID, &job.ID, "info", "provision.health", "healthy service "+svc.Name, nil)
 	}

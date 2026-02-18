@@ -243,7 +243,17 @@ async function loadImageCatalog() {
     select.innerHTML = '<option value="">No images found</option>';
     return;
   }
-  imageCatalog = r.data.slice();
+  const rank = (img) => {
+    const x = String(img || "").toLowerCase();
+    if (x.includes("desktop") || x.includes("xfce") || x.includes("kde")) return 5;
+    if (x.includes("base-user") || x.includes("neko")) return 4;
+    if (x.includes("browser")) return 3;
+    if (x.includes("web")) return 2;
+    return 1;
+  };
+  const sorted = r.data.slice().sort((a, b) => rank(b.image) - rank(a.image) || a.image.localeCompare(b.image));
+  const focused = sorted.filter((x) => rank(x.image) >= 3);
+  imageCatalog = focused.length ? focused : sorted;
   select.innerHTML = imageCatalog.map((i) => `<option value="${i.image}">${i.image}</option>`).join("");
 }
 
@@ -348,6 +358,23 @@ async function updateRoom() {
   await loadRangeDetail();
 }
 
+async function roomAction(action) {
+  const id = Number($("rangeId").value || currentRangeId);
+  const service = (selectedRoomService || "").trim();
+  if (!id || !service) {
+    setStatus("select a room first", true);
+    return;
+  }
+  const r = await api(`/api/ranges/${id}/rooms/${encodeURIComponent(service)}/${action}`, { method: "POST" });
+  if (!r.ok) {
+    const detail = typeof r.data === "string" ? r.data : JSON.stringify(r.data);
+    setStatus(`${action} failed (${r.status}): ${detail}`, true);
+    return;
+  }
+  setStatus(`Room ${service} ${action} requested`);
+  await loadRangeDetail();
+}
+
 async function destroyRange() {
   const id = Number($("rangeId").value || currentRangeId);
   if (!id) return;
@@ -405,6 +432,10 @@ $("editSelectedRoom").onclick = () => {
   if (!selectedRoomService) return;
   openRoomModal(selectedRoomService);
 };
+$("startSelectedRoom").onclick = () => roomAction("start");
+$("stopSelectedRoom").onclick = () => roomAction("stop");
+$("restartSelectedRoom").onclick = () => roomAction("restart");
+$("recreateSelectedRoom").onclick = () => roomAction("recreate");
 $("roomModal").onclick = (ev) => {
   if (ev.target === $("roomModal")) closeRoomModal();
 };

@@ -56,6 +56,8 @@ Without `make`:
   `docker compose run --rm migrate -path /migrations -database postgres://range:range@postgres:5432/rangedb?sslmode=disable up`
 - Stop + remove volumes: `docker compose down -v`
 
+Room lifecycle actions (`start/stop/restart/recreate`) require API to reach Docker Engine (`/var/run/docker.sock` mounted in compose).
+
 ## Health Check
 ```bash
 curl http://localhost:8080/healthz
@@ -109,18 +111,6 @@ docker push crypticstack/probable-adventure-attack-box:bookworm
 docker push crypticstack/probable-adventure-web-lab:bookworm
 docker push crypticstack/probable-adventure-desktop-web:bookworm-novnc
 ```
-
-Load matching templates:
-```powershell
-pwsh ./scripts/load-range-templates.ps1 -ApiBase http://localhost:8080
-```
-This loads starter templates for:
-- `redteam` (`redteam-attack-box`)
-- `blueteam` (`blueteam-analyst`)
-- `netbird` (`netbird-relay`)
-- `corporate` (`corporate-web-lab`)
-- `guest` (`guest-web-kiosk`)
-- `guest` browser desktop (`guest-desktop-browser`, WebRTC on published port)
 
 Web interaction defaults:
 - All curated images expose browser access on container port `8080`
@@ -187,7 +177,15 @@ curl -X PUT http://localhost:8080/api/ranges/1/rooms/desktop \
 curl -N http://localhost:8080/api/ranges/1/events
 ```
 
-### 8) Destroy / reset
+### 8) Room lifecycle actions
+```bash
+curl -X POST http://localhost:8080/api/ranges/1/rooms/desktop/start
+curl -X POST http://localhost:8080/api/ranges/1/rooms/desktop/stop
+curl -X POST http://localhost:8080/api/ranges/1/rooms/desktop/restart
+curl -X POST http://localhost:8080/api/ranges/1/rooms/desktop/recreate
+```
+
+### 9) Destroy / reset
 ```bash
 curl -X POST http://localhost:8080/api/ranges/1/destroy
 curl -X POST http://localhost:8080/api/ranges/1/reset
