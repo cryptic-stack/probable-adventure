@@ -17,6 +17,14 @@ function getPortsMap(rangeData) {
   return ports;
 }
 
+function slugify(s) {
+  return String(s || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 48);
+}
+
 function setStatus(text, isError = false) {
   const el = $("status");
   el.textContent = text || "";
@@ -101,8 +109,18 @@ function renderPorts(rangeData) {
 
 function renderAccessLinks(rangeData) {
   const host = window.location.hostname || "localhost";
+  const rangeId = rangeData?.range?.id;
   const ports = getPortsMap(rangeData);
+  const resourceImageByService = {};
+  const resources = Array.isArray(rangeData?.resources) ? rangeData.resources : [];
+  for (const r of resources) {
+    if (r?.resource_type !== "container" || !r?.service_name) continue;
+    const md = parseMaybeJSON(r?.metadata);
+    if (md?.image) resourceImageByService[r.service_name] = md.image;
+  }
+
   const links = [];
+  const seen = new Set();
   if (ports && typeof ports === "object") {
     for (const [serviceName, mapping] of Object.entries(ports)) {
       if (!mapping || typeof mapping !== "object") continue;
@@ -113,11 +131,38 @@ function renderAccessLinks(rangeData) {
           if (!hostPort) continue;
           const containerPort = Number((containerProto || "").split("/")[0] || 0);
           const scheme = containerPort === 443 ? "https" : "http";
-          let href = `${scheme}://${host}:${hostPort}`;
-          if (containerPort === 6080) {
-            href += "/vnc.html?autoconnect=1&resize=scale";
+          const pathSuffix = containerPort === 6080 ? "/vnc.html?autoconnect=1&resize=scale" : "";
+
+          const directHref = `${scheme}://${host}:${hostPort}${pathSuffix}`;
+          const directKey = `${serviceName}|${directHref}|direct`;
+          if (!seen.has(directKey)) {
+            seen.add(directKey);
+            links.push({ serviceName, href: directHref, containerProto, flavor: "nat-port" });
           }
-          links.push({ serviceName, href, containerProto });
+
+          if (rangeId) {
+            const svcHost = `${slugify(serviceName)}-r${rangeId}.localhost`;
+            const svcHref = `${scheme}://${svcHost}:${hostPort}${pathSuffix}`;
+            const svcKey = `${serviceName}|${svcHref}|svc`;
+            if (!seen.has(svcKey)) {
+              seen.add(svcKey);
+              links.push({ serviceName, href: svcHref, containerProto, flavor: "hostname" });
+            }
+
+            const image = resourceImageByService[serviceName];
+            if (image) {
+              const imageSlug = slugify(image.split(":")[0].split("/").pop());
+              if (imageSlug) {
+                const imgHost = `${imageSlug}-r${rangeId}.localhost`;
+                const imgHref = `${scheme}://${imgHost}:${hostPort}${pathSuffix}`;
+                const imgKey = `${serviceName}|${imgHref}|img`;
+                if (!seen.has(imgKey)) {
+                  seen.add(imgKey);
+                  links.push({ serviceName, href: imgHref, containerProto, flavor: "image-hostname" });
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -132,7 +177,7 @@ function renderAccessLinks(rangeData) {
     return;
   }
   el.innerHTML = links.map((l) =>
-    `<div><a href="${l.href}" target="_blank" rel="noopener noreferrer">${l.serviceName}: ${l.href}</a> <span class="muted">(${l.containerProto})</span></div>`
+    `<div><a href="${l.href}" target="_blank" rel="noopener noreferrer">${l.serviceName}: ${l.href}</a> <span class="muted">(${l.containerProto}, ${l.flavor})</span></div>`
   ).join("");
 }
 

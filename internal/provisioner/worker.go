@@ -176,7 +176,7 @@ func (w *Worker) provision(ctx context.Context, job *jobs.ClaimedJob) error {
 			ResourceType: "container",
 			DockerID:     containerID,
 			ServiceName:  svc.Name,
-			Metadata:     []byte(`{"network":"` + segment + `"}`),
+			Metadata:     []byte(`{"network":"` + segment + `","image":"` + svc.Image + `"}`),
 		})
 		_ = w.emit(ctx, job.RangeID, &job.ID, "info", "provision.service", "started service "+svc.Name, map[string]any{"docker_id": containerID})
 		_ = w.emit(ctx, job.RangeID, &job.ID, "info", "provision.health", "healthy service "+svc.Name, nil)
