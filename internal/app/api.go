@@ -5,9 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/cryptic-stack/probable-adventure/internal/audit"
@@ -67,6 +71,8 @@ func (s *Server) Router() http.Handler {
 			pr.Get("/templates/{id}", s.getTemplate)
 			pr.Get("/ranges", s.listRanges)
 			pr.Get("/ranges/{id}", s.getRange)
+			pr.Get("/ranges/{id}/access/{service}", s.proxyRangeService)
+			pr.Get("/ranges/{id}/access/{service}/*", s.proxyRangeService)
 			pr.Get("/ranges/{id}/events", s.streamRangeEvents)
 		})
 
@@ -358,6 +364,87 @@ func (s *Server) streamRangeEvents(w http.ResponseWriter, r *http.Request) {
 		http.ResponseWriter
 		http.Flusher
 	}{ResponseWriter: w, Flusher: flusher}, s.q, id, s.poll)
+}
+
+func (s *Server) proxyRangeService(w http.ResponseWriter, r *http.Request) {
+	u, _ := auth.CurrentUser(r)
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
+		auth.JSON(w, 400, map[string]string{"error": "invalid id"})
+		return
+	}
+	service := strings.TrimSpace(chi.URLParam(r, "service"))
+	if service == "" {
+		auth.JSON(w, 400, map[string]string{"error": "invalid service"})
+		return
+	}
+	rg, err := s.q.GetRangeByIDForUser(r.Context(), id, u.ID)
+	if err != nil {
+		auth.JSON(w, 404, map[string]string{"error": "range not found"})
+		return
+	}
+	type hostBinding struct {
+		HostIP   string `json:"HostIp"`
+		HostPort string `json:"HostPort"`
+	}
+	type portsMap map[string]map[string][]hostBinding
+	var pm struct {
+		Ports portsMap `json:"ports"`
+	}
+	_ = json.Unmarshal(rg.Metadata, &pm)
+	svc := pm.Ports[service]
+	if len(svc) == 0 {
+		auth.JSON(w, 404, map[string]string{"error": "service has no published ports"})
+		return
+	}
+	var hostPort string
+	for _, binds := range svc {
+		if len(binds) > 0 && binds[0].HostPort != "" {
+			hostPort = binds[0].HostPort
+			break
+		}
+	}
+	if hostPort == "" {
+		auth.JSON(w, 404, map[string]string{"error": "service has no host port"})
+		return
+	}
+	targetHost := firstReachableHost(hostPort)
+	targetURL, err := url.Parse("http://" + targetHost + ":" + hostPort)
+	if err != nil {
+		auth.JSON(w, 500, map[string]string{"error": "proxy target parse failed"})
+		return
+	}
+	p := httputil.NewSingleHostReverseProxy(targetURL)
+	orig := p.Director
+	p.Director = func(req *http.Request) {
+		orig(req)
+		tail := chi.URLParam(r, "*")
+		if strings.TrimSpace(tail) == "" {
+			req.URL.Path = "/"
+		} else {
+			if !strings.HasPrefix(tail, "/") {
+				tail = "/" + tail
+			}
+			req.URL.Path = tail
+		}
+		req.URL.RawQuery = r.URL.RawQuery
+	}
+	p.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
+		auth.JSON(w, 502, map[string]string{"error": "upstream service unavailable"})
+	}
+	p.ServeHTTP(w, r)
+}
+
+func firstReachableHost(port string) string {
+	candidates := []string{"host.docker.internal", "127.0.0.1", "localhost"}
+	for _, h := range candidates {
+		conn, err := net.DialTimeout("tcp", net.JoinHostPort(h, port), 300*time.Millisecond)
+		if err == nil {
+			_ = conn.Close()
+			return h
+		}
+	}
+	return "localhost"
 }
 
 func StartHTTP(ctx context.Context, cfg config.Config, pool *pgxpool.Pool) error {

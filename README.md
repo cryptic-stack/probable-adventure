@@ -91,6 +91,7 @@ Dashboard supports:
 - List ranges
 - View range details + port mappings
 - Clickable access links for published service ports (including web desktop templates)
+ - Stable same-origin access proxy links: `/api/ranges/{id}/access/{service}`
 - Destroy/reset range
 - Live SSE event stream for selected range
 

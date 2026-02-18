@@ -132,6 +132,12 @@ function renderAccessLinks(rangeData) {
           const containerPort = Number((containerProto || "").split("/")[0] || 0);
           const scheme = containerPort === 443 ? "https" : "http";
           const pathSuffix = containerPort === 6080 ? "/vnc.html?autoconnect=1&resize=scale" : "";
+          const proxyHref = `/api/ranges/${rangeId}/access/${encodeURIComponent(serviceName)}${containerPort === 6080 ? "/vnc.html?autoconnect=1&resize=scale" : ""}`;
+          const proxyKey = `${serviceName}|${proxyHref}|proxy`;
+          if (!seen.has(proxyKey)) {
+            seen.add(proxyKey);
+            links.push({ serviceName, href: proxyHref, containerProto, flavor: "proxy" });
+          }
 
           const directHref = `${scheme}://${host}:${hostPort}${pathSuffix}`;
           const directKey = `${serviceName}|${directHref}|direct`;
