@@ -17,10 +17,16 @@ services:
 
   migrate:
     image: migrate/migrate:4
-    profiles: ["migrate"]
+    restart: "no"
     depends_on:
       postgres:
         condition: service_healthy
+    command:
+      - -path
+      - /migrations
+      - -database
+      - postgres://range:range@postgres:5432/rangedb?sslmode=disable
+      - up
     volumes:
       - ./migrations:/migrations
     environment:
@@ -39,8 +45,8 @@ services:
       ADMIN_EMAILS: dev@example.com
       GOOGLE_REDIRECT_URL: http://localhost:8080/auth/google/callback
     depends_on:
-      postgres:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     ports:
       - "8080:8080"
 
@@ -54,8 +60,8 @@ services:
       WORKER_ID: provisioner-1
       DOCKER_HOST: unix:///var/run/docker.sock
     depends_on:
-      postgres:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 

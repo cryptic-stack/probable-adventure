@@ -44,7 +44,7 @@ DOCKER_HOST=unix:///var/run/docker.sock
 With `make`:
 - Start: `make dev`
 - Logs: `make logs`
-- Migrate up: `make migrate-up`
+- Migrate up: `make migrate-up` (optional; `make dev` now runs migrate service automatically via compose)
 - Stop + remove volumes: `make down`
 
 Without `make`:
@@ -156,6 +156,8 @@ docker compose exec -T postgres psql -U range -d rangedb -c "select range_id,res
 
 ## Troubleshooting
 - Docker pull/login issues: run `docker login`.
+- `{\"error\":\"db error\"}` on UI/API: ensure migrations ran. With current compose, restart stack:
+  `docker compose down -v && docker compose up -d --build`
 - If `/` returns 404 in containerized runs, rebuild API image:
   `docker compose up -d --build`
 - If jobs are queued but not running, check provisioner logs:
