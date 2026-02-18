@@ -71,9 +71,16 @@
     }
     .hero strong { font-size: 18px; display: block; margin-bottom: 4px; }
     .links { border: 1px solid var(--line); border-radius: 10px; padding: 10px; min-height: 72px; }
+    .rooms-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap: 8px; margin-top: 10px; }
+    .room-card { border: 1px solid var(--line); border-radius: 10px; padding: 10px; background: #fff; }
+    .room-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .pill { font-size: 11px; border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; color: var(--muted); }
     pre { margin: 0; background: #111827; color: #e5e7eb; border-radius: 10px; padding: 10px; max-height: 280px; overflow: auto; }
     details { border: 1px solid var(--line); border-radius: 10px; padding: 10px; margin-top: 10px; background: #fff; }
     summary { cursor: pointer; font-weight: 600; }
+    .modal { position: fixed; inset: 0; background: rgba(15,23,32,.45); display: none; align-items: center; justify-content: center; z-index: 20; }
+    .modal.show { display: flex; }
+    .modal-card { width: min(520px, calc(100vw - 24px)); background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
     @media (max-width: 1000px) {
       .grid { grid-template-columns: 1fr; }
     }
@@ -127,20 +134,10 @@
         </div>
         <div id="accessLinks" class="links mono muted">No published links</div>
 
-        <details open>
-          <summary>Room Settings</summary>
-          <div class="row" style="margin-top: 8px;">
-            <div class="row2">
-              <input id="roomService" placeholder="service (desktop)" />
-              <input id="roomMaxConn" type="number" min="0" max="500" placeholder="max connections" />
-            </div>
-            <div class="row2">
-              <input id="roomUserPass" placeholder="user password" />
-              <input id="roomAdminPass" placeholder="admin password" />
-            </div>
-            <button id="updateRoom" class="primary">Save Room Settings</button>
-          </div>
-        </details>
+        <div class="section-title" style="margin-top: 12px;">Rooms</div>
+        <div id="roomsGrid" class="rooms-grid">
+          <div class="room-card muted">No rooms</div>
+        </div>
 
         <details>
           <summary>Live Events</summary>
@@ -186,6 +183,24 @@
           <pre id="rangeDetail" class="mono">{}</pre>
         </details>
       </main>
+    </div>
+  </div>
+
+  <div id="roomModal" class="modal">
+    <div class="modal-card">
+      <div class="row">
+        <div class="section-title">Edit Room Settings</div>
+        <input id="roomService" placeholder="service" readonly />
+        <div class="row2">
+          <input id="roomUserPass" placeholder="user password" />
+          <input id="roomAdminPass" placeholder="admin password" />
+        </div>
+        <input id="roomMaxConn" type="number" min="0" max="500" placeholder="max connections" />
+        <div class="toolbar" style="justify-content: end;">
+          <button id="closeRoomModal">Cancel</button>
+          <button id="updateRoom" class="primary">Save Room Settings</button>
+        </div>
+      </div>
     </div>
   </div>
 

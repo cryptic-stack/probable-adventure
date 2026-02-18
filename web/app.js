@@ -4,6 +4,7 @@ let es = null;
 let currentRangeId = null;
 let templateCache = [];
 let currentRangeData = null;
+let selectedRoomService = "";
 
 function parseMaybeJSON(v) {
   if (typeof v === "string") {
@@ -107,29 +108,88 @@ function roomSettingsForService(rangeData, serviceName) {
   return rooms.find((r) => r.service_name === serviceName) || null;
 }
 
-function hydrateRoomEditor(rangeData) {
-  const links = Array.isArray(rangeData?.access) ? rangeData.access : [];
-  const firstService = links.length ? links[0].service_name : "";
-  $("roomService").value = firstService || "";
-
-  if (!firstService) {
+function hydrateRoomEditor(rangeData, serviceName) {
+  $("roomService").value = serviceName || "";
+  if (!serviceName) {
     $("roomUserPass").value = "";
     $("roomAdminPass").value = "";
     $("roomMaxConn").value = "";
     return;
   }
-  const room = roomSettingsForService(rangeData, firstService);
+  const room = roomSettingsForService(rangeData, serviceName);
   const settings = parseMaybeJSON(room?.settings_json) || {};
   $("roomUserPass").value = settings.user_pass || "";
   $("roomAdminPass").value = settings.admin_pass || "";
   $("roomMaxConn").value = Number.isInteger(settings.max_connections) ? settings.max_connections : "";
 }
 
+function getRoomAccessByService(rangeData) {
+  const links = Array.isArray(rangeData?.access) ? rangeData.access : [];
+  const byService = {};
+  for (const l of links) {
+    if (l?.service_name && l?.url) byService[l.service_name] = l.url;
+  }
+  return byService;
+}
+
+function openRoomModal(serviceName) {
+  selectedRoomService = serviceName || "";
+  hydrateRoomEditor(currentRangeData, selectedRoomService);
+  $("roomModal").classList.add("show");
+}
+
+function closeRoomModal() {
+  $("roomModal").classList.remove("show");
+}
+
+function renderRooms(rangeData) {
+  const grid = $("roomsGrid");
+  const rooms = Array.isArray(rangeData?.rooms) ? rangeData.rooms : [];
+  const byService = getRoomAccessByService(rangeData);
+  const services = Object.keys(byService);
+
+  if (!services.length && !rooms.length) {
+    grid.innerHTML = '<div class="room-card muted">No rooms</div>';
+    return;
+  }
+
+  const all = new Set([...services, ...rooms.map((r) => r.service_name).filter(Boolean)]);
+  const cards = [];
+  for (const serviceName of all) {
+    const room = roomSettingsForService(rangeData, serviceName);
+    const status = room?.status || "pending";
+    const link = byService[serviceName] || "";
+    cards.push(
+      `<div class="room-card">
+        <div class="room-head">
+          <strong>${serviceName}</strong>
+          <span class="pill">${status}</span>
+        </div>
+        <div class="toolbar">
+          <button data-room-open="${serviceName}" ${link ? "" : "disabled"}>Open</button>
+          <button data-room-edit="${serviceName}">Settings</button>
+        </div>
+      </div>`
+    );
+  }
+  grid.innerHTML = cards.join("");
+  grid.querySelectorAll("button[data-room-open]").forEach((btn) => {
+    btn.onclick = () => {
+      const svc = btn.dataset.roomOpen;
+      const href = byService[svc];
+      if (href) window.open(href, "_blank", "noopener,noreferrer");
+    };
+  });
+  grid.querySelectorAll("button[data-room-edit]").forEach((btn) => {
+    btn.onclick = () => openRoomModal(btn.dataset.roomEdit);
+  });
+}
+
 function renderRange(rangeData) {
   currentRangeData = rangeData;
   renderHero(rangeData);
   renderAccessLinks(rangeData);
-  hydrateRoomEditor(rangeData);
+  renderRooms(rangeData);
   $("rangeDetail").textContent = JSON.stringify(rangeData, null, 2);
 }
 
@@ -263,7 +323,7 @@ async function createTemplate() {
 
 async function updateRoom() {
   const id = Number($("rangeId").value || currentRangeId);
-  const service = $("roomService").value.trim();
+  const service = (selectedRoomService || $("roomService").value || "").trim();
   if (!id || !service) {
     setStatus("range id and service are required", true);
     return;
@@ -284,6 +344,7 @@ async function updateRoom() {
     return;
   }
   setStatus(`Room settings saved for ${service}. Reset job queued.`);
+  closeRoomModal();
   await loadRangeDetail();
 }
 
@@ -334,6 +395,10 @@ $("destroyRange").onclick = destroyRange;
 $("resetRange").onclick = resetRange;
 $("refreshImages").onclick = loadImageCatalog;
 $("createTemplate").onclick = createTemplate;
+$("closeRoomModal").onclick = closeRoomModal;
+$("roomModal").onclick = (ev) => {
+  if (ev.target === $("roomModal")) closeRoomModal();
+};
 
 window.addEventListener("beforeunload", closeEvents);
 
