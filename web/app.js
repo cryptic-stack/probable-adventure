@@ -89,20 +89,6 @@ function renderHero(rangeData) {
   $("activeRangeMeta").textContent = `Team ${range.team_id} | Template ${range.template_id} | Status: ${range.status}`;
 }
 
-function renderAccessLinks(rangeData) {
-  const links = Array.isArray(rangeData?.access) ? rangeData.access : [];
-  const el = $("accessLinks");
-  if (!links.length) {
-    el.textContent = rangeData?.range?.status === "ready"
-      ? "No room access links available."
-      : "Range is not ready yet.";
-    return;
-  }
-  el.innerHTML = links.map((l) =>
-    `<div><a href="${l.url}" target="_blank" rel="noopener noreferrer">${l.service_name}: ${l.url}</a></div>`
-  ).join("");
-}
-
 function roomSettingsForService(rangeData, serviceName) {
   const rooms = Array.isArray(rangeData?.rooms) ? rangeData.rooms : [];
   return rooms.find((r) => r.service_name === serviceName) || null;
@@ -150,17 +136,22 @@ function renderRooms(rangeData) {
 
   if (!services.length && !rooms.length) {
     grid.innerHTML = '<div class="room-card muted">No rooms</div>';
+    renderRoomDrawer(rangeData);
     return;
   }
 
   const all = new Set([...services, ...rooms.map((r) => r.service_name).filter(Boolean)]);
+  const ordered = Array.from(all).sort();
+  if (!selectedRoomService || !ordered.includes(selectedRoomService)) {
+    selectedRoomService = ordered[0] || "";
+  }
   const cards = [];
-  for (const serviceName of all) {
+  for (const serviceName of ordered) {
     const room = roomSettingsForService(rangeData, serviceName);
     const status = room?.status || "pending";
     const link = byService[serviceName] || "";
     cards.push(
-      `<div class="room-card">
+      `<div class="room-card ${selectedRoomService === serviceName ? "active" : ""}" data-room-select="${serviceName}">
         <div class="room-head">
           <strong>${serviceName}</strong>
           <span class="pill">${status}</span>
@@ -183,12 +174,43 @@ function renderRooms(rangeData) {
   grid.querySelectorAll("button[data-room-edit]").forEach((btn) => {
     btn.onclick = () => openRoomModal(btn.dataset.roomEdit);
   });
+  grid.querySelectorAll("[data-room-select]").forEach((el) => {
+    el.onclick = (ev) => {
+      if (ev.target && ev.target.tagName === "BUTTON") return;
+      selectedRoomService = el.dataset.roomSelect || "";
+      renderRooms(rangeData);
+    };
+  });
+  renderRoomDrawer(rangeData);
+}
+
+function renderRoomDrawer(rangeData) {
+  const byService = getRoomAccessByService(rangeData);
+  const service = selectedRoomService || Object.keys(byService)[0] || "";
+  const room = roomSettingsForService(rangeData, service);
+  const link = byService[service] || "";
+
+  if (!service) {
+    $("roomDrawerTitle").textContent = "No Room Selected";
+    $("roomDrawerStatus").textContent = "Select a room card.";
+    $("roomDrawerLink").textContent = "No link";
+    $("openSelectedRoom").disabled = true;
+    $("editSelectedRoom").disabled = true;
+    return;
+  }
+
+  $("roomDrawerTitle").textContent = service;
+  $("roomDrawerStatus").textContent = `Status: ${room?.status || "pending"}`;
+  $("roomDrawerLink").innerHTML = link
+    ? `<a href="${link}" target="_blank" rel="noopener noreferrer">${link}</a>`
+    : "No room link yet";
+  $("openSelectedRoom").disabled = !link;
+  $("editSelectedRoom").disabled = false;
 }
 
 function renderRange(rangeData) {
   currentRangeData = rangeData;
   renderHero(rangeData);
-  renderAccessLinks(rangeData);
   renderRooms(rangeData);
   $("rangeDetail").textContent = JSON.stringify(rangeData, null, 2);
 }
@@ -396,6 +418,16 @@ $("resetRange").onclick = resetRange;
 $("refreshImages").onclick = loadImageCatalog;
 $("createTemplate").onclick = createTemplate;
 $("closeRoomModal").onclick = closeRoomModal;
+$("openSelectedRoom").onclick = () => {
+  if (!currentRangeData) return;
+  const links = getRoomAccessByService(currentRangeData);
+  const link = links[selectedRoomService || ""] || "";
+  if (link) window.open(link, "_blank", "noopener,noreferrer");
+};
+$("editSelectedRoom").onclick = () => {
+  if (!selectedRoomService) return;
+  openRoomModal(selectedRoomService);
+};
 $("roomModal").onclick = (ev) => {
   if (ev.target === $("roomModal")) closeRoomModal();
 };
