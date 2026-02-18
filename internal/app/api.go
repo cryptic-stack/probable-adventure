@@ -1,0 +1,368 @@
+package app
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"net/http"
+	"os"
+	"strconv"
+	"time"
+
+	"github.com/cryptic-stack/probable-adventure/internal/audit"
+	"github.com/cryptic-stack/probable-adventure/internal/auth"
+	"github.com/cryptic-stack/probable-adventure/internal/config"
+	"github.com/cryptic-stack/probable-adventure/internal/db/sqlc"
+	"github.com/cryptic-stack/probable-adventure/internal/rbac"
+	"github.com/cryptic-stack/probable-adventure/internal/sse"
+	tpl "github.com/cryptic-stack/probable-adventure/internal/templates"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
+)
+
+type Server struct {
+	cfg   config.Config
+	pool  *pgxpool.Pool
+	q     *sqlc.Queries
+	authm *auth.Manager
+	audit *audit.Logger
+	poll  time.Duration
+	web   string
+}
+
+func NewServer(ctx context.Context, cfg config.Config, pool *pgxpool.Pool) (*Server, error) {
+	a, err := auth.NewManager(ctx, cfg)
+	if err != nil {
+		return nil, err
+	}
+	q := sqlc.New(pool)
+	return &Server{cfg: cfg, pool: pool, q: q, authm: a, audit: audit.New(q), poll: time.Second, web: resolveWebDir()}, nil
+}
+
+func (s *Server) Router() http.Handler {
+	r := chi.NewRouter()
+	r.Use(middleware.RequestID, middleware.RealIP, middleware.Logger, middleware.Recoverer)
+	r.Use(auth.UserMiddleware(s.cfg, s.authm, s.q))
+
+	r.Get("/healthz", s.handleHealth)
+	r.Get("/auth/google/login", s.handleGoogleLogin)
+	r.Get("/auth/google/callback", s.handleGoogleCallback)
+	r.Post("/auth/logout", s.handleLogout)
+
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, s.web+"/index.html")
+	})
+	r.Handle("/web/*", http.StripPrefix("/web/", http.FileServer(http.Dir(s.web))))
+
+	r.Route("/api", func(api chi.Router) {
+		api.With(auth.RequireUser).Get("/me", s.handleMe)
+
+		api.Group(func(pr chi.Router) {
+			pr.Use(auth.RequireUser)
+			pr.Get("/templates", s.listTemplates)
+			pr.Get("/templates/{id}", s.getTemplate)
+			pr.Get("/ranges", s.listRanges)
+			pr.Get("/ranges/{id}", s.getRange)
+			pr.Get("/ranges/{id}/events", s.streamRangeEvents)
+		})
+
+		api.Group(func(sw chi.Router) {
+			sw.Use(auth.RequireUser)
+			sw.With(rbac.RequireRole("admin")).Post("/templates", s.createTemplate)
+			sw.Post("/ranges", s.createRange)
+			sw.Post("/ranges/{id}/destroy", s.destroyRange)
+			sw.Post("/ranges/{id}/reset", s.resetRange)
+		})
+	})
+
+	return r
+}
+
+func resolveWebDir() string {
+	if _, err := os.Stat("web/index.html"); err == nil {
+		return "web"
+	}
+	if _, err := os.Stat("/web/index.html"); err == nil {
+		return "/web"
+	}
+	return "web"
+}
+
+func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+	defer cancel()
+	status := "ok"
+	dbStatus := "ok"
+	if err := s.q.Ping(ctx); err != nil {
+		dbStatus = "error"
+		status = "degraded"
+	}
+	auth.JSON(w, http.StatusOK, map[string]string{"status": status, "db": dbStatus})
+}
+
+func (s *Server) handleGoogleLogin(w http.ResponseWriter, r *http.Request) {
+	if err := s.authm.StartLogin(w, r); err != nil {
+		auth.JSON(w, 400, map[string]string{"error": err.Error()})
+	}
+}
+
+func (s *Server) handleGoogleCallback(w http.ResponseWriter, r *http.Request) {
+	claims, err := s.authm.HandleCallback(w, r)
+	if err != nil {
+		auth.JSON(w, 400, map[string]string{"error": err.Error()})
+		return
+	}
+	if err := s.authm.SetSessionEmail(w, r, claims.Email); err != nil {
+		auth.JSON(w, 500, map[string]string{"error": "session save failed"})
+		return
+	}
+	http.Redirect(w, r, "/", http.StatusFound)
+}
+
+func (s *Server) handleLogout(w http.ResponseWriter, r *http.Request) {
+	_ = s.authm.ClearSession(w, r)
+	auth.JSON(w, 200, map[string]string{"status": "logged_out"})
+}
+
+func (s *Server) handleMe(w http.ResponseWriter, r *http.Request) {
+	u, _ := auth.CurrentUser(r)
+	auth.JSON(w, 200, u)
+}
+
+type createTemplateReq struct {
+	Name        string          `json:"name"`
+	DisplayName string          `json:"display_name"`
+	Description string          `json:"description"`
+	Definition  json.RawMessage `json:"definition_json"`
+	Quota       int32           `json:"quota"`
+}
+
+func (s *Server) createTemplate(w http.ResponseWriter, r *http.Request) {
+	u, _ := auth.CurrentUser(r)
+	var req createTemplateReq
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		auth.JSON(w, 400, map[string]string{"error": "invalid json"})
+		return
+	}
+	if req.Name == "" || req.DisplayName == "" {
+		auth.JSON(w, 400, map[string]string{"error": "name and display_name required"})
+		return
+	}
+	if req.Quota <= 0 {
+		req.Quota = 1
+	}
+	if err := tpl.ValidateDefinition(req.Definition); err != nil {
+		auth.JSON(w, 400, map[string]string{"error": err.Error()})
+		return
+	}
+	v, err := s.q.GetLatestTemplateVersionByName(r.Context(), req.Name)
+	if err != nil {
+		auth.JSON(w, 500, map[string]string{"error": "db error"})
+		return
+	}
+	t, err := s.q.CreateTemplate(r.Context(), req.Name, v+1, req.DisplayName, req.Description, req.Definition, req.Quota, u.ID)
+	if err != nil {
+		auth.JSON(w, 500, map[string]string{"error": "create failed"})
+		return
+	}
+	s.audit.Log(r.Context(), u.ID, nil, nil, "template.create", map[string]any{"template_id": t.ID})
+	auth.JSON(w, 201, t)
+}
+
+func (s *Server) listTemplates(w http.ResponseWriter, r *http.Request) {
+	t, err := s.q.ListTemplates(r.Context())
+	if err != nil {
+		auth.JSON(w, 500, map[string]string{"error": "db error"})
+		return
+	}
+	auth.JSON(w, 200, t)
+}
+
+func (s *Server) getTemplate(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
+		auth.JSON(w, 400, map[string]string{"error": "invalid id"})
+		return
+	}
+	t, err := s.q.GetTemplateByID(r.Context(), id)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			auth.JSON(w, 404, map[string]string{"error": "not found"})
+			return
+		}
+		auth.JSON(w, 500, map[string]string{"error": "db error"})
+		return
+	}
+	auth.JSON(w, 200, t)
+}
+
+type createRangeReq struct {
+	TeamID     int64  `json:"team_id"`
+	TemplateID int64  `json:"template_id"`
+	Name       string `json:"name"`
+}
+
+func (s *Server) userInTeam(ctx context.Context, userID, teamID int64) (bool, error) {
+	return s.q.TeamMembershipExists(ctx, userID, teamID)
+}
+
+func (s *Server) createRange(w http.ResponseWriter, r *http.Request) {
+	u, _ := auth.CurrentUser(r)
+	var req createRangeReq
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		auth.JSON(w, 400, map[string]string{"error": "invalid json"})
+		return
+	}
+	ok, err := s.userInTeam(r.Context(), u.ID, req.TeamID)
+	if err != nil || !ok {
+		auth.JSON(w, 403, map[string]string{"error": "not in team"})
+		return
+	}
+	t, err := s.q.GetTemplateByID(r.Context(), req.TemplateID)
+	if err != nil {
+		auth.JSON(w, 400, map[string]string{"error": "template not found"})
+		return
+	}
+	count, err := s.q.CountActiveRangesForTeamTemplate(r.Context(), req.TeamID, req.TemplateID)
+	if err != nil {
+		auth.JSON(w, 500, map[string]string{"error": "db error"})
+		return
+	}
+	if count >= int64(t.Quota) {
+		auth.JSON(w, 409, map[string]string{"error": "template quota exceeded"})
+		return
+	}
+	if req.Name == "" {
+		req.Name = fmt.Sprintf("range-%d", time.Now().Unix())
+	}
+	rng, err := s.q.CreateRange(r.Context(), req.TeamID, req.TemplateID, u.ID, req.Name, "pending", []byte(`{"ports":{}}`))
+	if err != nil {
+		auth.JSON(w, 500, map[string]string{"error": "create range failed"})
+		return
+	}
+	job, err := s.q.CreateJob(r.Context(), rng.ID, req.TeamID, "provision", "queued", []byte(`{}`), u.ID)
+	if err != nil {
+		auth.JSON(w, 500, map[string]string{"error": "enqueue failed"})
+		return
+	}
+	_, _ = s.q.InsertEvent(r.Context(), rng.ID, &job.ID, "info", "job.queued", "provision job queued", []byte(`{}`))
+	team := rng.TeamID
+	rid := rng.ID
+	s.audit.Log(r.Context(), u.ID, &team, &rid, "range.create", map[string]any{"job_id": job.ID})
+	auth.JSON(w, 201, map[string]any{"range": rng, "job": job})
+}
+
+func (s *Server) listRanges(w http.ResponseWriter, r *http.Request) {
+	u, _ := auth.CurrentUser(r)
+	ranges, err := s.q.ListRangesForUser(r.Context(), u.ID)
+	if err != nil {
+		auth.JSON(w, 500, map[string]string{"error": "db error"})
+		return
+	}
+	auth.JSON(w, 200, ranges)
+}
+
+func (s *Server) getRange(w http.ResponseWriter, r *http.Request) {
+	u, _ := auth.CurrentUser(r)
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
+		auth.JSON(w, 400, map[string]string{"error": "invalid id"})
+		return
+	}
+	rg, err := s.q.GetRangeByIDForUser(r.Context(), id, u.ID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			auth.JSON(w, 404, map[string]string{"error": "not found"})
+			return
+		}
+		auth.JSON(w, 500, map[string]string{"error": "db error"})
+		return
+	}
+	resources := []map[string]any{}
+	rr, err := s.q.ListRangeResources(r.Context(), id)
+	if err == nil {
+		for _, rsrc := range rr {
+			resources = append(resources, map[string]any{
+				"resource_type": rsrc.ResourceType,
+				"docker_id":     rsrc.DockerID,
+				"service_name":  rsrc.ServiceName,
+				"metadata":      rsrc.Metadata,
+			})
+		}
+	}
+	auth.JSON(w, 200, map[string]any{"range": rg, "resources": resources})
+}
+
+func (s *Server) enqueueAction(w http.ResponseWriter, r *http.Request, action string) {
+	u, _ := auth.CurrentUser(r)
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
+		auth.JSON(w, 400, map[string]string{"error": "invalid id"})
+		return
+	}
+	rg, err := s.q.GetRangeByIDForUser(r.Context(), id, u.ID)
+	if err != nil {
+		auth.JSON(w, 404, map[string]string{"error": "range not found"})
+		return
+	}
+	job, err := s.q.CreateJob(r.Context(), rg.ID, rg.TeamID, action, "queued", []byte(`{}`), u.ID)
+	if err != nil {
+		auth.JSON(w, 500, map[string]string{"error": "enqueue failed"})
+		return
+	}
+	_, _ = s.q.InsertEvent(r.Context(), rg.ID, &job.ID, "info", "job.queued", action+" job queued", []byte(`{}`))
+	team := rg.TeamID
+	rid := rg.ID
+	s.audit.Log(r.Context(), u.ID, &team, &rid, "range."+action, map[string]any{"job_id": job.ID})
+	auth.JSON(w, 202, job)
+}
+
+func (s *Server) destroyRange(w http.ResponseWriter, r *http.Request) {
+	s.enqueueAction(w, r, "destroy")
+}
+func (s *Server) resetRange(w http.ResponseWriter, r *http.Request) { s.enqueueAction(w, r, "reset") }
+
+func (s *Server) streamRangeEvents(w http.ResponseWriter, r *http.Request) {
+	u, _ := auth.CurrentUser(r)
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
+		auth.JSON(w, 400, map[string]string{"error": "invalid id"})
+		return
+	}
+	if _, err := s.q.GetRangeByIDForUser(r.Context(), id, u.ID); err != nil {
+		auth.JSON(w, 404, map[string]string{"error": "range not found"})
+		return
+	}
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("Connection", "keep-alive")
+	flusher, ok := w.(http.Flusher)
+	if !ok {
+		auth.JSON(w, http.StatusInternalServerError, map[string]string{"error": "streaming unsupported"})
+		return
+	}
+	_ = sse.StreamRangeEvents(r.Context(), struct {
+		http.ResponseWriter
+		http.Flusher
+	}{ResponseWriter: w, Flusher: flusher}, s.q, id, s.poll)
+}
+
+func StartHTTP(ctx context.Context, cfg config.Config, pool *pgxpool.Pool) error {
+	s, err := NewServer(ctx, cfg, pool)
+	if err != nil {
+		return err
+	}
+	h := s.Router()
+	server := &http.Server{Addr: cfg.HTTPAddr, Handler: h}
+	go func() {
+		<-ctx.Done()
+		shutdown, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		_ = server.Shutdown(shutdown)
+	}()
+	fmt.Fprintf(os.Stdout, "api listening on %s\n", cfg.HTTPAddr)
+	return server.ListenAndServe()
+}

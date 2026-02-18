@@ -1,0 +1,72 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: rangedb
+      POSTGRES_USER: range
+      POSTGRES_PASSWORD: range
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U range -d rangedb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  migrate:
+    image: migrate/migrate:4
+    profiles: ["migrate"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./migrations:/migrations
+    environment:
+      DATABASE_URL: postgres://range:range@postgres:5432/rangedb?sslmode=disable
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    environment:
+      APP_ENV: dev
+      HTTP_ADDR: :8080
+      DATABASE_URL: postgres://range:range@postgres:5432/rangedb?sslmode=disable
+      SESSION_KEY: dev-insecure-session-key-change-me
+      DEV_AUTH_EMAIL: dev@example.com
+      ADMIN_EMAILS: dev@example.com
+      GOOGLE_REDIRECT_URL: http://localhost:8080/auth/google/callback
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+
+  provisioner:
+    build:
+      context: .
+      dockerfile: Dockerfile.provisioner
+    environment:
+      APP_ENV: dev
+      DATABASE_URL: postgres://range:range@postgres:5432/rangedb?sslmode=disable
+      WORKER_ID: provisioner-1
+      DOCKER_HOST: unix:///var/run/docker.sock
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    profiles: ["tools"]
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+
+volumes:
+  pgdata:

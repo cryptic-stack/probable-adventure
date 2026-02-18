@@ -1,0 +1,108 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cyber Range Dashboard</title>
+  <style>
+    :root {
+      --bg: #eef2f5;
+      --card: #ffffff;
+      --ink: #142433;
+      --muted: #5b6a77;
+      --line: #d8e0e7;
+      --accent: #0a7ea8;
+      --danger: #a72c2c;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Segoe UI", Tahoma, sans-serif; background: var(--bg); color: var(--ink); }
+    .wrap { max-width: 1100px; margin: 20px auto; padding: 0 12px; }
+    h1 { margin: 0 0 12px; }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .toolbar input, .toolbar select { padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; }
+    button { border: 1px solid var(--line); background: #fff; color: var(--ink); border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+    button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    button.danger { background: var(--danger); color: #fff; border-color: var(--danger); }
+    .muted { color: var(--muted); }
+    .list { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+    .item { padding: 8px 10px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 10px; }
+    .item:last-child { border-bottom: 0; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    pre { margin: 0; background: #0f1c28; color: #dde7ef; border-radius: 8px; padding: 10px; max-height: 250px; overflow: auto; }
+    .ports { border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+    .status { min-height: 20px; }
+    @media (max-width: 840px) { .row2 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Cyber Range Dashboard</h1>
+
+    <div class="card">
+      <div class="toolbar">
+        <button id="login">Login with Google</button>
+        <button id="logout">Logout</button>
+        <strong>Me:</strong> <span id="me" class="muted">unknown</span>
+      </div>
+      <div id="status" class="status muted"></div>
+    </div>
+
+    <div class="grid">
+      <div class="row2">
+        <div class="card">
+          <div class="toolbar" style="justify-content: space-between; margin-bottom: 8px;">
+            <strong>Templates</strong>
+            <button id="refreshTemplates">Refresh</button>
+          </div>
+          <div id="templates" class="list"></div>
+        </div>
+
+        <div class="card">
+          <strong>Create Range</strong>
+          <div class="toolbar" style="margin-top: 8px;">
+            <input id="teamId" type="number" value="1" placeholder="team_id" />
+            <input id="templateId" type="number" placeholder="template_id" />
+            <input id="rangeName" placeholder="range name" />
+            <button id="createRange" class="primary">Create</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="card">
+          <div class="toolbar" style="justify-content: space-between; margin-bottom: 8px;">
+            <strong>Ranges</strong>
+            <button id="refreshRanges">Refresh</button>
+          </div>
+          <div id="ranges" class="list"></div>
+        </div>
+
+        <div class="card">
+          <div class="toolbar" style="margin-bottom: 8px;">
+            <strong>Range Detail</strong>
+            <input id="rangeId" type="number" placeholder="range id" />
+            <button id="loadRange">Load</button>
+            <button id="destroyRange" class="danger">Destroy</button>
+            <button id="resetRange">Reset</button>
+          </div>
+          <div style="margin-bottom: 8px;">
+            <strong>Port Mappings</strong>
+            <div id="ports" class="ports mono muted">No range loaded</div>
+          </div>
+          <pre id="rangeDetail" class="mono">{}</pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <strong>Live Events (SSE)</strong>
+        <pre id="events" class="mono"></pre>
+      </div>
+    </div>
+  </div>
+
+  <script src="/web/app.js"></script>
+</body>
+</html>
