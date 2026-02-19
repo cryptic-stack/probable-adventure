@@ -2,22 +2,80 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>neko-rooms</title>
+    <title>neko rooms</title>
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="icon" type="image/x-icon" sizes="16x16" href="favicon.ico">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@latest/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="app.css">
   </head>
   <body>
-    <noscript>
-      <strong>We're sorry but neko-rooms doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
-    </noscript>
-    <div id="app"></div>
-    <p>
-      Selfhosted collaborative browser (<a href="https://github.com/m1k1o/neko-rooms">m1k1o/neko-rooms</a>) - room management for <a href="https://github.com/m1k1o/neko">n.eko</a>
-    </p>
+    <main class="shell">
+      <header class="header">
+        <h1>neko rooms</h1>
+        <div class="toolbar">
+          <label for="refreshSeconds">Refresh</label>
+          <select id="refreshSeconds">
+            <option value="0">Off</option>
+            <option value="5">5s</option>
+            <option value="10" selected>10s</option>
+            <option value="30">30s</option>
+            <option value="60">60s</option>
+          </select>
+          <button id="reloadBtn" type="button">Reload</button>
+        </div>
+      </header>
+
+      <section class="card">
+        <h2>Create Room</h2>
+        <form id="createForm" class="grid">
+          <label>
+            Room name
+            <input id="name" name="name" type="text" required maxlength="64">
+          </label>
+          <label>
+            Image
+            <select id="image" name="image" required></select>
+          </label>
+          <label>
+            Max connections
+            <input id="maxConnections" name="maxConnections" type="number" min="0" value="1">
+          </label>
+          <label>
+            User password
+            <input id="userPass" name="userPass" type="text">
+          </label>
+          <label>
+            Admin password
+            <input id="adminPass" name="adminPass" type="text">
+          </label>
+          <label class="checkline">
+            <input id="startNow" name="startNow" type="checkbox" checked>
+            Start immediately
+          </label>
+          <button type="submit">Create Room</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Rooms</h2>
+        <p id="statusLine" class="muted">Loading...</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Image</th>
+                <th>State</th>
+                <th>Link</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="roomsBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+    <script src="app.js"></script>
   </body>
 </html>
