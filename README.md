@@ -33,11 +33,7 @@ Root compose now enables persistent room storage out of the box:
 - `NEKO_ROOMS_STORAGE_ENABLED=true`
 - `NEKO_ROOMS_STORAGE_INTERNAL=/data`
 - `NEKO_ROOMS_STORAGE_EXTERNAL=/opt/neko-rooms/data`
-- bind mount: `/opt/neko-rooms/data:/opt/neko-rooms/data`
-
-If your Docker host cannot use `/opt/neko-rooms/data`, change both:
-- `NEKO_ROOMS_STORAGE_EXTERNAL`
-- the matching bind mount source path
+- named volume: `neko-rooms-data:/opt/neko-rooms/data`
 
 ## If You See `No such image`
 
@@ -47,8 +43,8 @@ If a room fails with:
 run:
 
 ```bash
-docker pull m1k1o/neko:firefox
-docker pull m1k1o/neko:chromium
+docker pull ghcr.io/m1k1o/neko/firefox:latest
+docker pull ghcr.io/m1k1o/neko/chromium:latest
 docker compose up -d
 ```
 

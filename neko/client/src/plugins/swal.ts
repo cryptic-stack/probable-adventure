@@ -15,7 +15,7 @@ declare module 'vue/types/vue' {
   }
 }
 
-interface VueSweetalert2Options extends SweetAlertOptions {
+type VueSweetalert2Options = SweetAlertOptions & {
   // includeCss?: boolean;
 }
 

@@ -1,96 +1,79 @@
 <template>
-  <div class="d-flex align-center">
+  <div class="d-flex align-center ga-2">
     <v-text-field
       ref="input"
-      :append-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'"
-      :value="showPass ? password : '*****'"
-      @click:append="togglePass"
+      :append-inner-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'"
+      :model-value="showPass ? password : '*****'"
+      @click:append-inner="togglePass"
       @click="showPass && selectAll()"
       @focus="showPass && selectAll()"
       hide-details
-      outlined
+      variant="outlined"
+      density="compact"
       readonly
-      dense
-    ></v-text-field>
+    />
 
-    <v-spacer />
-
-    <v-tooltip bottom v-if="room">
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn v-bind="attrs" v-on="on" :disabled="!room.running" :href="url" target="_blank" small>
-          <v-icon small>mdi-open-in-new</v-icon>
-        </v-btn>
+    <v-tooltip location="bottom" v-if="room">
+      <template #activator="{ props: tooltipProps }">
+        <v-btn v-bind="tooltipProps" :disabled="!room.running" :href="url" target="_blank" size="small" variant="tonal" icon="mdi-open-in-new" />
       </template>
       <span>{{ label }}</span>
     </v-tooltip>
 
-    <v-spacer />
-
-    <v-tooltip bottom v-if="room">
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn v-bind="attrs" v-on="on" :disabled="!room.running" @click="copyToClipboard" small>
-          <v-icon small v-if="copied">mdi-clipboard-check-multiple</v-icon>
-          <v-icon small v-else>mdi-clipboard-multiple-outline</v-icon>
-        </v-btn>
+    <v-tooltip location="bottom" v-if="room">
+      <template #activator="{ props: tooltipProps }">
+        <v-btn v-bind="tooltipProps" :disabled="!room.running" @click="copyToClipboard" size="small" variant="tonal" :icon="copied ? 'mdi-clipboard-check-multiple' : 'mdi-clipboard-multiple-outline'" />
       </template>
       <span>copy link to clipboard</span>
     </v-tooltip>
   </div>
 </template>
 
-<script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator'
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { useStore } from 'vuex'
+import type { RoomEntry } from '@/api/index'
+import type { State } from '@/store/state'
 
-import {
-  RoomEntry,
-} from '@/api/index'
+const props = defineProps<{
+  roomId: string;
+  password: string;
+  label: string;
+}>()
 
-@Component
-export default class RoomLink extends Vue {
-  @Prop(String) readonly roomId!: string
-  @Prop(String) readonly password!: string
-  @Prop(String) readonly label!: string
+const store = useStore<State>()
+const input = ref<any>(null)
+const showPass = ref(false)
+const copied = ref(false)
 
-  public showPass = false
-  public copied = false
+const room = computed<RoomEntry | undefined>(() => store.state.rooms.find(({ id }) => id === props.roomId))
+const url = computed(() => `${room.value?.url || ''}?pwd=${encodeURIComponent(props.password)}`)
 
-  get room(): RoomEntry {
-    return this.$store.state.rooms.find(({ id }: RoomEntry) => id == this.roomId)
+const togglePass = () => {
+  showPass.value = !showPass.value
+  if (showPass.value) {
+    window.setTimeout(selectAll, 0)
+  }
+}
+
+const selectAll = () => {
+  const el = input.value?.$el?.querySelector?.('input') as HTMLInputElement | null
+  el?.select()
+}
+
+let copiedTimeout = 0
+
+const copyToClipboard = () => {
+  if (copiedTimeout) {
+    window.clearTimeout(copiedTimeout)
   }
 
-  get url() {
-    return this.room.url + '?pwd=' + encodeURIComponent(this.password)
-  }
-  
-  togglePass() {
-    this.showPass = !this.showPass
-    if (this.showPass) {
-      window.setTimeout(() => {
-        this.selectAll()
-      }, 0)
-    }
-  }
+  void navigator.clipboard.writeText(url.value)
+  copied.value = true
 
-  selectAll() {
-    (this.$refs.input as Vue & {
-      $el: () => HTMLElement;
-    }).$el.querySelector('input')?.select();
-  }
-
-  private copiedTimeout = 0
-
-  copyToClipboard() {
-    if (this.copiedTimeout) {
-      window.clearInterval(this.copiedTimeout)
-    }
-
-    navigator.clipboard.writeText(this.url)
-    this.copied = true
-
-    this.copiedTimeout = window.setTimeout(() => {
-      this.copied = false
-      this.copiedTimeout = 0
-    }, 3000)
-  }
+  copiedTimeout = window.setTimeout(() => {
+    copied.value = false
+    copiedTimeout = 0
+  }, 3000)
 }
 </script>

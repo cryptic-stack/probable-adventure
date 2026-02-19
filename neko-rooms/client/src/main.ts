@@ -1,18 +1,9 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from './App.vue'
-import './plugins/filters.ts'
-import sweetalert from './plugins/sweetalert'
 import store from './store'
 import vuetify from './plugins/vuetify'
+import sweetalert from './plugins/sweetalert'
+import '@mdi/font/css/materialdesignicons.css'
+import '@/assets/styles/main.scss'
 
-import '@/assets/styles/main.scss';
-
-Vue.config.productionTip = false
-
-Vue.use(sweetalert)
-
-new Vue({
-  store,
-  vuetify,
-  render: h => h(App)
-}).$mount('#app')
+createApp(App).use(store).use(vuetify).use(sweetalert).mount('#app')

@@ -1,5 +1,4 @@
-import Vue from 'vue'
-import Vuex, { ActionContext } from 'vuex'
+import { createStore, ActionContext } from 'vuex'
 
 import {
   Configuration,
@@ -15,8 +14,6 @@ import {
 
 import { state, State } from './state'
 
-Vue.use(Vuex)
-
 const configuration = new Configuration({
   basePath: (location.protocol + '//' + location.host + location.pathname).replace(/\/+$/, ''),
 })
@@ -25,29 +22,29 @@ const configApi = new ConfigApi(configuration)
 const roomsApi = new RoomsApi(configuration)
 const defaultApi = new DefaultApi(configuration)
 
-export default new Vuex.Store({
+export default createStore({
   state,
   mutations: {
     ROOMS_CONFIG_SET(state: State, roomsConfig: RoomsConfig) {
-      Vue.set(state, 'roomsConfig', roomsConfig)
+      state.roomsConfig = roomsConfig
     },
     ROOMS_SET(state: State, roomEntries: RoomEntry[]) {
-      Vue.set(state, 'rooms', roomEntries)
+      state.rooms = roomEntries
     },
     ROOMS_ADD(state: State, roomEntry: RoomEntry) {
       // check if room already exists
       if (state.rooms.some(({ id }) => id == roomEntry.id)) {
         // replace room
-        Vue.set(state, 'rooms', state.rooms.map((room) => {
+        state.rooms = state.rooms.map((room) => {
           if (room.id == roomEntry.id) {
             return roomEntry
           } else {
             return room
           }
-        }))
+        })
       } else {
         // add room
-        Vue.set(state, 'rooms', [roomEntry, ...state.rooms])
+        state.rooms = [roomEntry, ...state.rooms]
       }
     },
     ROOMS_PUT(state: State, roomEntry: RoomEntry) {
@@ -62,17 +59,17 @@ export default new Vuex.Store({
       })
 
       if (exists) {
-        Vue.set(state, 'rooms', roomEntries)
+        state.rooms = roomEntries
       } else {
-        Vue.set(state, 'rooms', [roomEntry, ...roomEntries])
+        state.rooms = [roomEntry, ...roomEntries]
       }
     },
     ROOMS_DEL(state: State, roomId: string) {
       const roomEntries = state.rooms.filter(({ id }) => id != roomId)
-      Vue.set(state, 'rooms', roomEntries)
+      state.rooms = roomEntries
     },
     PULL_STATUS(state: State, pullStatus: PullStatus) {
-      Vue.set(state, 'pullStatus', pullStatus)
+      state.pullStatus = pullStatus
     },
   },
   actions: {
