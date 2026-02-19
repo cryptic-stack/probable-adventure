@@ -4,7 +4,13 @@ FROM $BASE_IMAGE
 #
 # install kde
 RUN set -eux; apt-get update; \
-    apt-get install -y --no-install-recommends kde-full kwin-x11 sudo; \
+    export DEBIAN_FRONTEND=noninteractive; \
+    apt-get install -y --no-install-recommends ca-certificates curl gpg; \
+    mkdir -p /etc/apt/keyrings; \
+    curl -fsSL https://download.opensuse.org/repositories/security:/zeek/Debian_11/Release.key | gpg --dearmor -o /etc/apt/keyrings/zeek.gpg; \
+    echo "deb [signed-by=/etc/apt/keyrings/zeek.gpg] https://download.opensuse.org/repositories/security:/zeek/Debian_11/ /" > /etc/apt/sources.list.d/zeek.list; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends kde-full kwin-x11 sudo wireshark tshark zeek; \
     #
     # add user to sudoers
     usermod -aG sudo neko; \
