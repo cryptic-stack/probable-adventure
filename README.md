@@ -39,6 +39,7 @@ Docker Hub images are published under `crypticstack`:
 - `crypticstack/neko-rooms:latest`
 - `crypticstack/neko:xfce`
 - `crypticstack/neko:kde`
+- `crypticstack/neko:ubuntu`
 
 These images are now published by GitHub Actions workflows:
 - `.github/workflows/docker-neko-images.yml`
@@ -75,6 +76,7 @@ run:
 ```bash
 docker pull crypticstack/neko:xfce
 docker pull crypticstack/neko:kde
+docker pull crypticstack/neko:ubuntu
 docker compose up -d
 ```
 

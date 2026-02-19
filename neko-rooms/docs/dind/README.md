@@ -15,4 +15,5 @@ In order to pull new images run:
 
 ```sh
 docker-compose exec neko-rooms docker pull crypticstack/neko:xfce
+docker-compose exec neko-rooms docker pull crypticstack/neko:ubuntu
 ```

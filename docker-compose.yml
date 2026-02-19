@@ -16,6 +16,7 @@ services:
       NEKO_ROOMS_NEKO_IMAGES: |
         crypticstack/neko:xfce
         crypticstack/neko:kde
+        crypticstack/neko:ubuntu
     ports:
       - "8080:8080"
     volumes:

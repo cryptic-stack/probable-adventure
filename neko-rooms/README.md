@@ -47,6 +47,7 @@ You need to pull all your images, that you want to use with neko-room. Otherwise
 ```sh
 docker pull crypticstack/neko:xfce
 docker pull crypticstack/neko:kde
+docker pull crypticstack/neko:ubuntu
 # etc...
 ```
 
@@ -75,6 +76,7 @@ Change neko images to nvidia images in `docker-compose.yml` using envorinment va
 NEKO_ROOMS_NEKO_IMAGES="
   crypticstack/neko:xfce
   crypticstack/neko:kde
+  crypticstack/neko:ubuntu
 "
 ```
 

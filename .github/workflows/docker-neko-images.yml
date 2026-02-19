@@ -10,6 +10,7 @@ on:
     paths:
       - "neko/apps/xfce/**"
       - "neko/apps/kde/**"
+      - "neko/apps/ubuntu/**"
       - "neko/.dockerignore"
       - ".github/workflows/docker-neko-images.yml"
 
@@ -35,6 +36,10 @@ jobs:
             dockerfile: neko/apps/kde/Dockerfile
             context: neko/apps/kde
             tag: kde
+          - app: ubuntu
+            dockerfile: neko/apps/ubuntu/Dockerfile
+            context: neko/apps/ubuntu
+            tag: ubuntu
 
     steps:
       - name: Checkout

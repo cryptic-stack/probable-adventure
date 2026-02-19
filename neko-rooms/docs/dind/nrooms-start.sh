@@ -39,6 +39,7 @@ docker run -d \
 # pull some desktop images...
 docker pull crypticstack/neko:xfce
 docker pull crypticstack/neko:kde
+docker pull crypticstack/neko:ubuntu
 
 #
 # (re)start neko-rooms
