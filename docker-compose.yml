@@ -1,86 +1,45 @@
 services:
-  postgres:
-    image: postgres:16
+  neko-rooms:
+    image: m1k1o/neko-rooms:latest
+    restart: unless-stopped
     environment:
-      POSTGRES_DB: rangedb
-      POSTGRES_USER: range
-      POSTGRES_PASSWORD: range
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U range -d rangedb"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
-  migrate:
-    image: migrate/migrate:4
-    restart: "no"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    command:
-      - -path
-      - /migrations
-      - -database
-      - postgres://range:range@postgres:5432/rangedb?sslmode=disable
-      - up
-    volumes:
-      - ./migrations:/migrations
-    environment:
-      DATABASE_URL: postgres://range:range@postgres:5432/rangedb?sslmode=disable
-
-  api:
-    build:
-      context: .
-      dockerfile: Dockerfile.api
-    environment:
-      APP_ENV: dev
-      HTTP_ADDR: :8080
-      DATABASE_URL: postgres://range:range@postgres:5432/rangedb?sslmode=disable
-      SESSION_KEY: dev-insecure-session-key-change-me
-      DEV_AUTH_EMAIL: dev@example.com
-      ADMIN_EMAILS: dev@example.com
-      DOCKERHUB_REPOS: crypticstack/probable-adventure-base-server,crypticstack/probable-adventure-base-user,crypticstack/probable-adventure-attack-box,crypticstack/probable-adventure-web-lab,crypticstack/probable-adventure-desktop-web
-      DOCKERHUB_IMAGE_REFS: crypticstack/probable-adventure-base-server:bookworm,crypticstack/probable-adventure-base-user:bookworm-xfce,crypticstack/probable-adventure-attack-box:bookworm,crypticstack/probable-adventure-web-lab:bookworm,crypticstack/probable-adventure-desktop-web:bookworm-novnc
-      GOOGLE_REDIRECT_URL: http://localhost:8080/auth/google/callback
-      DOCKER_HOST: unix:///var/run/docker.sock
-    depends_on:
-      migrate:
-        condition: service_completed_successfully
+      TZ: UTC
+      NEKO_ROOMS_MUX: "true"
+      NEKO_ROOMS_EPR: 59000-59049
+      NEKO_ROOMS_NAT1TO1: 127.0.0.1
+      NEKO_ROOMS_INSTANCE_URL: http://127.0.0.1:8080/
+      NEKO_ROOMS_INSTANCE_NETWORK: neko-rooms-net
+      NEKO_ROOMS_TRAEFIK_ENABLED: "false"
+      NEKO_ROOMS_PATH_PREFIX: /room/
+      NEKO_ROOMS_NEKO_IMAGES: |
+        ghcr.io/m1k1o/neko/firefox:latest
+        ghcr.io/m1k1o/neko/chromium:latest
     ports:
       - "8080:8080"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    user: "0:0"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - neko-rooms-net
 
-  provisioner:
-    build:
-      context: .
-      dockerfile: Dockerfile.provisioner
+  neko-demo:
+    profiles: ["demo"]
+    image: ghcr.io/m1k1o/neko/firefox:latest
+    restart: unless-stopped
+    shm_size: 2gb
     environment:
-      APP_ENV: dev
-      DATABASE_URL: postgres://range:range@postgres:5432/rangedb?sslmode=disable
-      WORKER_ID: provisioner-1
-      DOCKER_HOST: unix:///var/run/docker.sock
-    depends_on:
-      migrate:
-        condition: service_completed_successfully
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-
-  pgadmin:
-    image: dpage/pgadmin4:8
-    profiles: ["tools"]
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@example.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      NEKO_DESKTOP_SCREEN: 1920x1080@30
+      NEKO_MEMBER_MULTIUSER_USER_PASSWORD: neko
+      NEKO_MEMBER_MULTIUSER_ADMIN_PASSWORD: admin
+      NEKO_WEBRTC_EPR: 52000-52100
+      NEKO_WEBRTC_ICELITE: "1"
     ports:
-      - "5050:80"
+      - "8090:8080"
+      - "52000-52100:52000-52100/udp"
+    networks:
+      - neko-rooms-net
 
-volumes:
-  pgdata:
+networks:
+  neko-rooms-net:
+    name: neko-rooms-net
+    driver: bridge
+    attachable: true

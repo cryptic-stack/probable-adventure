@@ -1,0 +1,64 @@
+#!/bin/sh
+cd "$(dirname "$0")"
+
+if [ -z $NEKO_ROOMS_PORT ]; then
+    NEKO_ROOMS_PORT="8080"
+fi
+
+if [ -z $NEKO_ROOMS_EPR ]; then
+    NEKO_ROOMS_EPR="52090-52099"
+fi
+
+if [ -z $NEKO_ROOMS_NAT1TO1 ]; then
+    for i in $(ifconfig -l 2>/dev/null); do
+        NEKO_ROOMS_NAT1TO1=$(ipconfig getifaddr $i)
+        if [ ! -z $NEKO_ROOMS_NAT1TO1 ]; then
+            break
+        fi
+    done
+
+    if [ -z $NEKO_ROOMS_NAT1TO1 ]; then
+        NEKO_ROOMS_NAT1TO1=$(hostname -I 2>/dev/null | awk '{print $1}')
+    fi
+
+    if [ -z $NEKO_ROOMS_NAT1TO1 ]; then
+        NEKO_ROOMS_NAT1TO1=$(hostname -i 2>/dev/null)
+    fi
+fi
+
+NEKO_ROOMS_INSTANCE_NETWORK="neko-rooms-net"
+docker network create --attachable "${NEKO_ROOMS_INSTANCE_NETWORK}";
+
+trap on_exit EXIT
+
+on_exit() {
+    echo "Removing neko-rooms network"
+    docker network rm "${NEKO_ROOMS_INSTANCE_NETWORK}";
+}
+
+DATA_PATH="./data"
+mkdir -p "${DATA_PATH}"
+
+EXTERNAL_PATH="./ext"
+mkdir -p "${EXTERNAL_PATH}"
+
+docker run --rm -it \
+    --name="neko_rooms_server" \
+    -p "${NEKO_ROOMS_PORT}:8080" \
+    -v "`realpath ..`:/app" \
+    -v "`realpath ${DATA_PATH}`:/data" \
+	-e "TZ=${TZ}" \
+	-e "NEKO_ROOMS_MUX=true" \
+	-e "NEKO_ROOMS_EPR=${NEKO_ROOMS_EPR}" \
+	-e "NEKO_ROOMS_NAT1TO1=${NEKO_ROOMS_NAT1TO1}" \
+	-e "NEKO_ROOMS_INSTANCE_URL=http://${NEKO_ROOMS_NAT1TO1}:${NEKO_ROOMS_PORT}/" \
+	-e "NEKO_ROOMS_INSTANCE_NETWORK=${NEKO_ROOMS_INSTANCE_NETWORK}" \
+	-e "NEKO_ROOMS_STORAGE_INTERNAL=/data" \
+	-e "NEKO_ROOMS_STORAGE_EXTERNAL=`realpath ${DATA_PATH}`" \
+	-e "NEKO_ROOMS_MOUNTS_WHITELIST=`realpath ${EXTERNAL_PATH}`" \
+	-e "NEKO_ROOMS_PATH_PREFIX=/room/" \
+	-e "NEKO_ROOMS_TRAEFIK_ENABLED=false" \
+    -v "/var/run/docker.sock:/var/run/docker.sock" \
+    --net="${NEKO_ROOMS_INSTANCE_NETWORK}" \
+    --entrypoint="/app/bin/neko_rooms" \
+    neko_rooms_img serve --bind :8080;

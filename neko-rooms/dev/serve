@@ -1,0 +1,35 @@
+#!/bin/sh
+cd "$(dirname "$0")"
+
+if [ -z $APP_PORT ]; then
+    APP_PORT="8080"
+fi
+
+if [ -z $APP_HOST ]; then
+    for i in $(ifconfig -l 2>/dev/null); do
+        APP_HOST=$(ipconfig getifaddr $i)
+        if [ ! -z $APP_HOST ]; then
+            break
+        fi
+    done
+
+    if [ -z $APP_HOST ]; then
+        APP_HOST=$(hostname -I 2>/dev/null | awk '{print $1}')
+    fi
+
+    if [ -z $APP_HOST ]; then
+        APP_HOST=$(hostname -i 2>/dev/null)
+    fi
+fi
+
+echo "Using app port: ${APP_PORT}"
+echo "Using IP address: ${APP_HOST}"
+
+docker run --rm -it \
+    -p 8081:8080 \
+    -e "API_PROXY=http://${APP_HOST}:${APP_PORT}" \
+    --user="$(id -u):$(id -g)" \
+    --volume "${PWD}/../client:/app" \
+    --entrypoint="npm" \
+    --workdir="/app" \
+    node:20-bookworm-slim run serve;
