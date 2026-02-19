@@ -16,8 +16,6 @@ The previous custom `probable-adventure` codebase has been removed.
 docker compose up -d
 ```
 
-This compose includes a one-shot `neko-image-sync` service that pre-pulls default room images before `neko-rooms` starts.
-
 3. Open:
 - Neko Rooms: `http://localhost:8080`
 - Standalone Neko demo (optional profile): `http://localhost:8090`
@@ -49,7 +47,8 @@ If a room fails with:
 run:
 
 ```bash
-docker compose run --rm neko-image-sync
+docker pull m1k1o/neko:firefox
+docker pull m1k1o/neko:chromium
 docker compose up -d
 ```
 

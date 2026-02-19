@@ -1,39 +1,7 @@
 services:
-  neko-image-sync:
-    image: docker:cli
-    pull_policy: always
-    restart: "no"
-    environment:
-      DOCKER_HOST: unix:///var/run/docker.sock
-    command:
-      - /bin/sh
-      - -lc
-      - |
-        set -e
-        for img in ghcr.io/m1k1o/neko/firefox:latest ghcr.io/m1k1o/neko/chromium:latest; do
-          ok=0
-          for i in 1 2 3; do
-            echo "pull attempt $${i} for $${img}"
-            if docker pull "$${img}"; then
-              ok=1
-              break
-            fi
-            sleep 2
-          done
-          if [ "$${ok}" -ne 1 ]; then
-            echo "failed to pull $${img} after retries"
-            exit 1
-          fi
-        done
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-
   neko-rooms:
     image: m1k1o/neko-rooms:latest
     restart: unless-stopped
-    depends_on:
-      neko-image-sync:
-        condition: service_completed_successfully
     environment:
       TZ: UTC
       NEKO_ROOMS_MUX: "true"
@@ -47,8 +15,8 @@ services:
       NEKO_ROOMS_STORAGE_INTERNAL: /data
       NEKO_ROOMS_STORAGE_EXTERNAL: /opt/neko-rooms/data
       NEKO_ROOMS_NEKO_IMAGES: |
-        ghcr.io/m1k1o/neko/firefox:latest
-        ghcr.io/m1k1o/neko/chromium:latest
+        m1k1o/neko:firefox
+        m1k1o/neko:chromium
     ports:
       - "8080:8080"
     volumes:
@@ -59,7 +27,7 @@ services:
 
   neko-demo:
     profiles: ["demo"]
-    image: ghcr.io/m1k1o/neko/firefox:latest
+    image: m1k1o/neko:firefox
     restart: unless-stopped
     shm_size: 2gb
     environment:
