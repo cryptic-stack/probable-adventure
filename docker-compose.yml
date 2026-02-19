@@ -1,6 +1,6 @@
 services:
   neko-rooms:
-    image: ghcr.io/m1k1o/neko-rooms:latest
+    image: crypticstack/neko-rooms:latest
     restart: unless-stopped
     environment:
       TZ: UTC

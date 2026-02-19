@@ -6,6 +6,7 @@ COPY ./widevinecdm.sh /widevine.sh
 #
 # install neko chromium
 RUN set -eux; \
+    sed -i 's/\r$//' /widevine.sh; \
     echo "deb http://ftp.de.debian.org/debian bookworm main" >> /etc/apt/sources.list; \
     apt-get update; \
     apt-get install -y --no-install-recommends chromium chromium-common chromium-sandbox openbox; \

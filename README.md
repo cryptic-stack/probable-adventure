@@ -26,6 +26,13 @@ To run standalone demo room too:
 docker compose --profile demo up -d
 ```
 
+## Published Images
+
+Docker Hub images are published under `crypticstack`:
+- `crypticstack/neko-rooms:latest`
+- `crypticstack/neko:firefox`
+- `crypticstack/neko:chromium`
+
 ## Storage (Enabled By Default)
 
 Root compose now enables persistent room storage out of the box:
