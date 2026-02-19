@@ -213,6 +213,10 @@ func New(ApiManager types.ApiManager, roomConfig *config.Room, config *config.Se
 		// serve protected API
 		router.With(protected).Route("/api", ApiManager.Mount)
 	} else {
+		router.With(protected).Get(config.Admin.PathPrefix, func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, config.Admin.PathPrefix+"/", http.StatusTemporaryRedirect)
+		})
+
 		router.With(protected).Route(config.Admin.PathPrefix+"/", func(r chi.Router) {
 			// serve protected API
 			r.Route("/api", ApiManager.Mount)
