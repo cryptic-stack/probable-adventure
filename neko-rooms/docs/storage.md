@@ -4,7 +4,7 @@ This needs to be specified in docker-compose:
 
 ```diff
   neko-rooms:
-    image: "m1k1o/neko-rooms:latest"
+    image: "crypticstack/neko-rooms:latest"
     restart: "unless-stopped"
     environment:
       - "TZ"
@@ -43,7 +43,7 @@ Inside storage path (e.g. `/opt/neko-rooms/data`) there will be available these 
 
 You can mount e.g. browser policies and this way customize browser.
 
-You can always refer to [google-chrome Dockerfile](https://github.com/m1k1o/neko/blob/1800d077d8138bdb23c25028bf4201a0469f91aa/.m1k1o/google-chrome/Dockerfile). In this case, policies are mounted to `/etc/opt/chrome/policies/managed/policies.json` path inside container. So you can mount custom file to this location what overwrites its content.
+You can always refer to [google-chrome Dockerfile](https://github.com/cryptic-stack/probable-adventure/tree/main/neko/blob/1800d077d8138bdb23c25028bf4201a0469f91aa/.m1k1o/google-chrome/Dockerfile). In this case, policies are mounted to `/etc/opt/chrome/policies/managed/policies.json` path inside container. So you can mount custom file to this location what overwrites its content.
 
 For this purpose, template path type is recommended, as policy file should only be readonly and can be reused along multiple rooms. You can then store your policies file to e.g. `/opt/neko-rooms/data/templates/policies.json` and have it mounted to all rooms.
 

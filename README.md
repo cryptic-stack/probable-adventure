@@ -1,9 +1,9 @@
-# Combined Neko Workspace
+# Combined Streaming Workspace
 
 This repository now combines both upstream projects:
 
-- `neko/` (https://github.com/m1k1o/neko)
-- `neko-rooms/` (https://github.com/m1k1o/neko-rooms)
+- `neko/` (https://github.com/cryptic-stack/probable-adventure/tree/main/neko)
+- `neko-rooms/` (https://github.com/cryptic-stack/probable-adventure/tree/main/neko-rooms)
 
 The previous custom `probable-adventure` codebase has been removed.
 
@@ -24,7 +24,7 @@ docker compose up -d
 ```
 
 5. Open:
-- Neko Rooms: `http://localhost:8080`
+- Rooms Service: `http://localhost:8080`
 - Standalone Neko demo (optional profile): `http://localhost:8090`
 
 To run standalone demo room too:
@@ -59,7 +59,7 @@ Root compose now enables persistent room storage out of the box:
 
 ## Accessible Room Links
 
-Room URLs are generated as relative paths by default (for example `/room/<name>/`), so links stay accessible from whatever IP or hostname users used to open Neko Rooms.
+Room URLs are generated as relative paths by default (for example `/room/<name>/`), so links stay accessible from whatever IP or hostname users used to open Rooms Service.
 
 If you want absolute links with a fixed domain, set:
 - `NEKO_ROOMS_INSTANCE_URL` (for example `https://rooms.example.com/`)
@@ -80,15 +80,15 @@ docker compose up -d
 
 ## Repo Layout
 
-- `neko/`: upstream source for Neko
-- `neko-rooms/`: upstream source for Neko Rooms
+- `neko/`: desktop streaming source
+- `neko-rooms/`: room manager source
 - `docker-compose.yml`: combined local runtime composition
 
 ## Update Upstream Sources
 
 Replace directory contents from upstream repos as needed:
-- https://github.com/m1k1o/neko
-- https://github.com/m1k1o/neko-rooms
+- https://github.com/cryptic-stack/probable-adventure/tree/main/neko
+- https://github.com/cryptic-stack/probable-adventure/tree/main/neko-rooms
 
 ## Validation
 

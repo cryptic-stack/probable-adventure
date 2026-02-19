@@ -9,7 +9,7 @@ If you don't have any clue about docker and stuff but only want to have fun with
 - Run install script and follow instructions.
 
 ```bash
-wget -O neko-rooms.sh https://raw.githubusercontent.com/m1k1o/neko-rooms/master/traefik/install
+wget -O neko-rooms.sh https://raw.githubusercontent.com/cryptic-stack/probable-adventure/main/neko-rooms/traefik/install
 sudo bash neko-rooms.sh
 ```
 

@@ -1,4 +1,4 @@
-name: Docker Neko Rooms
+name: Docker Rooms Service
 
 on:
   workflow_dispatch:

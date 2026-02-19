@@ -1,4 +1,4 @@
-name: Docker Neko Desktop Images
+name: Docker Desktop Images
 
 on:
   workflow_dispatch:

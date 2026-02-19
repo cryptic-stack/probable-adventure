@@ -28,7 +28,7 @@ services:
       # - "./traefik/usersfile:/usersfile:ro"
 
   neko-rooms:
-    image: "m1k1o/neko-rooms:latest"
+    image: "crypticstack/neko-rooms:latest"
     restart: "unless-stopped"
     environment:
       - "TZ=Europe/Vienna"

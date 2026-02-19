@@ -1,24 +1,24 @@
-# neko-rooms
+# Rooms Service
 
 <p align="center">
-  <img src="https://img.shields.io/github/v/release/m1k1o/neko-rooms" alt="release">
-  <img src="https://img.shields.io/github/license/m1k1o/neko-rooms" alt="license">
-  <img src="https://img.shields.io/docker/pulls/m1k1o/neko-rooms" alt="pulls">
-  <img src="https://img.shields.io/github/issues/m1k1o/neko-rooms" alt="issues">
+  <img src="https://img.shields.io/github/v/release/cryptic-stack/probable-adventure" alt="release">
+  <img src="https://img.shields.io/github/license/cryptic-stack/probable-adventure" alt="license">
+  <img src="https://img.shields.io/docker/pulls/crypticstack/neko-rooms" alt="pulls">
+  <img src="https://img.shields.io/github/issues/cryptic-stack/probable-adventure" alt="issues">
   <a href="https://discord.gg/3U6hWpC" ><img src="https://discordapp.com/api/guilds/665851821906067466/widget.png" alt="Chat on discord"></a>
 </p>
 
-Simple room management system for [n.eko](https://github.com/m1k1o/neko). Self hosted rabb.it alternative.
+Simple room management system for desktop streaming. Self-hosted rabb.it alternative.
 
 <div align="center">
-  <img src="https://github.com/m1k1o/neko-rooms/raw/master/docs/rooms.png" alt="rooms">
-  <img src="https://github.com/m1k1o/neko-rooms/raw/master/docs/new_room.png" alt="new room">
-  <img src="https://github.com/m1k1o/neko-rooms/raw/master/docs/neko.gif" alt="n.eko">
+  <img src="https://raw.githubusercontent.com/cryptic-stack/probable-adventure/main/neko-rooms/docs/rooms.png" alt="rooms">
+  <img src="https://raw.githubusercontent.com/cryptic-stack/probable-adventure/main/neko-rooms/docs/new_room.png" alt="new room">
+  <img src="https://raw.githubusercontent.com/cryptic-stack/probable-adventure/main/neko-rooms/docs/neko.gif" alt="preview">
 </div>
 
 ## Zero-knowledge installation (with HTTPS)
 
-No experience with Docker and reverse proxy? No problem! Follow these steps to set up your Neko Rooms quickly and securely:
+No experience with Docker and reverse proxy? No problem. Follow these steps to set up the Rooms Service quickly and securely:
 
 - Rent a VPS with public IP and OS Ubuntu.
 - Get a domain name pointing to your IP (you can even get some for free).
@@ -26,7 +26,7 @@ No experience with Docker and reverse proxy? No problem! Follow these steps to s
 - Secure using HTTPs thanks to Let's Encrypt and Traefik or NGINX.
 
 ```bash
-wget -O neko-rooms-traefik.sh https://raw.githubusercontent.com/m1k1o/neko-rooms/master/traefik/install
+wget -O neko-rooms-traefik.sh https://raw.githubusercontent.com/cryptic-stack/probable-adventure/main/neko-rooms/traefik/install
 sudo bash neko-rooms-traefik.sh
 ```
 
@@ -45,12 +45,12 @@ Otherwise modify variables in `docker-compose.yml` and just run `docker-compose 
 You need to pull all your images, that you want to use with neko-room. Otherwise, you might get this error: `Error response from daemon: No such image:` (see issue #1).
 
 ```sh
-docker pull ghcr.io/m1k1o/neko/firefox
-docker pull ghcr.io/m1k1o/neko/chromium
+docker pull crypticstack/neko:xfce
+docker pull crypticstack/neko:kde
 # etc...
 ```
 
-If you want to update neko image, you need to pull new image and recreate all rooms, that use old image. To update neko rooms, simply run:
+If you want to update desktop images, pull new images and recreate the rooms using old tags. To update Rooms Service, run:
 
 ```sh
 docker-compose pull
@@ -73,10 +73,8 @@ Change neko images to nvidia images in `docker-compose.yml` using envorinment va
 
 ```bash
 NEKO_ROOMS_NEKO_IMAGES="
-  ghcr.io/m1k1o/neko/nvidia-chromium:latest
-  ghcr.io/m1k1o/neko/nvidia-google-chrome:latest
-  ghcr.io/m1k1o/neko/nvidia-microsoft-edge:latest
-  ghcr.io/m1k1o/neko/nvidia-brave:latest
+  crypticstack/neko:xfce
+  crypticstack/neko:kde
 "
 ```
 

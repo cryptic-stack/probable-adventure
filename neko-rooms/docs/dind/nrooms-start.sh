@@ -36,9 +36,9 @@ docker run -d \
       --providers.docker.network=traefik \
       --entrypoints.web.address=:80;
 
-# pull some neko images...
-docker pull ghcr.io/m1k1o/neko/firefox
-docker pull ghcr.io/m1k1o/neko/chromium
+# pull some desktop images...
+docker pull crypticstack/neko:xfce
+docker pull crypticstack/neko:kde
 
 #
 # (re)start neko-rooms
@@ -67,4 +67,4 @@ docker run -t \
     -l "traefik.http.routers.neko-rooms.entrypoints=web" \
     -l 'traefik.http.routers.neko-rooms.rule=HostRegexp(`{host:.+}`)' \
     -l 'traefik.http.routers.neko-rooms.priority=1' \
-    m1k1o/neko-rooms:latest;
+    crypticstack/neko-rooms:latest;
