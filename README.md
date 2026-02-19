@@ -33,6 +33,14 @@ Docker Hub images are published under `crypticstack`:
 - `crypticstack/neko:firefox`
 - `crypticstack/neko:chromium`
 
+These images are now published by GitHub Actions workflows:
+- `.github/workflows/docker-neko-images.yml`
+- `.github/workflows/docker-neko-rooms.yml`
+
+Required repository secrets:
+- `DOCKERHUB_USERNAME`
+- `DOCKERHUB_TOKEN`
+
 ## Storage (Enabled By Default)
 
 Root compose now enables persistent room storage out of the box:
