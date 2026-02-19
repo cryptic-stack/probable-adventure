@@ -6,8 +6,6 @@ services:
       TZ: UTC
       NEKO_ROOMS_MUX: "true"
       NEKO_ROOMS_EPR: 59000-59049
-      NEKO_ROOMS_NAT1TO1: 127.0.0.1
-      NEKO_ROOMS_INSTANCE_URL: http://127.0.0.1:8080/
       NEKO_ROOMS_INSTANCE_NETWORK: neko-rooms-net
       NEKO_ROOMS_TRAEFIK_ENABLED: "false"
       NEKO_ROOMS_PATH_PREFIX: /room/
@@ -15,8 +13,8 @@ services:
       NEKO_ROOMS_STORAGE_INTERNAL: /data
       NEKO_ROOMS_STORAGE_EXTERNAL: /opt/neko-rooms/data
       NEKO_ROOMS_NEKO_IMAGES: |
-        ghcr.io/m1k1o/neko/firefox:latest
-        ghcr.io/m1k1o/neko/chromium:latest
+        crypticstack/neko:firefox
+        crypticstack/neko:chromium
     ports:
       - "8080:8080"
     volumes:
@@ -27,7 +25,7 @@ services:
 
   neko-demo:
     profiles: ["demo"]
-    image: ghcr.io/m1k1o/neko/firefox:latest
+    image: crypticstack/neko:firefox
     restart: unless-stopped
     shm_size: 2gb
     environment:

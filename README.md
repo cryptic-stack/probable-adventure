@@ -35,16 +35,24 @@ Root compose now enables persistent room storage out of the box:
 - `NEKO_ROOMS_STORAGE_EXTERNAL=/opt/neko-rooms/data`
 - named volume: `neko-rooms-data:/opt/neko-rooms/data`
 
+## Accessible Room Links
+
+Room URLs are generated as relative paths by default (for example `/room/<name>/`), so links stay accessible from whatever IP or hostname users used to open Neko Rooms.
+
+If you want absolute links with a fixed domain, set:
+- `NEKO_ROOMS_INSTANCE_URL` (for example `https://rooms.example.com/`)
+- `NEKO_ROOMS_NAT1TO1` to your public IP for WebRTC UDP candidate advertisement
+
 ## If You See `No such image`
 
 If a room fails with:
-`Response from daemon: No such image ghcr.io/m1k1o/neko/firefox:latest`
+`Response from daemon: No such image crypticstack/neko:firefox`
 
 run:
 
 ```bash
-docker pull ghcr.io/m1k1o/neko/firefox:latest
-docker pull ghcr.io/m1k1o/neko/chromium:latest
+docker pull crypticstack/neko:firefox
+docker pull crypticstack/neko:chromium
 docker compose up -d
 ```
 

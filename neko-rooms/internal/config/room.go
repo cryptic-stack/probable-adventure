@@ -1,6 +1,7 @@
 package config
 
 import (
+	"net"
 	"net/url"
 	"path"
 	"path/filepath"
@@ -64,20 +65,20 @@ func (Room) Init(cmd *cobra.Command) error {
 	}
 
 	cmd.PersistentFlags().StringSlice("neko_images", []string{
-		"ghcr.io/m1k1o/neko/firefox",
-		"ghcr.io/m1k1o/neko/waterfox",
-		"ghcr.io/m1k1o/neko/tor-browser",
-		"ghcr.io/m1k1o/neko/chromium",
-		"ghcr.io/m1k1o/neko/google-chrome",
-		"ghcr.io/m1k1o/neko/ungoogled-chromium",
-		"ghcr.io/m1k1o/neko/microsoft-edge",
-		"ghcr.io/m1k1o/neko/brave",
-		"ghcr.io/m1k1o/neko/vivaldi",
-		"ghcr.io/m1k1o/neko/opera",
-		"ghcr.io/m1k1o/neko/remmina",
-		"ghcr.io/m1k1o/neko/vlc",
-		"ghcr.io/m1k1o/neko/xfce",
-		"ghcr.io/m1k1o/neko/kde",
+		"crypticstack/neko:firefox",
+		"crypticstack/neko:waterfox",
+		"crypticstack/neko:tor-browser",
+		"crypticstack/neko:chromium",
+		"crypticstack/neko:google-chrome",
+		"crypticstack/neko:ungoogled-chromium",
+		"crypticstack/neko:microsoft-edge",
+		"crypticstack/neko:brave",
+		"crypticstack/neko:vivaldi",
+		"crypticstack/neko:opera",
+		"crypticstack/neko:remmina",
+		"crypticstack/neko:vlc",
+		"crypticstack/neko:xfce",
+		"crypticstack/neko:kde",
 	}, "neko images to be used")
 	if err := viper.BindPFlag("neko_images", cmd.PersistentFlags().Lookup("neko_images")); err != nil {
 		return err
@@ -318,6 +319,9 @@ func (s *Room) GetInstanceUrl() url.URL {
 
 func (s *Room) GetRoomUrl(roomName string) string {
 	instanceUrl := s.GetInstanceUrl()
+	if s.InstanceUrl == nil && isLoopbackHost(instanceUrl.Host) {
+		return path.Join("/", s.PathPrefix, roomName) + "/"
+	}
 
 	if after, ok := strings.CutPrefix(instanceUrl.Host, "*."); ok {
 		instanceUrl.Host = roomName + "." + after
@@ -326,4 +330,25 @@ func (s *Room) GetRoomUrl(roomName string) string {
 	}
 
 	return instanceUrl.String()
+}
+
+func isLoopbackHost(host string) bool {
+	hostname := host
+	if parsedHost, _, err := net.SplitHostPort(host); err == nil {
+		hostname = parsedHost
+	} else if strings.Count(host, ":") == 1 {
+		parts := strings.SplitN(host, ":", 2)
+		hostname = parts[0]
+	}
+
+	hostname = strings.Trim(hostname, "[]")
+	if strings.EqualFold(hostname, "localhost") {
+		return true
+	}
+
+	if ip := net.ParseIP(hostname); ip != nil {
+		return ip.IsLoopback()
+	}
+
+	return false
 }
