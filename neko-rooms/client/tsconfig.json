@@ -16,8 +16,7 @@
     "baseUrl": ".",
     "types": [
       "node",
-      "webpack-env",
-      "vite/client"
+      "webpack-env"
     ],
     "paths": {
       "~/*": [
@@ -36,9 +35,10 @@
   },
   "include": [
     "src/**/*.ts",
+    "src/**/*.tsx",
     "src/**/*.vue",
-    "src/shims-vue.d.ts",
-    "src/shims-tsx.d.ts"
+    "tests/**/*.ts",
+    "tests/**/*.tsx"
   ],
   "exclude": [
     "node_modules"

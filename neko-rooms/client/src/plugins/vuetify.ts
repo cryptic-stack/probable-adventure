@@ -1,8 +1,7 @@
-import 'vuetify/styles'
-import { createVuetify } from 'vuetify'
+import Vue from 'vue'
+import Vuetify from 'vuetify/lib/framework'
 
-export default createVuetify({
-  theme: {
-    defaultTheme: 'dark',
-  },
+Vue.use(Vuetify)
+
+export default new Vuetify({
 })

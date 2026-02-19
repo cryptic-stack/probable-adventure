@@ -1,72 +1,213 @@
 <template>
-  <v-row class="mb-4" align="center">
-    <v-col cols="12" md="8">
-      <h1 class="text-h4">Rooms</h1>
-      <p class="text-medium-emphasis mb-0">Manage rooms, quick launch, and image pull status.</p>
-    </v-col>
-    <v-col cols="12" md="4" class="text-md-right d-flex ga-2 justify-md-end">
+  <v-container>
+
+    <!-- show off-site -->
+    <div v-if="configConnections" class="text-center" style="position: absolute; left: 50%; transform: translate(-50%, -100%)">
+      <p>Ports used:</p>
+      <v-progress-circular
+        :rotate="270"
+        :size="100"
+        :width="15"
+        :value="(usedConnections / configConnections) * 100"
+        :color="usedConnections == configConnections ? 'red' : 'blue'"
+      >
+        {{ usedConnections }} / {{ configConnections }}
+      </v-progress-circular>
+    </div>
+
+    <v-row>
+      <v-col class="mb-3">
+        <v-select
+          v-model="autoRefresh"
+          :items="autoRefreshItems"
+          dense
+          outlined
+          hide-details
+          label="Auto refresh"
+          class="mr-2"
+          style="width:100px;display:inline-block"
+        ></v-select>
+        <v-tooltip right open-delay="300">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn v-bind="attrs" v-on="on" @click="LoadRooms" color="green" icon><v-icon>mdi-reload</v-icon></v-btn>
+          </template>
+          <span>Manual refresh</span>
+        </v-tooltip>
+      </v-col>
+      <v-col class="text-right">
+        <RoomsQuick class="mr-3" />
+        <v-dialog v-model="dialog" persistent max-width="600px">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              v-bind="attrs"
+              v-on="on"
+              color="success"
+              dark
+            >
+              + Add room
+            </v-btn>
+          </template>
+
+          <RoomsCreate v-if="dialog" @finished="dialog = false" />
+        </v-dialog>
+      </v-col>
+    </v-row>
+
+    <RoomsList :loading="loading" />
+
+    <div class="mt-5 text-center">
       <Pull />
-      <RoomsQuick />
-      <v-btn color="primary" :loading="loading" @click="loadRooms">Refresh</v-btn>
-    </v-col>
-  </v-row>
-
-  <v-alert v-if="error" type="error" variant="tonal" class="mb-4">{{ error }}</v-alert>
-
-  <v-card class="mb-4">
-    <v-card-title class="d-flex justify-space-between align-center">
-      <span>Create room</span>
-      <v-btn size="small" variant="text" @click="showCreate = !showCreate">{{ showCreate ? 'Hide' : 'Show' }}</v-btn>
-    </v-card-title>
-    <v-expand-transition>
-      <div v-if="showCreate" class="pa-4 pt-0">
-        <RoomsCreate @finished="onCreateFinished" />
-      </div>
-    </v-expand-transition>
-  </v-card>
-
-  <v-card>
-    <v-card-title>Room list</v-card-title>
-    <v-card-text>
-      <RoomsList :loading="loading" />
-    </v-card-text>
-  </v-card>
+    </div>
+  </v-container>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue'
-import { useStore } from 'vuex'
-import type { AxiosError } from 'axios'
-import Pull from '@/components/Pull.vue'
+<script lang="ts">
+import { Component, Vue, Watch } from 'vue-property-decorator'
+import { AxiosError } from 'axios'
+import RoomsList from '@/components/RoomsList.vue'
 import RoomsQuick from '@/components/RoomsQuick.vue'
 import RoomsCreate from '@/components/RoomsCreate.vue'
-import RoomsList from '@/components/RoomsList.vue'
-import type { State } from '@/store/state'
+import Pull from '@/components/Pull.vue'
+import { RoomEntry } from '@/api/index'
 
-const store = useStore<State>()
-const loading = ref(false)
-const error = ref('')
-const showCreate = ref(true)
+@Component({
+  components: {
+    RoomsList,
+    RoomsQuick,
+    RoomsCreate,
+    Pull,
+  }
+})
+export default class Home extends Vue {
+  public loading = false
+  public dialog = false
 
-const loadRooms = async () => {
-  error.value = ''
-  loading.value = true
+  public interval!: number
+  public autoRefresh = 0
+  public autoRefreshItems = [
+    { text: 'Off', value: -1 },
+    { text: 'Live', value: 0 },
+    { text: '5s', value: 5 },
+    { text: '10s', value: 10 },
+    { text: '30s', value: 30 },
+    { text: '60s', value: 60 },
+  ]
 
-  try {
-    await store.dispatch('ROOMS_CONFIG')
-    await store.dispatch('ROOMS_LOAD')
-  } catch (e) {
-    const response = (e as AxiosError).response
-    error.value = response ? `Server error: ${JSON.stringify(response.data)}` : `Network error: ${String(e)}`
-  } finally {
-    loading.value = false
+  get configConnections() {
+    return this.$store.state.roomsConfig.connections
+  }
+
+  get usedConnections() {
+    // eslint-disable-next-line
+    return this.$store.state.rooms.reduce((sum: number, { max_connections }: RoomEntry) => sum + (max_connections || 1/* 0 when using mux */), 0)
+  }
+
+  async LoadRooms() {
+    // do not load config if document is hidden
+    if (document.hidden) return
+
+    this.loading = true
+
+    try {
+      await this.$store.dispatch('ROOMS_LOAD')
+    } catch(e) {
+      const response = (e as AxiosError).response
+      if (response) {
+        console.error('Server error', response.data)
+      } else {
+        console.error('Network error', String(e))
+      }
+    } finally {
+      this.loading = false
+    }
+  }
+
+  @Watch('autoRefresh', { immediate: true })
+  onAutoRefresh() {
+    if (this.interval) {
+      window.clearInterval(this.interval)
+    }
+  
+    if (this.autoRefresh > 0) {
+      this.sseClose()
+      this.interval = window.setInterval(this.LoadRooms, this.autoRefresh * 1000)
+    } else if (this.autoRefresh == 0) {
+      this.sseStart()
+    }
+  }
+
+  async mounted() {
+    try {
+      await this.$store.dispatch('ROOMS_CONFIG')
+    } catch(e) {
+      const response = (e as AxiosError).response
+      if (response) {
+        console.error('Server error', response.data)
+      } else {
+        console.error('Network error', String(e))
+      }
+    }
+
+    await this.LoadRooms()
+  }
+
+  beforeDestroy() {
+    this.autoRefresh = -1
+  }
+
+  sse: EventSource | null = null
+  sseIsOpen = false
+  sseReconnBackoff = 1000
+  sseReconnRetries = 0
+  
+  async sseStart(reconnect = false) {
+    if (!reconnect) {
+      this.sseIsOpen = true
+    }
+
+    if (this.sse) {
+      this.sse.close()
+    }
+
+    this.sse = await this.$store.dispatch('EVENTS_SSE') as EventSource
+    this.sseReconnRetries++
+
+    this.sse.addEventListener('rooms', (e) => {
+      console.log('SSE rooms', e)
+      this.LoadRooms()
+    })
+  
+    this.sse.addEventListener('error', (e: Event) => {
+      console.log('SSE error', e)
+
+      // if is closed, don't try to reconnect
+      if (!this.sseIsOpen) return
+
+      const wait = this.sseReconnBackoff + 100 * this.sseReconnRetries
+
+      // try to reconnect
+      setTimeout(() => {
+        this.sseStart(true)
+      }, wait)
+
+      console.log('SSE error, trying to reconnect in ' + wait + 'ms')
+    })
+
+    this.sse.addEventListener('message', (e: Event) => {
+      console.log('SSE message', e)
+    })
+
+    this.sse.addEventListener('open', (e: Event) => {
+      console.log('SSE opened', e)
+    })
+  }
+
+  sseClose() {
+    if (this.sse) {
+      this.sse.close()
+    }
+    this.sse = null
+    this.sseIsOpen = false
   }
 }
-
-const onCreateFinished = async () => {
-  showCreate.value = false
-  await loadRooms()
-}
-
-void loadRooms()
 </script>
