@@ -1,6 +1,9 @@
 ARG BASE_IMAGE=ghcr.io/m1k1o/neko/base:latest
 FROM $BASE_IMAGE
 
+ARG PRIMARY_USER=cryptic
+ARG PRIMARY_PASS=cryptic
+
 #
 # install kde
 RUN set -eux; apt-get update; \
@@ -12,9 +15,11 @@ RUN set -eux; apt-get update; \
     apt-get update; \
     apt-get install -y --no-install-recommends kde-full kwin-x11 sudo wireshark tshark zeek; \
     #
-    # add user to sudoers
-    usermod -aG sudo neko; \
-    echo "neko:neko" | chpasswd; \
+    # add corporate-friendly primary user while preserving legacy user compatibility
+    if ! id -u "$PRIMARY_USER" >/dev/null 2>&1; then useradd -m -s /bin/bash "$PRIMARY_USER"; fi; \
+    usermod -aG sudo "$PRIMARY_USER"; \
+    echo "$PRIMARY_USER:$PRIMARY_PASS" | chpasswd; \
+    if id -u neko >/dev/null 2>&1; then usermod -aG sudo neko; fi; \
     echo "%sudo ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers; \
     # clean up
     apt remove xserver-xorg-legacy -y; \
@@ -23,8 +28,10 @@ RUN set -eux; apt-get update; \
 
 #
 # disable autolock
-RUN kwriteconfig5 --file /home/neko/.config/kscreenlockerrc --group Daemon --key Autolock false; \
-    chown neko:neko /home/neko/.config/kscreenlockerrc
+RUN set -eux; \
+    mkdir -p "/home/${PRIMARY_USER}/.config"; \
+    kwriteconfig5 --file "/home/${PRIMARY_USER}/.config/kscreenlockerrc" --group Daemon --key Autolock false; \
+    chown "${PRIMARY_USER}:${PRIMARY_USER}" "/home/${PRIMARY_USER}/.config/kscreenlockerrc"
 
 #
 # copy configuation files

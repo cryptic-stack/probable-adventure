@@ -1,6 +1,9 @@
 ARG BASE_IMAGE=ghcr.io/m1k1o/neko/base:latest
 FROM $BASE_IMAGE
 
+ARG PRIMARY_USER=cryptic
+ARG PRIMARY_PASS=cryptic
+
 #
 # install xfce
 RUN set -eux; apt-get update; \
@@ -12,9 +15,11 @@ RUN set -eux; apt-get update; \
     apt-get update; \
     apt-get install -y --no-install-recommends xfce4 xfce4-terminal sudo wireshark tshark zeek; \
     #
-    # add user to sudoers
-    usermod -aG sudo neko; \
-    echo "neko:neko" | chpasswd; \
+    # add corporate-friendly primary user while preserving legacy user compatibility
+    if ! id -u "$PRIMARY_USER" >/dev/null 2>&1; then useradd -m -s /bin/bash "$PRIMARY_USER"; fi; \
+    usermod -aG sudo "$PRIMARY_USER"; \
+    echo "$PRIMARY_USER:$PRIMARY_PASS" | chpasswd; \
+    if id -u neko >/dev/null 2>&1; then usermod -aG sudo neko; fi; \
     echo "%sudo ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers; \
     # clean up
     apt-get clean -y; \
