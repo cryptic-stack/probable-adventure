@@ -30,8 +30,8 @@ docker compose --profile demo up -d
 
 Docker Hub images are published under `crypticstack`:
 - `crypticstack/neko-rooms:latest`
-- `crypticstack/neko:firefox`
-- `crypticstack/neko:chromium`
+- `crypticstack/neko:xfce`
+- `crypticstack/neko:kde`
 
 These images are now published by GitHub Actions workflows:
 - `.github/workflows/docker-neko-images.yml`
@@ -61,13 +61,13 @@ If you want absolute links with a fixed domain, set:
 ## If You See `No such image`
 
 If a room fails with:
-`Response from daemon: No such image crypticstack/neko:firefox`
+`Response from daemon: No such image crypticstack/neko:xfce`
 
 run:
 
 ```bash
-docker pull crypticstack/neko:firefox
-docker pull crypticstack/neko:chromium
+docker pull crypticstack/neko:xfce
+docker pull crypticstack/neko:kde
 docker compose up -d
 ```
 

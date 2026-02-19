@@ -1,4 +1,4 @@
-name: Docker Neko Images
+name: Docker Neko Desktop Images
 
 on:
   workflow_dispatch:
@@ -8,8 +8,8 @@ on:
     tags:
       - "v*"
     paths:
-      - "neko/apps/firefox/**"
-      - "neko/apps/chromium/**"
+      - "neko/apps/xfce/**"
+      - "neko/apps/kde/**"
       - "neko/.dockerignore"
       - ".github/workflows/docker-neko-images.yml"
 
@@ -24,14 +24,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - app: firefox
-            dockerfile: neko/apps/firefox/Dockerfile
-            context: neko/apps/firefox
-            tag: firefox
-          - app: chromium
-            dockerfile: neko/apps/chromium/Dockerfile
-            context: neko/apps/chromium
-            tag: chromium
+          - app: xfce
+            dockerfile: neko/apps/xfce/Dockerfile
+            context: neko/apps/xfce
+            tag: xfce
+          - app: kde
+            dockerfile: neko/apps/kde/Dockerfile
+            context: neko/apps/kde
+            tag: kde
 
     steps:
       - name: Checkout

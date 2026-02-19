@@ -13,8 +13,8 @@ services:
       NEKO_ROOMS_STORAGE_INTERNAL: /data
       NEKO_ROOMS_STORAGE_EXTERNAL: /opt/neko-rooms/data
       NEKO_ROOMS_NEKO_IMAGES: |
-        crypticstack/neko:firefox
-        crypticstack/neko:chromium
+        crypticstack/neko:xfce
+        crypticstack/neko:kde
     ports:
       - "8080:8080"
     volumes:
@@ -25,7 +25,7 @@ services:
 
   neko-demo:
     profiles: ["demo"]
-    image: crypticstack/neko:firefox
+    image: crypticstack/neko:xfce
     restart: unless-stopped
     shm_size: 2gb
     environment:
