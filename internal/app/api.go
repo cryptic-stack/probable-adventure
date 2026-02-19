@@ -10,6 +10,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"path"
 	"strconv"
 	"strings"
 	"time"
@@ -623,6 +624,25 @@ func (s *Server) proxyRangeService(w http.ResponseWriter, r *http.Request) {
 		auth.JSON(w, 404, map[string]string{"error": "service has no host port"})
 		return
 	}
+	tail := chi.URLParam(r, "*")
+	if strings.TrimSpace(tail) == "" {
+		tail = "/"
+	} else if !strings.HasPrefix(tail, "/") {
+		tail = "/" + tail
+	}
+
+	// Neko-style fallback: redirect browser to the published room port directly.
+	// This avoids proxy/path/socket edge cases and mirrors how neko-rooms opens rooms.
+	if r.Method == http.MethodGet || r.Method == http.MethodHead {
+		if roomURL, ok := buildDirectRoomURL(r, hostPort, tail); ok {
+			if r.URL.RawQuery != "" {
+				roomURL.RawQuery = r.URL.RawQuery
+			}
+			http.Redirect(w, r, roomURL.String(), http.StatusTemporaryRedirect)
+			return
+		}
+	}
+
 	targetHost := firstReachableHost(hostPort)
 	targetURL, err := url.Parse("http://" + targetHost + ":" + hostPort)
 	if err != nil {
@@ -633,21 +653,35 @@ func (s *Server) proxyRangeService(w http.ResponseWriter, r *http.Request) {
 	orig := p.Director
 	p.Director = func(req *http.Request) {
 		orig(req)
-		tail := chi.URLParam(r, "*")
-		if strings.TrimSpace(tail) == "" {
-			req.URL.Path = "/"
-		} else {
-			if !strings.HasPrefix(tail, "/") {
-				tail = "/" + tail
-			}
-			req.URL.Path = tail
-		}
+		req.URL.Path = tail
 		req.URL.RawQuery = r.URL.RawQuery
 	}
 	p.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
 		auth.JSON(w, 502, map[string]string{"error": "upstream service unavailable"})
 	}
 	p.ServeHTTP(w, r)
+}
+
+func buildDirectRoomURL(r *http.Request, hostPort, tail string) (*url.URL, bool) {
+	host := strings.TrimSpace(r.Host)
+	if host == "" {
+		return nil, false
+	}
+	if h, _, err := net.SplitHostPort(host); err == nil && strings.TrimSpace(h) != "" {
+		host = h
+	}
+	if host == "0.0.0.0" || host == "::" {
+		host = "localhost"
+	}
+	u := &url.URL{
+		Scheme: "http",
+		Host:   net.JoinHostPort(host, hostPort),
+		Path:   path.Clean("/" + strings.TrimPrefix(tail, "/")),
+	}
+	if tail == "/" {
+		u.Path = "/"
+	}
+	return u, true
 }
 
 func firstReachableHost(port string) string {
