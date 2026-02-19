@@ -48,5 +48,15 @@
   },
   "engines": {
     "node": ">=18.0"
+  },
+  "overrides": {
+    "minimatch": "10.2.1",
+    "openapi-to-postmanv2": {
+      "js-yaml": "4.1.1",
+      "lodash": "4.17.23"
+    },
+    "postman-code-generators": {
+      "lodash": "4.17.23"
+    }
   }
 }
