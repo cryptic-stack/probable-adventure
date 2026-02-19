@@ -1,237 +1,61 @@
 param(
-  [string]$ApiBase = "http://localhost:8080",
-  [string]$AttackImage = "crypticstack/probable-adventure-attack-box:bookworm",
-  [string]$WebLabImage = "crypticstack/probable-adventure-web-lab:bookworm",
-  [string]$BaseServerImage = "crypticstack/probable-adventure-base-server:bookworm",
-  [string]$DesktopImage = "crypticstack/probable-adventure-desktop-web:bookworm-novnc"
+  [string]$ApiBase = "http://localhost:8080"
 )
 
-$attackTemplate = @{
-  name = "redteam-attack-box"
-  display_name = "Red Team Attack Box"
-  description = "CLI attacker workstation on redteam segment."
-  quota = 10
-  definition_json = @{
-    name = "redteam-attack-box"
-    room = @{
-      user_pass = "neko"
-      admin_pass = "admin"
-      max_connections = 8
-      control_protection = $true
-    }
-    services = @(
-      @{
-        name = "attacker"
-        image = $AttackImage
-        network = "redteam"
-        ports = @(
-          @{
-            container = 8080
-            host = 0
-            protocol = "tcp"
-          },
-          @{
-            container = 52000
-            host = 0
-            protocol = "udp"
-          }
-        )
+function New-RoomTemplateBody {
+  param(
+    [string]$Name,
+    [string]$DisplayName,
+    [string]$Description,
+    [string]$ServiceName,
+    [string]$Image,
+    [string]$Network
+  )
+
+  return @{
+    name = $Name
+    display_name = $DisplayName
+    description = $Description
+    quota = 10
+    definition_json = @{
+      name = $Name
+      room = @{
+        user_pass = "neko"
+        admin_pass = "admin"
+        max_connections = 8
+        control_protection = $true
       }
-    )
-  }
-} | ConvertTo-Json -Depth 8
-
-$webTemplate = @{
-  name = "corporate-web-lab"
-  display_name = "Corporate Web Lab"
-  description = "Simple HTTP training target on corporate segment."
-  quota = 10
-  definition_json = @{
-    name = "corporate-web-lab"
-    room = @{
-      user_pass = "neko"
-      admin_pass = "admin"
-      max_connections = 8
-      control_protection = $true
+      services = @(
+        @{
+          name = $ServiceName
+          image = $Image
+          network = $Network
+          ports = @(
+            @{ container = 8080; host = 0; protocol = "tcp" },
+            @{ container = 52000; host = 0; protocol = "udp" }
+          )
+        }
+      )
     }
-    services = @(
-      @{
-        name = "web"
-        image = $WebLabImage
-        network = "corporate"
-        ports = @(
-          @{
-            container = 8080
-            host = 0
-            protocol = "tcp"
-          },
-          @{
-            container = 52000
-            host = 0
-            protocol = "udp"
-          }
-        )
-      }
-    )
+  } | ConvertTo-Json -Depth 8
+}
+
+function Publish-Template {
+  param([string]$Body)
+
+  try {
+    $null = Invoke-RestMethod -Uri "$ApiBase/api/templates" -Method POST -ContentType "application/json" -Body $Body
+    Write-Host "template loaded"
   }
-} | ConvertTo-Json -Depth 8
-
- $blueTemplate = @{
-  name = "blueteam-analyst"
-  display_name = "Blue Team Analyst"
-  description = "Blue team workstation on blueteam segment."
-  quota = 10
-  definition_json = @{
-    name = "blueteam-analyst"
-    room = @{
-      user_pass = "neko"
-      admin_pass = "admin"
-      max_connections = 8
-      control_protection = $true
-    }
-    services = @(
-      @{
-        name = "analyst"
-        image = $BaseServerImage
-        network = "blueteam"
-        ports = @(
-          @{
-            container = 8080
-            host = 0
-            protocol = "tcp"
-          },
-          @{
-            container = 52000
-            host = 0
-            protocol = "udp"
-          }
-        )
-      }
-    )
+  catch {
+    Write-Host "template create failed (already exists or API unavailable): $($_.Exception.Message)"
   }
-} | ConvertTo-Json -Depth 8
+}
 
-$netbirdTemplate = @{
-  name = "netbird-relay"
-  display_name = "Netbird Relay"
-  description = "Netbird segment node placeholder."
-  quota = 10
-  definition_json = @{
-    name = "netbird-relay"
-    room = @{
-      user_pass = "neko"
-      admin_pass = "admin"
-      max_connections = 8
-      control_protection = $true
-    }
-    services = @(
-      @{
-        name = "relay"
-        image = $BaseServerImage
-        network = "netbird"
-        ports = @(
-          @{
-            container = 8080
-            host = 0
-            protocol = "tcp"
-          },
-          @{
-            container = 52000
-            host = 0
-            protocol = "udp"
-          }
-        )
-      }
-    )
-  }
-} | ConvertTo-Json -Depth 8
+Write-Host "Loading range scenario templates (Neko-style room access)..."
 
-$guestTemplate = @{
-  name = "guest-web-kiosk"
-  display_name = "Guest Web Kiosk"
-  description = "Guest segment web kiosk on port 8080."
-  quota = 10
-  definition_json = @{
-    name = "guest-web-kiosk"
-    room = @{
-      user_pass = "neko"
-      admin_pass = "admin"
-      max_connections = 8
-      control_protection = $true
-    }
-    services = @(
-      @{
-        name = "kiosk"
-        image = $WebLabImage
-        network = "guest"
-        ports = @(
-          @{
-            container = 8080
-            host = 0
-            protocol = "tcp"
-          },
-          @{
-            container = 52000
-            host = 0
-            protocol = "udp"
-          }
-        )
-      }
-    )
-  }
-} | ConvertTo-Json -Depth 8
-
-$desktopTemplate = @{
-  name = "guest-desktop-browser"
-  display_name = "Guest Browser Desktop (WebRTC)"
-  description = "XFCE desktop accessible from browser via WebRTC on port 8080."
-  quota = 10
-  definition_json = @{
-    name = "guest-desktop-browser"
-    room = @{
-      user_pass = "neko"
-      admin_pass = "admin"
-      max_connections = 8
-      control_protection = $true
-    }
-    services = @(
-      @{
-        name = "desktop"
-        image = $DesktopImage
-        network = "guest"
-        ports = @(
-          @{
-            container = 8080
-            host = 0
-            protocol = "tcp"
-          },
-          @{
-            container = 52000
-            host = 0
-            protocol = "udp"
-          }
-        )
-      }
-    )
-  }
-} | ConvertTo-Json -Depth 8
-
-Write-Host "Loading redteam-attack-box template..."
-Invoke-RestMethod -Uri "$ApiBase/api/templates" -Method POST -ContentType "application/json" -Body $attackTemplate | Out-Null
-
-Write-Host "Loading corporate-web-lab template..."
-Invoke-RestMethod -Uri "$ApiBase/api/templates" -Method POST -ContentType "application/json" -Body $webTemplate | Out-Null
-
-Write-Host "Loading blueteam-analyst template..."
-Invoke-RestMethod -Uri "$ApiBase/api/templates" -Method POST -ContentType "application/json" -Body $blueTemplate | Out-Null
-
-Write-Host "Loading netbird-relay template..."
-Invoke-RestMethod -Uri "$ApiBase/api/templates" -Method POST -ContentType "application/json" -Body $netbirdTemplate | Out-Null
-
-Write-Host "Loading guest-web-kiosk template..."
-Invoke-RestMethod -Uri "$ApiBase/api/templates" -Method POST -ContentType "application/json" -Body $guestTemplate | Out-Null
-
-Write-Host "Loading guest-desktop-browser template..."
-Invoke-RestMethod -Uri "$ApiBase/api/templates" -Method POST -ContentType "application/json" -Body $desktopTemplate | Out-Null
+Publish-Template (New-RoomTemplateBody -Name "neko-attack-box" -DisplayName "Neko Attack Box" -Description "Red team attacker room." -ServiceName "attacker" -Image "crypticstack/probable-adventure-attack-box:bookworm" -Network "redteam")
+Publish-Template (New-RoomTemplateBody -Name "neko-web-lab" -DisplayName "Neko Web Lab" -Description "Corporate web application room." -ServiceName "web" -Image "crypticstack/probable-adventure-web-lab:bookworm" -Network "corporate")
+Publish-Template (New-RoomTemplateBody -Name "neko-blue-analyst" -DisplayName "Neko Blue Analyst" -Description "Blue team analysis room." -ServiceName "analyst" -Image "crypticstack/probable-adventure-base-server:bookworm" -Network "blueteam")
 
 Write-Host "Done."

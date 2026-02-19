@@ -1,239 +1,132 @@
 # probable-adventure
 
-Cyber range MVP with:
+Cyber range MVP with Neko-style room access:
 - Go API (`chi`)
 - Postgres
 - Provisioner worker (Docker Engine API)
-- Browser dashboard + SSE live events
+- Room-first web UI inspired by `neko-rooms`
 
 ## What It Does
 - Authenticates users with Google OIDC (or local dev bypass)
-- Lets admins create range templates
-- Lets team members create/destroy/reset ranges
-- Queues jobs in Postgres and executes them in a provisioner worker
-- Streams range events live via SSE
+- Creates range room groups directly from image references
+- Provisions room containers and networks via worker jobs
+- Exposes one room link per service using Neko-style query params (`usr`, `pwd`)
+- Streams range events via SSE
 
 ## Prerequisites
 - Docker Desktop running
-- Git + Go (for local non-container dev)
-- Optional: `make` (if unavailable, use `docker compose` commands directly)
+- Go (for local `go test`)
+- Optional: `make`
 
 ## Configuration
-Create a `.env` file in repo root.
+Create `.env` in repo root:
 
 ```env
 APP_ENV=dev
 HTTP_ADDR=:8080
 DATABASE_URL=postgres://range:range@localhost:5432/rangedb?sslmode=disable
 SESSION_KEY=dev-insecure-session-key-change-me
-
-# Local auth bypass (recommended for local dev)
 DEV_AUTH_EMAIL=dev@example.com
 ADMIN_EMAILS=dev@example.com
-
-# OIDC (leave empty when using DEV_AUTH_EMAIL)
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 GOOGLE_REDIRECT_URL=http://localhost:8080/auth/google/callback
-
 WORKER_ID=provisioner-1
 DOCKER_HOST=unix:///var/run/docker.sock
 DOCKERHUB_REPOS=crypticstack/probable-adventure-base-server,crypticstack/probable-adventure-base-user,crypticstack/probable-adventure-attack-box,crypticstack/probable-adventure-web-lab,crypticstack/probable-adventure-desktop-web
 DOCKERHUB_IMAGE_REFS=crypticstack/probable-adventure-base-server:bookworm,crypticstack/probable-adventure-base-user:bookworm-xfce,crypticstack/probable-adventure-attack-box:bookworm,crypticstack/probable-adventure-web-lab:bookworm,crypticstack/probable-adventure-desktop-web:bookworm-novnc
 ```
 
-## Start / Stop
+## Run
 With `make`:
 - Start: `make dev`
 - Logs: `make logs`
-- Migrate up: `make migrate-up` (optional; `make dev` now runs migrate service automatically via compose)
-- Stop + remove volumes: `make down`
+- Stop: `make down`
 
 Without `make`:
 - Start: `docker compose up -d --build`
 - Logs: `docker compose logs -f`
-- Migrate up:
-  `docker compose run --rm migrate -path /migrations -database postgres://range:range@postgres:5432/rangedb?sslmode=disable up`
-- Stop + remove volumes: `docker compose down -v`
+- Stop: `docker compose down -v`
 
-Room lifecycle actions (`start/stop/restart/recreate`) require API to reach Docker Engine (`/var/run/docker.sock` mounted in compose).
+## UI
+Open `http://localhost:8080/`.
 
-## Health Check
-```bash
-curl http://localhost:8080/healthz
-```
-Expected:
-```json
-{"status":"ok","db":"ok"}
-```
+Current UI flow:
+- Create a room group from one image
+- Open room links directly (Neko-style)
+- Start/stop/restart room containers
+- Destroy/recreate room groups
+- Watch live events
 
-## Authentication Modes
-### 1) Dev Bypass (fast local testing)
-Set `DEV_AUTH_EMAIL`.
-
-Then:
-```bash
-curl http://localhost:8080/api/me
-```
-
-### 2) Google OIDC
-Unset `DEV_AUTH_EMAIL`, set Google OIDC env vars, then open:
-- `http://localhost:8080/auth/google/login`
-
-## Use the UI
-Open:
-- `http://localhost:8080/`
-
-Dashboard supports:
-- Login/logout
-- Create ranges directly from Docker Hub images (no template selection required in UI)
-- Add multiple rooms per range (range = group of rooms/containers)
-- Select room network segment (`redteam`, `blueteam`, `netbird`, `corporate`, `guest`)
-- List ranges
-- View range details + port mappings
-- One canonical access link per service/container (Neko-style room entrypoint)
-- Access links use same-origin proxy URLs: `/api/ranges/{id}/access/{service}/?usr=<name>&pwd=<room_user_password>`
-- Room settings API per service (`/api/ranges/{id}/rooms/{service}`) for admin-driven credential/concurrency updates
-- Destroy/reset range
-- Live SSE event stream for selected range
-
-## Build Range Images
-Build local images:
+## Scripts (Neko-style)
+### Sync room images
 ```powershell
-pwsh ./scripts/build-range-images.ps1 -DockerHubUser crypticstack
+pwsh ./scripts/build-range-images.ps1 -Mode pull
 ```
 
-Push images:
+### Build local room images
 ```powershell
-docker push crypticstack/probable-adventure-base-server:bookworm
-docker push crypticstack/probable-adventure-base-user:bookworm-xfce
-docker push crypticstack/probable-adventure-attack-box:bookworm
-docker push crypticstack/probable-adventure-web-lab:bookworm
-docker push crypticstack/probable-adventure-desktop-web:bookworm-novnc
+pwsh ./scripts/build-range-images.ps1 -Mode build -DockerHubUser crypticstack
 ```
 
-Web interaction defaults:
-- All curated images expose browser access on container port `8080`
-- Desktop/browser access uses `m1k1o/neko` WebRTC
-- Derived images (`base-server`, `attack-box`, `web-lab`, `desktop-web`) are built from the WebRTC base image
-- Starter templates now include:
-  - `8080/tcp` (web UI/signaling)
-  - `52000/udp` (WebRTC media EPR)
-  - `definition_json.room` with `user_pass`, `admin_pass`, `max_connections`, `control_protection`
+### Load base templates
+```powershell
+pwsh ./scripts/load-base-templates.ps1 -ApiBase http://localhost:8080
+```
 
-## API Workflow (CLI)
-### 1) List Docker Hub catalog images used by the range builder
+### Load scenario templates
+```powershell
+pwsh ./scripts/load-range-templates.ps1 -ApiBase http://localhost:8080
+```
+
+### Cleanup local Neko/range images
+```powershell
+pwsh ./scripts/cleanup-local-images.ps1 -Force
+```
+
+## API Quick Start
+### List images
 ```bash
 curl http://localhost:8080/api/catalog/images
 ```
 
-### 2) Create range from images/rooms (queues provision job)
+### Create room group
 ```bash
 curl -X POST http://localhost:8080/api/ranges \
   -H "Content-Type: application/json" \
   -d '{
     "team_id":1,
-    "name":"range-a",
+    "name":"room-group-a",
     "rooms":[
-      {"name":"desktop","image":"crypticstack/probable-adventure-desktop-web:bookworm-novnc","network":"guest"},
-      {"name":"attacker","image":"crypticstack/probable-adventure-attack-box:bookworm","network":"redteam"}
+      {"name":"desktop","image":"crypticstack/probable-adventure-desktop-web:bookworm-novnc","network":"guest"}
     ],
     "room":{"user_pass":"neko","admin_pass":"admin","max_connections":8,"control_protection":true}
   }'
 ```
 
-### 3) List ranges
-```bash
-curl http://localhost:8080/api/ranges
-```
-
-### 4) Get one range with canonical access links
+### Get room group + access links
 ```bash
 curl http://localhost:8080/api/ranges/1
 ```
 
-### 5) Get room settings for one service
-```bash
-curl http://localhost:8080/api/ranges/1/rooms/desktop
-```
-
-### 6) Update room settings (admin)
-```bash
-curl -X PUT http://localhost:8080/api/ranges/1/rooms/desktop \
-  -H "Content-Type: application/json" \
-  -d '{
-    "room": {
-      "user_pass":"student",
-      "admin_pass":"instructor",
-      "max_connections":8,
-      "control_protection":true
-    },
-    "reconcile": true
-  }'
-```
-
-### 7) Watch live events for a range
-```bash
-curl -N http://localhost:8080/api/ranges/1/events
-```
-
-### 8) Room lifecycle actions
+### Room lifecycle
 ```bash
 curl -X POST http://localhost:8080/api/ranges/1/rooms/desktop/start
 curl -X POST http://localhost:8080/api/ranges/1/rooms/desktop/stop
 curl -X POST http://localhost:8080/api/ranges/1/rooms/desktop/restart
-curl -X POST http://localhost:8080/api/ranges/1/rooms/desktop/recreate
 ```
 
-### 9) Destroy / reset
+### Destroy/reset
 ```bash
 curl -X POST http://localhost:8080/api/ranges/1/destroy
 curl -X POST http://localhost:8080/api/ranges/1/reset
 ```
 
-## Operational Checks
-Inspect jobs/events/resources directly:
-
-```bash
-docker compose exec -T postgres psql -U range -d rangedb -c "select id,job_type,status,attempts,error from jobs order by id desc limit 20;"
-docker compose exec -T postgres psql -U range -d rangedb -c "select id,range_id,kind,level,message,created_at from events order by id desc limit 50;"
-docker compose exec -T postgres psql -U range -d rangedb -c "select range_id,resource_type,docker_id,service_name from range_resources order by id desc limit 20;"
-```
-
-## Security Notes
-- Do not use `DEV_AUTH_EMAIL` in production.
-- Set a strong `SESSION_KEY` in non-dev environments.
-- Do not put secrets in template definitions or event payloads.
-
-## Range Ops Recommendations
-- Base scenarios on ATT&CK techniques and map each exercise objective to a specific technique/test case.
-- Use Atomic Red Team tests (or CALDERA abilities) to create repeatable attacker actions.
-- Use one Docker network per range and enforce deny-by-default ingress/egress at host firewall boundaries.
-- Keep management/control plane separate from exercise traffic (dedicated network and credentials).
-- Instrument every range with endpoint/network telemetry so students can validate detections.
-
-References:
-- neko-rooms: https://github.com/m1k1o/neko-rooms
-- NIST SP 800-115 (security testing methodology): https://csrc.nist.gov/pubs/sp/800/115/final
-- NIST SP 800-207 (zero trust segmentation principles): https://csrc.nist.gov/pubs/sp/800/207/final
-- CISA Zero Trust Maturity Model: https://www.cisa.gov/resources-tools/resources/zero-trust-maturity-model
-- MITRE ATT&CK: https://attack.mitre.org/
-- MITRE CALDERA: https://caldera.mitre.org/
-- Atomic Red Team: https://github.com/redcanaryco/atomic-red-team
-- Docker networking docs: https://docs.docker.com/engine/network/
-- Neko project: https://github.com/m1k1o/neko
-- Neko compose/env reference: https://raw.githubusercontent.com/m1k1o/neko/master/.github/examples/docker-compose.yaml
-
-## Troubleshooting
-- Docker pull/login issues: run `docker login`.
-- `{\"error\":\"db error\"}` on UI/API: ensure migrations ran. With current compose, restart stack:
-  `docker compose down -v && docker compose up -d --build`
-- If `/` returns 404 in containerized runs, rebuild API image:
-  `docker compose up -d --build`
-- If jobs are queued but not running, check provisioner logs:
-  `docker compose logs -f provisioner`
-
 ## Test
 ```bash
 go test ./...
 ```
+
+## References
+- neko-rooms: https://github.com/m1k1o/neko-rooms
+- Neko: https://github.com/m1k1o/neko

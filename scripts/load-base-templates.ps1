@@ -1,83 +1,61 @@
 param(
-  [string]$ApiBase = "http://localhost:8080",
-  [string]$ServerImage = "crypticstack/probable-adventure-base-server:bookworm",
-  [string]$UserImage = "crypticstack/probable-adventure-base-user:bookworm-xfce"
+  [string]$ApiBase = "http://localhost:8080"
 )
 
-$serverTemplate = @{
-  name = "base-server"
-  display_name = "Base Server (Bookworm)"
-  description = "Debian Bookworm base server with git, curl, nano."
-  quota = 10
-  definition_json = @{
-    name = "base-server"
-    room = @{
-      user_pass = "neko"
-      admin_pass = "admin"
-      max_connections = 8
-      control_protection = $true
-    }
-    services = @(
-      @{
-        name = "server"
-        image = $ServerImage
-        network = "corporate"
-        ports = @(
-          @{
-            container = 8080
-            host = 0
-            protocol = "tcp"
-          },
-          @{
-            container = 52000
-            host = 0
-            protocol = "udp"
-          }
-        )
+function New-RoomTemplateBody {
+  param(
+    [string]$Name,
+    [string]$DisplayName,
+    [string]$Description,
+    [string]$ServiceName,
+    [string]$Image,
+    [string]$Network = "guest"
+  )
+
+  return @{
+    name = $Name
+    display_name = $DisplayName
+    description = $Description
+    quota = 10
+    definition_json = @{
+      name = $Name
+      room = @{
+        user_pass = "neko"
+        admin_pass = "admin"
+        max_connections = 8
+        control_protection = $true
       }
-    )
-  }
-} | ConvertTo-Json -Depth 8
-
-$userTemplate = @{
-  name = "base-user-xfce"
-  display_name = "Base User XFCE (Bookworm)"
-  description = "Debian Bookworm user image with XFCE + git, curl, nano."
-  quota = 10
-  definition_json = @{
-    name = "base-user-xfce"
-    room = @{
-      user_pass = "neko"
-      admin_pass = "admin"
-      max_connections = 8
-      control_protection = $true
+      services = @(
+        @{
+          name = $ServiceName
+          image = $Image
+          network = $Network
+          ports = @(
+            @{ container = 8080; host = 0; protocol = "tcp" },
+            @{ container = 52000; host = 0; protocol = "udp" }
+          )
+        }
+      )
     }
-    services = @(
-      @{
-        name = "desktop"
-        image = $UserImage
-        network = "guest"
-        ports = @(
-          @{
-            container = 8080
-            host = 0
-            protocol = "tcp"
-          },
-          @{
-            container = 52000
-            host = 0
-            protocol = "udp"
-          }
-        )
-      }
-    )
+  } | ConvertTo-Json -Depth 8
+}
+
+function Publish-Template {
+  param([string]$Body)
+
+  try {
+    $null = Invoke-RestMethod -Uri "$ApiBase/api/templates" -Method POST -ContentType "application/json" -Body $Body
+    Write-Host "template loaded"
   }
-} | ConvertTo-Json -Depth 8
+  catch {
+    Write-Host "template create failed (already exists or API unavailable): $($_.Exception.Message)"
+  }
+}
 
-Write-Host "Loading base-server template..."
-Invoke-RestMethod -Uri "$ApiBase/api/templates" -Method POST -ContentType "application/json" -Body $serverTemplate | Out-Null
+Write-Host "Loading base Neko-style templates..."
 
-Write-Host "Loading base-user-xfce template..."
-Invoke-RestMethod -Uri "$ApiBase/api/templates" -Method POST -ContentType "application/json" -Body $userTemplate | Out-Null
+Publish-Template (New-RoomTemplateBody -Name "neko-desktop" -DisplayName "Neko Desktop Room" -Description "Single desktop room with browser access." -ServiceName "desktop" -Image "crypticstack/probable-adventure-desktop-web:bookworm-novnc" -Network "guest")
+Publish-Template (New-RoomTemplateBody -Name "neko-user-lab" -DisplayName "Neko User Lab" -Description "General user workstation room." -ServiceName "workstation" -Image "crypticstack/probable-adventure-base-user:bookworm-xfce" -Network "guest")
+Publish-Template (New-RoomTemplateBody -Name "neko-server-lab" -DisplayName "Neko Server Lab" -Description "Server-side lab room with browser entrypoint." -ServiceName "server" -Image "crypticstack/probable-adventure-base-server:bookworm" -Network "corporate")
 
 Write-Host "Done."
