@@ -1,7 +1,23 @@
 services:
+  neko-image-sync:
+    image: docker:cli
+    restart: "no"
+    command:
+      - /bin/sh
+      - -lc
+      - |
+        set -e
+        docker pull ghcr.io/m1k1o/neko/firefox:latest
+        docker pull ghcr.io/m1k1o/neko/chromium:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
   neko-rooms:
     image: m1k1o/neko-rooms:latest
     restart: unless-stopped
+    depends_on:
+      neko-image-sync:
+        condition: service_completed_successfully
     environment:
       TZ: UTC
       NEKO_ROOMS_MUX: "true"

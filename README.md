@@ -16,6 +16,8 @@ The previous custom `probable-adventure` codebase has been removed.
 docker compose up -d
 ```
 
+This compose includes a one-shot `neko-image-sync` service that pre-pulls default room images before `neko-rooms` starts.
+
 3. Open:
 - Neko Rooms: `http://localhost:8080`
 - Standalone Neko demo (optional profile): `http://localhost:8090`
@@ -38,6 +40,18 @@ Root compose now enables persistent room storage out of the box:
 If your Docker host cannot use `/opt/neko-rooms/data`, change both:
 - `NEKO_ROOMS_STORAGE_EXTERNAL`
 - the matching bind mount source path
+
+## If You See `No such image`
+
+If a room fails with:
+`Response from daemon: No such image ghcr.io/m1k1o/neko/firefox:latest`
+
+run:
+
+```bash
+docker compose run --rm neko-image-sync
+docker compose up -d
+```
 
 ## Repo Layout
 
