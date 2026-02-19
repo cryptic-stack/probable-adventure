@@ -659,13 +659,22 @@ func firstReachableHost(port string) string {
 		"localhost",
 	}
 	for _, h := range candidates {
-		conn, err := net.DialTimeout("tcp", net.JoinHostPort(h, port), 300*time.Millisecond)
+		conn, err := net.DialTimeout("tcp", net.JoinHostPort(h, port), 1200*time.Millisecond)
 		if err == nil {
 			_ = conn.Close()
 			return h
 		}
 	}
+	if runningInContainer() {
+		// In containers, localhost usually points to the API container itself.
+		return "host.docker.internal"
+	}
 	return "localhost"
+}
+
+func runningInContainer() bool {
+	_, err := os.Stat("/.dockerenv")
+	return err == nil
 }
 
 func StartHTTP(ctx context.Context, cfg config.Config, pool *pgxpool.Pool) error {
