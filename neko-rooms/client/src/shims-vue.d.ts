@@ -1,4 +1,12 @@
 declare module '*.vue' {
-  import Vue from 'vue'
-  export default Vue
+  import type { DefineComponent } from 'vue'
+  const component: DefineComponent<{}, {}, any>
+  export default component
+}
+
+declare module '@vue/runtime-core' {
+  interface ComponentCustomProperties {
+    $swal: (...args: any[]) => Promise<any>
+    swal: (...args: any[]) => Promise<any>
+  }
 }
