@@ -20,7 +20,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  DOCKER_IMAGE: m1k1o/neko
+  DOCKER_IMAGE: crypticstack/probable-adventure
 
 jobs:
   build-base:
@@ -29,7 +29,7 @@ jobs:
     #
     # do not run on forks
     #
-    if: github.repository_owner == 'm1k1o'
+    if: github.repository_owner == 'crypticstack'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -72,26 +72,26 @@ jobs:
     #
     # do not run on forks
     #
-    if: github.repository_owner == 'm1k1o'
+    if: github.repository_owner == 'crypticstack'
     needs: build-base
     strategy:
       # Will build all images even if some fail.
       fail-fast: false
       matrix:
         tag: 
-          - firefox
+          #- firefox
           # Temporarily disabled due to Cloudflare blocked download link
           #- waterfox
-          - chromium
-          - google-chrome
-          - ungoogled-chromium
-          - microsoft-edge
-          - brave
-          - vivaldi
-          - opera
-          - tor-browser
-          - remmina
-          - vlc
+          #- chromium
+          #- google-chrome
+          #- ungoogled-chromium
+          #- microsoft-edge
+          #- brave
+          #- vivaldi
+          #- opera
+          #- tor-browser
+          #- remmina
+          #- vlc
           - xfce
           - kde
     steps:
