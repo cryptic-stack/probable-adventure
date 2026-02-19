@@ -10,13 +10,20 @@ The previous custom `probable-adventure` codebase has been removed.
 ## Quick Start
 
 1. Start Docker Desktop.
-2. Run:
+2. Create your local env file:
+
+```bash
+cp .env.example .env
+```
+
+3. Edit `.env` and set `NEKO_ROOMS_NAT1TO1` to your Docker host IP (for LAN use your LAN IP).
+4. Run:
 
 ```bash
 docker compose up -d
 ```
 
-3. Open:
+5. Open:
 - Neko Rooms: `http://localhost:8080`
 - Standalone Neko demo (optional profile): `http://localhost:8090`
 
