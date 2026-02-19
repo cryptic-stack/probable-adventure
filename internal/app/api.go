@@ -73,8 +73,10 @@ func (s *Server) Router() http.Handler {
 			pr.Get("/ranges/{id}", s.getRange)
 			pr.Get("/ranges/{id}/rooms", s.listRooms)
 			pr.Get("/ranges/{id}/rooms/{service}", s.getRoomSettings)
-			pr.Get("/ranges/{id}/access/{service}", s.proxyRangeService)
-			pr.Get("/ranges/{id}/access/{service}/*", s.proxyRangeService)
+			// Room UIs can issue GET/POST/WS/OPTIONS requests under the access path.
+			pr.Handle("/ranges/{id}/access/{service}", http.HandlerFunc(s.proxyRangeService))
+			pr.Handle("/ranges/{id}/access/{service}/", http.HandlerFunc(s.proxyRangeService))
+			pr.Handle("/ranges/{id}/access/{service}/*", http.HandlerFunc(s.proxyRangeService))
 			pr.Get("/ranges/{id}/events", s.streamRangeEvents)
 		})
 
@@ -649,7 +651,13 @@ func (s *Server) proxyRangeService(w http.ResponseWriter, r *http.Request) {
 }
 
 func firstReachableHost(port string) string {
-	candidates := []string{"host.docker.internal", "127.0.0.1", "localhost"}
+	candidates := []string{
+		"host.docker.internal",
+		"gateway.docker.internal",
+		"172.17.0.1",
+		"127.0.0.1",
+		"localhost",
+	}
 	for _, h := range candidates {
 		conn, err := net.DialTimeout("tcp", net.JoinHostPort(h, port), 300*time.Millisecond)
 		if err == nil {
