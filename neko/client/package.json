@@ -13,9 +13,9 @@
     "url": "https://github.com/m1k1o/neko/issues"
   },
   "scripts": {
-    "serve": "vue-cli-service serve --mode development",
-    "build": "vue-cli-service build",
-    "build:lib": "vue-cli-service build --target lib --name neko-lib 'src/lib.ts'",
+    "serve": "vite --mode development --host 0.0.0.0",
+    "build": "vite build",
+    "build:lib": "vite build --config vite.lib.config.ts",
     "build:emoji": "ts-node --files --project tools/tsconfig.json tools/emoji.ts"
   },
   "dependencies": {
@@ -41,19 +41,17 @@
   },
   "devDependencies": {
     "@types/animejs": "^3.1.6",
-    "@types/node": "^18.11.18",
+    "@types/node": "^20.19.0",
     "@types/vue": "^2.0.0",
     "@types/vue-clickaway": "^2.2.0",
-    "@vue/cli-plugin-babel": "^5.0.8",
-    "@vue/cli-plugin-typescript": "^5.0.8",
-    "@vue/cli-service": "^5.0.8",
+    "@vitejs/plugin-vue2": "^2.3.4",
     "core-js": "^3.26.0",
     "emojilib": "^3.0.7",
     "prettier": "^2.7.1",
     "sass": "^1.55.0",
-    "sass-loader": "^10.3.1",
     "ts-node": "^9.1.1",
     "typescript": "^4.8.4",
+    "vite": "^7.3.1",
     "vue-template-compiler": "^2.7.13"
   }
 }
