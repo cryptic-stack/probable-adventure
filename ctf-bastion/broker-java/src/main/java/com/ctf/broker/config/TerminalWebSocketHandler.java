@@ -57,7 +57,16 @@ public class TerminalWebSocketHandler extends TextWebSocketHandler {
             Claims claims = jwtVerifier.verify(token);
             String channel = extractChannel(session.getUri());
 
-            Process process = new ProcessBuilder("docker", "exec", "-i", containerId, "/bin/sh")
+            Process process = new ProcessBuilder(
+                "docker",
+                "exec",
+                "-i",
+                "-e",
+                "TERM=xterm-256color",
+                containerId,
+                "/bin/sh",
+                "-i"
+            )
                 .redirectErrorStream(true)
                 .start();
 
@@ -69,7 +78,7 @@ public class TerminalWebSocketHandler extends TextWebSocketHandler {
             resetIdleTimeout(session);
 
             startOutputPump(session, process);
-            session.sendMessage(new TextMessage("broker connected channel=" + channel + " user=" + claims.getSubject()));
+            session.sendMessage(new TextMessage("broker connected channel=" + channel + " user=" + claims.getSubject() + "\r\n"));
         } catch (Exception ex) {
             session.close(CloseStatus.NOT_ACCEPTABLE.withReason("invalid token or container"));
         }
@@ -117,6 +126,7 @@ public class TerminalWebSocketHandler extends TextWebSocketHandler {
                 int read;
                 while (session.isOpen() && (read = in.read(buffer)) != -1) {
                     String payload = new String(buffer, 0, read, StandardCharsets.UTF_8);
+                    resetIdleTimeout(session);
                     synchronized (session) {
                         session.sendMessage(new TextMessage(payload));
                     }

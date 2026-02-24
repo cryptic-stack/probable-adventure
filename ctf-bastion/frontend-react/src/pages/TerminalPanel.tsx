@@ -72,11 +72,13 @@ export function TerminalPanel({ token, wsPath, modeLabel }: Props) {
     }
 
     ws.onmessage = (event) => {
-      termRef.current?.writeln(String(event.data))
+      termRef.current?.write(String(event.data))
     }
 
     ws.onclose = () => {
       setStatus('disconnected')
+      inputDisposableRef.current?.dispose()
+      inputDisposableRef.current = null
       termRef.current?.writeln('connection closed')
     }
 
