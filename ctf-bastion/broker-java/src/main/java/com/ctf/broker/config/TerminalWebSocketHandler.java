@@ -51,26 +51,29 @@ public class TerminalWebSocketHandler extends TextWebSocketHandler {
             session.close(CloseStatus.NOT_ACCEPTABLE.withReason("missing containerId"));
             return;
         }
+        if (!containerId.matches("^[a-f0-9]{12,64}$")) {
+            session.close(CloseStatus.NOT_ACCEPTABLE.withReason("invalid containerId"));
+            return;
+        }
 
         try {
             Claims claims = jwtVerifier.verify(token);
             String channel = extractChannel(session.getUri());
-
-            Process process = new ProcessBuilder(
-                "docker",
-                "exec",
-                "-i",
-                "-e",
-                "TERM=xterm-256color",
-                containerId,
-                "sh",
-                "-lc",
-                "for i in $(seq 1 40); do "
+            String execCommand =
+                "docker exec -it -e TERM=xterm-256color "
+                    + containerId
+                    + " sh -lc \"for i in \\$(seq 1 40); do "
                     + "[ -x /bin/bash ] && exec /bin/bash --noprofile --norc -i; "
                     + "apk add --no-cache bash >/dev/null 2>&1 || true; "
                     + "sleep 0.2; "
                     + "done; "
-                    + "echo 'bash unavailable, falling back to sh'; exec /bin/sh -i"
+                    + "echo 'bash unavailable, falling back to sh'; exec /bin/sh -i\"";
+
+            Process process = new ProcessBuilder(
+                "script",
+                "-qec",
+                execCommand,
+                "/dev/null"
             )
                 .redirectErrorStream(true)
                 .start();
@@ -104,8 +107,7 @@ public class TerminalWebSocketHandler extends TextWebSocketHandler {
 
         try {
             OutputStream stdin = process.getOutputStream();
-            String normalized = message.getPayload().replace("\r\n", "\n").replace('\r', '\n');
-            stdin.write(normalized.getBytes(StandardCharsets.UTF_8));
+            stdin.write(message.getPayload().getBytes(StandardCharsets.UTF_8));
             stdin.flush();
         } catch (IOException ignored) {
         }

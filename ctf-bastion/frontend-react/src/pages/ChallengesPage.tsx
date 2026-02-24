@@ -118,39 +118,23 @@ export function ChallengesPage() {
               Refresh
             </button>
           </div>
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Category</th>
-                  <th>Value</th>
-                  <th>Solves</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {challenges.map((challenge) => (
-                  <tr
-                    key={challenge.id}
-                    className={challenge.id === challengeId ? 'selected' : ''}
-                    onClick={() => setChallengeId(challenge.id)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <td>#{challenge.id} {challenge.name}</td>
-                    <td>{challenge.category}</td>
-                    <td>{challenge.value}</td>
-                    <td>{challenge.solves}</td>
-                    <td>{challenge.solvedByMe ? <span className="chip">Solved</span> : <span className="subtle">Open</span>}</td>
-                  </tr>
-                ))}
-                {challenges.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="subtle">No challenges available.</td>
-                  </tr>
-                ) : null}
-              </tbody>
-            </table>
+          <div className="challenge-cards">
+            {challenges.map((challenge) => (
+              <button
+                key={challenge.id}
+                className={`challenge-card ${challenge.id === challengeId ? 'active' : ''}`}
+                onClick={() => setChallengeId(challenge.id)}
+              >
+                <div className="challenge-card-title">#{challenge.id} {challenge.name}</div>
+                <div className="challenge-card-meta">
+                  <span className="chip">{challenge.category}</span>
+                  <span>{challenge.value} pts</span>
+                  <span>{challenge.solves} solves</span>
+                  <span>{challenge.solvedByMe ? 'Solved' : 'Open'}</span>
+                </div>
+              </button>
+            ))}
+            {challenges.length === 0 ? <p className="subtle">No challenges available.</p> : null}
           </div>
         </article>
 
