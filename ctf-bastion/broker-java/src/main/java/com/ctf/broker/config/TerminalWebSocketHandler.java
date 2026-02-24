@@ -99,7 +99,8 @@ public class TerminalWebSocketHandler extends TextWebSocketHandler {
 
         try {
             OutputStream stdin = process.getOutputStream();
-            stdin.write(message.getPayload().getBytes(StandardCharsets.UTF_8));
+            String normalized = message.getPayload().replace("\r\n", "\n").replace('\r', '\n');
+            stdin.write(normalized.getBytes(StandardCharsets.UTF_8));
             stdin.flush();
         } catch (IOException ignored) {
         }
