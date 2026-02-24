@@ -13,6 +13,7 @@ export function TerminalPanel({ token, wsPath, modeLabel }: Props) {
   const hostRef = useRef<HTMLDivElement | null>(null)
   const termRef = useRef<Terminal | null>(null)
   const wsRef = useRef<WebSocket | null>(null)
+  const inputDisposableRef = useRef<{ dispose: () => void } | null>(null)
   const [status, setStatus] = useState('disconnected')
 
   useEffect(() => {
@@ -38,6 +39,7 @@ export function TerminalPanel({ token, wsPath, modeLabel }: Props) {
 
     return () => {
       window.removeEventListener('resize', onResize)
+      inputDisposableRef.current?.dispose()
       wsRef.current?.close()
       term.dispose()
     }
@@ -61,11 +63,12 @@ export function TerminalPanel({ token, wsPath, modeLabel }: Props) {
       setStatus('connected')
       termRef.current?.writeln('connected to broker')
 
-      termRef.current?.onData((data) => {
+      inputDisposableRef.current?.dispose()
+      inputDisposableRef.current = termRef.current?.onData((data) => {
         if (ws.readyState === WebSocket.OPEN) {
           ws.send(data)
         }
-      })
+      }) || null
     }
 
     ws.onmessage = (event) => {

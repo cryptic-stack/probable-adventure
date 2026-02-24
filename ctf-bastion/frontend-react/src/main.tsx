@@ -11,20 +11,32 @@ import './styles.css'
 
 function Shell() {
   const email = useAuthStore((s) => s.email)
+  const clear = useAuthStore((s) => s.clear)
   return (
     <div className="shell">
       <header className="shell-header">
-        <div className="brand">CTF Bastion</div>
-        <nav className="nav">
-          <NavLink to="/dashboard">Dashboard</NavLink>
-          <NavLink to="/login">Login</NavLink>
-          <NavLink to="/register">Register</NavLink>
-          <NavLink to="/challenges">Challenges</NavLink>
-          <NavLink to="/scoreboard">Scoreboard</NavLink>
-        </nav>
-        <div className="subtle">{email || 'guest'}</div>
+        <div className="shell-header-inner">
+          <div className="brand">CTF Bastion</div>
+          <nav className="nav">
+            <NavLink to="/dashboard">Home</NavLink>
+            <NavLink to="/challenges">Challenges</NavLink>
+            <NavLink to="/scoreboard">Scoreboard</NavLink>
+            {!email ? <NavLink to="/login">Login</NavLink> : null}
+            {!email ? <NavLink to="/register">Register</NavLink> : null}
+          </nav>
+          <div className="row">
+            <span className="user-chip">{email || 'Guest'}</span>
+            {email ? (
+              <button className="secondary" onClick={clear}>
+                Logout
+              </button>
+            ) : null}
+          </div>
+        </div>
       </header>
-      <Outlet />
+      <main className="shell-main">
+        <Outlet />
+      </main>
     </div>
   )
 }

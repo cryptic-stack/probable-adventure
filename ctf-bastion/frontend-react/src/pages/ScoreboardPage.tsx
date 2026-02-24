@@ -20,22 +20,43 @@ export function ScoreboardPage() {
   }, [])
 
   return (
-    <main className="panel">
+    <section className="panel">
       <h2 className="title">Scoreboard</h2>
       <p className="subtle">Status: {status}</p>
-      <button onClick={refresh} style={{ marginBottom: 12 }}>
+      <button className="secondary" onClick={refresh} style={{ marginBottom: 12 }}>
         Refresh
       </button>
-      {rows.length === 0 ? (
-        <p className="subtle">No solves yet.</p>
-      ) : (
-        rows.map((row) => (
-          <p key={`${row.rank}-${row.email}`} className="subtle">
-            #{row.rank} {row.email} | score {row.score} | solves {row.solves} | last solve{' '}
-            {new Date(row.lastSolveAt).toLocaleString()}
-          </p>
-        ))
-      )}
-    </main>
+      <div className="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Player</th>
+              <th>Score</th>
+              <th>Solves</th>
+              <th>Last Solve</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={`${row.rank}-${row.email}`}>
+                <td>{row.rank}</td>
+                <td>{row.email}</td>
+                <td>{row.score}</td>
+                <td>{row.solves}</td>
+                <td>{new Date(row.lastSolveAt).toLocaleString()}</td>
+              </tr>
+            ))}
+            {rows.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="subtle">
+                  No solves yet.
+                </td>
+              </tr>
+            ) : null}
+          </tbody>
+        </table>
+      </div>
+    </section>
   )
 }

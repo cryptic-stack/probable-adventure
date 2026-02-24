@@ -20,14 +20,17 @@ export function LoginPage() {
   }
 
   return (
-    <main className="panel">
-      <h2 className="title">Login</h2>
+    <section className="auth-wrap panel">
+      <h2 className="title">Sign In</h2>
+      <p className="subtle">Use your player account to access challenges.</p>
       <form onSubmit={onSubmit} className="form-grid">
-        <input value={email} onChange={(e) => setEmail(e.target.value)} />
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <label htmlFor="login-email">Email</label>
+        <input id="login-email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <label htmlFor="login-password">Password</label>
+        <input id="login-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
         <button type="submit">Login</button>
       </form>
       <p className={message.includes('successful') ? 'ok' : 'err'}>{message}</p>
-    </main>
+    </section>
   )
 }

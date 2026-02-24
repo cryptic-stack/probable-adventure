@@ -17,14 +17,22 @@ export function RegisterPage() {
   }
 
   return (
-    <main className="panel">
-      <h2 className="title">Register</h2>
+    <section className="auth-wrap panel">
+      <h2 className="title">Create Account</h2>
+      <p className="subtle">Register a player account for this CTF event.</p>
       <form onSubmit={onSubmit} className="form-grid">
-        <input value={email} onChange={(e) => setEmail(e.target.value)} />
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <label htmlFor="register-email">Email</label>
+        <input id="register-email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <label htmlFor="register-password">Password</label>
+        <input
+          id="register-password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
         <button type="submit">Register</button>
       </form>
       <p className={message.includes('successful') ? 'ok' : 'err'}>{message}</p>
-    </main>
+    </section>
   )
 }
