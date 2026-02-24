@@ -124,11 +124,26 @@ public class TerminalWebSocketHandler extends TextWebSocketHandler {
             try (var in = process.getInputStream()) {
                 byte[] buffer = new byte[1024];
                 int read;
+                StringBuilder lineBuffer = new StringBuilder();
                 while (session.isOpen() && (read = in.read(buffer)) != -1) {
-                    String payload = new String(buffer, 0, read, StandardCharsets.UTF_8);
+                    String chunk = new String(buffer, 0, read, StandardCharsets.UTF_8);
+                    lineBuffer.append(chunk);
+                    String payload = sanitizeShellBanner(lineBuffer);
+                    if (payload.isEmpty()) {
+                        continue;
+                    }
                     resetIdleTimeout(session);
                     synchronized (session) {
                         session.sendMessage(new TextMessage(payload));
+                    }
+                }
+
+                if (lineBuffer.length() > 0) {
+                    String tail = sanitizeShellBanner(lineBuffer);
+                    if (!tail.isEmpty() && session.isOpen()) {
+                        synchronized (session) {
+                            session.sendMessage(new TextMessage(tail));
+                        }
                     }
                 }
             } catch (Exception ignored) {
@@ -186,6 +201,24 @@ public class TerminalWebSocketHandler extends TextWebSocketHandler {
             return "rdp";
         }
         return "terminal";
+    }
+
+    private static String sanitizeShellBanner(StringBuilder lineBuffer) {
+        String value = lineBuffer.toString();
+        int lastNewline = value.lastIndexOf('\n');
+        if (lastNewline < 0) {
+            return "";
+        }
+
+        String complete = value.substring(0, lastNewline + 1);
+        String remainder = value.substring(lastNewline + 1);
+        lineBuffer.setLength(0);
+        lineBuffer.append(remainder);
+
+        return Arrays
+            .stream(complete.split("\n", -1))
+            .filter(line -> !line.contains("can't access tty; job control turned off"))
+            .reduce("", (acc, line) -> acc + line + "\n");
     }
 
     @PreDestroy
