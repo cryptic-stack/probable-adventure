@@ -1,0 +1,145 @@
+import json
+import os
+from typing import Any, Dict, Optional, Tuple
+
+import requests
+
+from CTFd.models import Flags
+
+ACCESS_SCHEMA = "ctfd-access-v1"
+
+
+def parse_connection_info(connection_info: Optional[str]) -> Dict[str, Any]:
+    raw = (connection_info or "").strip()
+    if not raw:
+        return {}
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError:
+        return {}
+    if not isinstance(payload, dict):
+        return {}
+    if payload.get("schema") != ACCESS_SCHEMA:
+        return {}
+    return payload
+
+
+def _control_url() -> str:
+    return os.getenv("CHALLENGE_CONTROL_URL", "http://control-service:9001").rstrip("/")
+
+
+def _control_token() -> str:
+    return os.getenv("CHALLENGE_CONTROL_TOKEN", "").strip()
+
+
+def _control_timeout() -> float:
+    try:
+        return float(os.getenv("CHALLENGE_CONTROL_TIMEOUT", "8"))
+    except ValueError:
+        return 8.0
+
+
+def _control_request(
+    method: str, path: str, payload: Optional[Dict[str, Any]] = None
+) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
+    headers = {}
+    token = _control_token()
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    try:
+        response = requests.request(
+            method=method,
+            url=f"{_control_url()}{path}",
+            json=payload,
+            headers=headers,
+            timeout=_control_timeout(),
+        )
+    except requests.RequestException as e:
+        return None, f"control-service unavailable: {e}"
+
+    try:
+        body = response.json()
+    except ValueError:
+        return None, f"control-service non-json response ({response.status_code})"
+
+    if not response.ok or not body.get("success", False):
+        return None, body.get("error") or f"control-service error ({response.status_code})"
+    return body.get("data"), None
+
+
+def _provision_payload(challenge, flag_value: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    connection = parse_connection_info(challenge.connection_info)
+    provision = connection.get("provision") if isinstance(connection, dict) else None
+    if not isinstance(provision, dict):
+        return None
+    if not provision.get("enabled"):
+        return None
+
+    image = (provision.get("image") or "").strip()
+    if not image:
+        return None
+
+    internal_port = provision.get("internal_port")
+    try:
+        internal_port = int(internal_port) if internal_port not in (None, "") else None
+    except (TypeError, ValueError):
+        internal_port = None
+
+    return {
+        "image": image,
+        "flag": flag_value if flag_value is not None else (provision.get("flag") or ""),
+        "internal_port": internal_port,
+        "startup_command": (provision.get("startup_command") or "").strip() or None,
+        "access_type": (connection.get("type") or "terminal").strip().lower(),
+    }
+
+
+def _challenge_flag(challenge_id: int) -> Optional[str]:
+    # Prefer static flags when available.
+    static_flag = (
+        Flags.query.filter_by(challenge_id=challenge_id, type="static")
+        .order_by(Flags.id.asc())
+        .first()
+    )
+    if static_flag is not None:
+        return static_flag.content
+
+    any_flag = (
+        Flags.query.filter_by(challenge_id=challenge_id)
+        .order_by(Flags.id.asc())
+        .first()
+    )
+    if any_flag is not None:
+        return any_flag.content
+    return None
+
+
+def ensure_challenge_container_provisioned(challenge) -> Tuple[bool, Optional[str]]:
+    payload = _provision_payload(challenge, flag_value=_challenge_flag(challenge.id))
+    if not payload:
+        return False, None
+    _, error = _control_request("PUT", f"/challenges/{challenge.id}/provision", payload=payload)
+    if error:
+        return False, error
+    return True, None
+
+
+def activate_challenge_container(challenge) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
+    connection = parse_connection_info(challenge.connection_info)
+    payload = _provision_payload(challenge, flag_value=_challenge_flag(challenge.id))
+    if not payload:
+        # Fallback for non-provisioned remote endpoints
+        if connection:
+            return {
+                "url": connection.get("url"),
+                "host": connection.get("host"),
+                "port": connection.get("port"),
+                "access_type": connection.get("type"),
+            }, None
+        return None, "challenge does not define connection settings"
+    data, error = _control_request(
+        "POST", f"/challenges/{challenge.id}/activate", payload=payload
+    )
+    if error:
+        return None, error
+    return data, None

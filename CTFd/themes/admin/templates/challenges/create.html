@@ -100,6 +100,31 @@
 				<label>Instructions</label>
 				<textarea class="form-control chal-access-instructions" rows="3" placeholder="Optional instructions shown to players"></textarea>
 			</div>
+			<hr>
+			<div class="form-check mb-2">
+				<input class="form-check-input chal-provision-enabled" type="checkbox" id="chal-provision-enabled-create">
+				<label class="form-check-label" for="chal-provision-enabled-create">
+					Pre-provision challenge container (created now, paused until player connects)
+				</label>
+			</div>
+			<div class="form-group">
+				<label>Lab Image</label>
+				<input type="text" class="form-control chal-provision-image" placeholder="ctf/lab:latest">
+			</div>
+			<div class="form-row">
+				<div class="form-group col-md-6">
+					<label>Internal Port</label>
+					<input type="number" class="form-control chal-provision-port" placeholder="8080">
+				</div>
+				<div class="form-group col-md-6">
+					<label>Lab Flag Override (optional)</label>
+					<input type="text" class="form-control chal-provision-flag" placeholder="FLAG{...}">
+				</div>
+			</div>
+			<div class="form-group mb-0">
+				<label>Startup Command (optional)</label>
+				<input type="text" class="form-control chal-provision-startup" placeholder="service start && sleep infinity">
+			</div>
 		</div>
 	</div>
 	{% endblock %}

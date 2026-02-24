@@ -78,6 +78,7 @@ Alpine.data("Challenge", () => ({
   selectedRating: 0,
   ratingReview: "",
   ratingSubmitted: false,
+  connecting: false,
   access: {
     type: "",
     url: "",
@@ -161,6 +162,45 @@ Alpine.data("Challenge", () => ({
       raw: value,
       hasData: true,
     };
+  },
+
+  async activateConnection() {
+    if (!this.id || !this.access.hasData || this.connecting) {
+      return;
+    }
+    this.connecting = true;
+    try {
+      const response = await CTFd.fetch(`/api/v1/challenges/${this.id}/connect`, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { Accept: "application/json" },
+      });
+      const payload = await response.json();
+      if (!payload.success) {
+        const errors = payload.errors || {};
+        const firstKey = Object.keys(errors)[0];
+        const message =
+          (firstKey && errors[firstKey] && errors[firstKey][0]) ||
+          "Unable to activate challenge connection";
+        alert(message);
+        return;
+      }
+      const data = payload.data || {};
+      if (data.url) {
+        this.access.url = data.url;
+        window.open(data.url, "_blank", "noopener");
+      }
+      if (data.host) {
+        this.access.host = data.host;
+      }
+      if (data.port) {
+        this.access.port = data.port;
+      }
+    } catch (_e) {
+      alert("Unable to activate challenge connection");
+    } finally {
+      this.connecting = false;
+    }
   },
 
   getStyles() {

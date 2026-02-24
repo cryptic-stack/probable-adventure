@@ -27,6 +27,7 @@ from CTFd.plugins.challenges.logic import (
     challenge_attempt_any,
     challenge_attempt_team,
 )
+from CTFd.utils.challenge_runtime import ensure_challenge_container_provisioned
 from CTFd.utils.uploads import delete_file
 from CTFd.utils.user import get_ip
 
@@ -84,6 +85,7 @@ class BaseChallenge(object):
 
         db.session.add(challenge)
         db.session.commit()
+        ensure_challenge_container_provisioned(challenge)
 
         # If the challenge is dynamic we should calculate a new value
         if challenge.function in DECAY_FUNCTIONS:
@@ -158,6 +160,7 @@ class BaseChallenge(object):
                 )
 
         db.session.commit()
+        ensure_challenge_container_provisioned(challenge)
 
         # If the challenge is dynamic we should calculate a new value
         if challenge.function in DECAY_FUNCTIONS:

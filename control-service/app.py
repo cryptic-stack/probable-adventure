@@ -20,6 +20,22 @@ class ActionBody(BaseModel):
     action: str
 
 
+class ProvisionBody(BaseModel):
+    image: Optional[str] = None
+    flag: Optional[str] = None
+    internal_port: Optional[int] = None
+    startup_command: Optional[str] = None
+    access_type: Optional[str] = None
+
+
+class ActivateBody(BaseModel):
+    image: Optional[str] = None
+    flag: Optional[str] = None
+    internal_port: Optional[int] = None
+    startup_command: Optional[str] = None
+    access_type: Optional[str] = None
+
+
 def _required_token() -> str:
     return os.getenv("CHALLENGE_CONTROL_TOKEN", "").strip()
 
@@ -138,6 +154,7 @@ def _container_row(container) -> Dict[str, Any]:
         "name": container.name,
         "image": image,
         "status": container.status,
+        "paused": bool(state.get("Paused", False)),
         "created": _format_ts(attrs.get("Created")),
         "started_at": _format_ts(state.get("StartedAt")),
         "finished_at": _format_ts(state.get("FinishedAt")),
@@ -148,6 +165,99 @@ def _container_row(container) -> Dict[str, Any]:
         "compose_service": compose_service,
         "managed": managed,
         "protected": protected,
+    }
+
+
+def _challenge_container_name(challenge_id: int) -> str:
+    return f"ctfd-challenge-{challenge_id}-lab"
+
+
+def _find_challenge_container(client, challenge_id: int):
+    name = _challenge_container_name(challenge_id)
+    for container in client.containers.list(all=True):
+        if container.name == name:
+            return container
+    return None
+
+
+def _build_lab_command(startup_command: Optional[str]) -> List[str]:
+    startup = (startup_command or "while true; do sleep 3600; done").strip()
+    script = "mkdir -p /opt/ctf && printf '%s' \"$FLAG\" > /opt/ctf/flag.txt && chmod 400 /opt/ctf/flag.txt; " + startup
+    return ["sh", "-lc", script]
+
+
+def _provision_challenge_container(
+    client,
+    challenge_id: int,
+    image: str,
+    flag: str,
+    internal_port: Optional[int],
+    startup_command: Optional[str],
+    access_type: str,
+):
+    if not image:
+        raise HTTPException(status_code=400, detail="Missing image for challenge container")
+
+    existing = _find_challenge_container(client, challenge_id)
+    if existing is not None:
+        existing.remove(force=True)
+
+    labels = {
+        "ctfd.managed": "true",
+        "ctfd.challenge_id": str(challenge_id),
+        "ctfd.access_type": (access_type or "terminal"),
+    }
+    ports = None
+    if internal_port and internal_port > 0:
+        labels["ctfd.internal_port"] = str(internal_port)
+        ports = {f"{internal_port}/tcp": None}
+
+    container = client.containers.run(
+        image=image,
+        name=_challenge_container_name(challenge_id),
+        detach=True,
+        command=_build_lab_command(startup_command),
+        environment={"FLAG": flag or ""},
+        labels=labels,
+        ports=ports,
+    )
+    container.pause()
+    container.reload()
+    return container
+
+
+def _container_connection(container):
+    attrs = container.attrs
+    labels = (attrs.get("Config") or {}).get("Labels") or {}
+    access_type = labels.get("ctfd.access_type", "terminal")
+    port_key = labels.get("ctfd.internal_port")
+
+    public_host = os.getenv("CONTROL_PUBLIC_HOST", "localhost")
+    default_scheme = os.getenv("CONTROL_PUBLIC_SCHEME", "http")
+    mapped_port = None
+    if port_key:
+        binding = ((attrs.get("NetworkSettings") or {}).get("Ports") or {}).get(
+            f"{port_key}/tcp"
+        )
+        if binding and len(binding):
+            mapped_port = binding[0].get("HostPort")
+
+    url = None
+    if mapped_port:
+        if access_type == "rdp":
+            url = f"rdp://{public_host}:{mapped_port}"
+        else:
+            url = f"{default_scheme}://{public_host}:{mapped_port}"
+
+    return {
+        "container_id": container.id,
+        "container_name": container.name,
+        "status": container.status,
+        "paused": bool((attrs.get("State") or {}).get("Paused", False)),
+        "access_type": access_type,
+        "host": public_host,
+        "port": int(mapped_port) if mapped_port else None,
+        "url": url,
     }
 
 
@@ -336,6 +446,73 @@ def container_action(
         raise HTTPException(status_code=400, detail=str(e))
 
     return {"success": True, "data": {"message": message}}
+
+
+@app.put("/challenges/{challenge_id}/provision")
+def provision_challenge(
+    challenge_id: int,
+    body: ProvisionBody,
+    authorization: Optional[str] = Header(default=None),
+):
+    _authz(authorization)
+    client = _client()
+    container = _provision_challenge_container(
+        client=client,
+        challenge_id=challenge_id,
+        image=(body.image or "").strip(),
+        flag=body.flag or "",
+        internal_port=body.internal_port,
+        startup_command=body.startup_command,
+        access_type=(body.access_type or "terminal").strip().lower(),
+    )
+    return {"success": True, "data": _container_connection(container)}
+
+
+@app.post("/challenges/{challenge_id}/activate")
+def activate_challenge(
+    challenge_id: int,
+    body: ActivateBody,
+    authorization: Optional[str] = Header(default=None),
+):
+    _authz(authorization)
+    client = _client()
+    container = _find_challenge_container(client, challenge_id)
+
+    # If challenge wasn't pre-provisioned, create it now from provided config.
+    if container is None:
+        container = _provision_challenge_container(
+            client=client,
+            challenge_id=challenge_id,
+            image=(body.image or "").strip(),
+            flag=body.flag or "",
+            internal_port=body.internal_port,
+            startup_command=body.startup_command,
+            access_type=(body.access_type or "terminal").strip().lower(),
+        )
+
+    # Optional flag refresh on activate.
+    if body.flag is not None:
+        try:
+            container.exec_run(
+                ["sh", "-lc", "printf '%s' \"$FLAG\" > /opt/ctf/flag.txt && chmod 400 /opt/ctf/flag.txt"],
+                environment={"FLAG": body.flag},
+            )
+        except Exception:
+            pass
+
+    try:
+        container.reload()
+        state = container.attrs.get("State") or {}
+        if state.get("Paused", False):
+            container.unpause()
+            container.reload()
+        if container.status != "running":
+            container.start()
+            container.reload()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    return {"success": True, "data": _container_connection(container)}
 
 
 @app.exception_handler(HTTPException)

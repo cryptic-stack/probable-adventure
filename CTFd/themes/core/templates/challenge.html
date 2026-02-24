@@ -92,14 +92,23 @@
                 <div class="mb-2">
                   <strong>Challenge Access</strong>
                 </div>
-                <div class="mb-2" x-show="access.type === 'terminal' && access.url">
-                  <a class="btn btn-sm btn-success" :href="access.url" target="_blank" rel="noopener">Open Terminal</a>
+                <div class="mb-2" x-show="access.type === 'terminal'">
+                  <button class="btn btn-sm btn-success" @click="activateConnection()" :disabled="connecting">
+                    <span x-show="!connecting">Open Terminal</span>
+                    <span x-show="connecting">Starting...</span>
+                  </button>
                 </div>
-                <div class="mb-2" x-show="access.type === 'rdp' && access.url">
-                  <a class="btn btn-sm btn-warning" :href="access.url" target="_blank" rel="noopener">Open RDP Session</a>
+                <div class="mb-2" x-show="access.type === 'rdp'">
+                  <button class="btn btn-sm btn-warning" @click="activateConnection()" :disabled="connecting">
+                    <span x-show="!connecting">Open RDP Session</span>
+                    <span x-show="connecting">Starting...</span>
+                  </button>
                 </div>
-                <div class="mb-2" x-show="access.type === 'url' && access.url">
-                  <a class="btn btn-sm btn-info" :href="access.url" target="_blank" rel="noopener">Open Challenge Service</a>
+                <div class="mb-2" x-show="access.type === 'url'">
+                  <button class="btn btn-sm btn-info" @click="activateConnection()" :disabled="connecting">
+                    <span x-show="!connecting">Open Challenge Service</span>
+                    <span x-show="connecting">Starting...</span>
+                  </button>
                 </div>
                 <div class="mb-2" x-show="access.command">
                   <small class="text-muted d-block">Connection command</small>

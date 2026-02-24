@@ -46,6 +46,7 @@ from CTFd.utils.challenges import (
     get_solve_ids_for_user_id,
     get_solves_for_challenge_id,
 )
+from CTFd.utils.challenge_runtime import activate_challenge_container
 from CTFd.utils.config.visibility import (
     accounts_visible,
     challenges_visible,
@@ -972,6 +973,28 @@ class ChallengeAttempt(Resource):
                     "message": f"{message} but you already solved this",
                 },
             }
+
+
+@challenges_namespace.route("/<challenge_id>/connect")
+class ChallengeConnect(Resource):
+    @check_challenge_visibility
+    @during_ctf_time_only
+    @authed_only
+    @require_verified_emails
+    def post(self, challenge_id):
+        if is_admin():
+            challenge = Challenges.query.filter(Challenges.id == challenge_id).first_or_404()
+        else:
+            challenge = Challenges.query.filter(
+                Challenges.id == challenge_id,
+                and_(Challenges.state != "hidden", Challenges.state != "locked"),
+            ).first_or_404()
+
+        data, error = activate_challenge_container(challenge)
+        if error:
+            return {"success": False, "errors": {"connection": [error]}}, 400
+
+        return {"success": True, "data": data}
 
 
 @challenges_namespace.route("/<challenge_id>/solves")
