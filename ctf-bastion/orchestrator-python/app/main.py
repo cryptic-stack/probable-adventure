@@ -73,6 +73,7 @@ def spawn_lab(req: SpawnRequest) -> SpawnResponse:
             cpu_quota=req.cpu_quota,
             read_only=req.read_only,
             cap_drop=["ALL"],
+            cap_add=["SYS_CHROOT"],
             security_opt=["no-new-privileges"],
             pids_limit=100,
             labels={

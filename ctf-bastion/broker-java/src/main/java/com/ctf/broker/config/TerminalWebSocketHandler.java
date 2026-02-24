@@ -7,7 +7,6 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -64,8 +63,10 @@ public class TerminalWebSocketHandler extends TextWebSocketHandler {
                 "-e",
                 "TERM=xterm-256color",
                 containerId,
-                "/bin/sh",
-                "-i"
+                "sh",
+                "-lc",
+                "if command -v chroot >/dev/null 2>&1; then exec chroot /sandbox /bin/sh -i; "
+                    + "else echo 'sandbox runtime missing'; exit 1; fi"
             )
                 .redirectErrorStream(true)
                 .start();

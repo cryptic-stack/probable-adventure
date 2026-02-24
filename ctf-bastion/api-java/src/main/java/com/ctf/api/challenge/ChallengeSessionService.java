@@ -32,14 +32,14 @@ public class ChallengeSessionService {
             1,
             "Warmup Shell",
             "intro",
-            "Connect to the ephemeral shell and recover the flag from /challenge/flag.txt",
+            "Connect to the jailed shell and recover the flag from /home/ctf/challenge/flag.txt",
             "visible",
             10,
             500,
             100,
             20,
             "alpine:3.21",
-            "sh -lc \"mkdir -p /challenge && echo 'flag{ctf_demo_01}' >/challenge/flag.txt && chmod 400 /challenge/flag.txt && sleep infinity\"",
+            buildSandboxCommand("flag.txt", "flag{ctf_demo_01}"),
             "flag{ctf_demo_01}"
         ),
         2,
@@ -54,7 +54,7 @@ public class ChallengeSessionService {
             150,
             15,
             "alpine:3.21",
-            "sh -lc \"mkdir -p /challenge && echo 'flag{ctf_demo_02}' >/challenge/hidden.flag && chmod 440 /challenge/hidden.flag && sleep infinity\"",
+            buildSandboxCommand("hidden.flag", "flag{ctf_demo_02}"),
             "flag{ctf_demo_02}"
         ),
         3,
@@ -69,7 +69,7 @@ public class ChallengeSessionService {
             120,
             10,
             "alpine:3.21",
-            "sh -lc \"mkdir -p /challenge/logs && echo 'trace=flag{ctf_demo_03}' >/challenge/logs/audit.log && sleep infinity\"",
+            buildSandboxCommand("logs/audit.log", "trace=flag{ctf_demo_03}"),
             "flag{ctf_demo_03}"
         )
     );
@@ -320,6 +320,31 @@ public class ChallengeSessionService {
         }
         int used = failedAttempts.getOrDefault(key, 0);
         return Math.max(definition.maxAttempts() - used, 0);
+    }
+
+    private static String buildSandboxCommand(String artifactPath, String content) {
+        String escapedPath = artifactPath.replace("'", "'\"'\"'");
+        String escapedContent = content.replace("'", "'\"'\"'");
+        String artifactDir = artifactPath.contains("/") ? artifactPath.substring(0, artifactPath.lastIndexOf('/')) : "";
+        String escapedDir = artifactDir.replace("'", "'\"'\"'");
+
+        String setupDirCommand = artifactDir.isBlank()
+            ? ""
+            : "mkdir -p /sandbox/home/ctf/challenge/'" + escapedDir + "'; ";
+
+        return "sh -lc \"set -eu; "
+            + "rm -rf /sandbox; "
+            + "mkdir -p /sandbox/bin /sandbox/lib /sandbox/home/ctf/challenge /sandbox/tmp /sandbox/etc; "
+            + "cp /bin/busybox /sandbox/bin/; "
+            + "cp /lib/ld-musl-*.so.1 /sandbox/lib/; "
+            + "for c in sh ls cat echo pwd id whoami uname mkdir touch grep; do ln -sf /bin/busybox /sandbox/bin/$c; done; "
+            + "echo 'ctf:x:1000:1000:ctf:/home/ctf:/bin/sh' > /sandbox/etc/passwd; "
+            + "echo 'ctf:x:1000:' > /sandbox/etc/group; "
+            + setupDirCommand
+            + "echo '" + escapedContent + "' > /sandbox/home/ctf/challenge/'" + escapedPath + "'; "
+            + "chmod 755 /sandbox /sandbox/bin /sandbox/lib /sandbox/home /sandbox/home/ctf /sandbox/home/ctf/challenge; "
+            + "chmod -R go-w /sandbox/home/ctf/challenge; "
+            + "sleep infinity\"";
     }
 
     private record UserChallengeKey(String userEmail, int challengeId) {}
