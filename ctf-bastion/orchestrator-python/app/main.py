@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import time
 from datetime import datetime, timedelta, timezone
 from threading import Lock
 from typing import Optional
@@ -86,6 +87,30 @@ def spawn_lab(req: SpawnRequest) -> SpawnResponse:
 
     with sessions_lock:
         active_sessions[container.id] = expires
+
+    # Wait for challenge bootstrap to finish so interactive shell is ready before clients connect.
+    ready = False
+    for _ in range(50):
+        try:
+            container.reload()
+            if container.status != "running":
+                break
+            result = container.exec_run("sh -lc '[ -x /bin/bash ]'")
+            if result.exit_code == 0:
+                ready = True
+                break
+        except DockerException:
+            pass
+        time.sleep(0.2)
+
+    if not ready:
+        try:
+            container.remove(force=True)
+        except DockerException:
+            pass
+        with sessions_lock:
+            active_sessions.pop(container.id, None)
+        raise HTTPException(status_code=500, detail="challenge bootstrap did not complete in time")
 
     return SpawnResponse(status="running", container_id=container.id, expires_at=expires)
 

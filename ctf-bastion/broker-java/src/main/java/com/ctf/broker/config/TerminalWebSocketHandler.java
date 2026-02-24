@@ -65,8 +65,12 @@ public class TerminalWebSocketHandler extends TextWebSocketHandler {
                 containerId,
                 "sh",
                 "-lc",
-                "if command -v chroot >/dev/null 2>&1; then exec chroot /sandbox /bin/sh -i; "
-                    + "else echo 'sandbox runtime missing'; exit 1; fi"
+                "for i in $(seq 1 40); do "
+                    + "[ -x /bin/bash ] && exec /bin/bash --noprofile --norc -i; "
+                    + "apk add --no-cache bash >/dev/null 2>&1 || true; "
+                    + "sleep 0.2; "
+                    + "done; "
+                    + "echo 'bash unavailable, falling back to sh'; exec /bin/sh -i"
             )
                 .redirectErrorStream(true)
                 .start();
