@@ -1,0 +1,18 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-java
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/ctf}
+    username: ${SPRING_DATASOURCE_USERNAME:ctf}
+    password: ${SPRING_DATASOURCE_PASSWORD:change_me}
+  jdbc:
+    template:
+      fetch-size: 100
+
+ctf:
+  jwt:
+    secret: ${CTF_JWT_SECRET:change-this-super-long-dev-secret-for-jwt-1234567890}
+    ttl-seconds: 900

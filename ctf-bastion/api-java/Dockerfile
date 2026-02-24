@@ -1,6 +1,11 @@
-﻿FROM eclipse-temurin:21-jdk-alpine
+FROM maven:3.9.9-eclipse-temurin-21 AS build
+WORKDIR /build
+COPY pom.xml .
+COPY src ./src
+RUN mvn -q -DskipTests package
+
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-COPY Main.java /app/Main.java
-RUN javac Main.java
+COPY --from=build /build/target/api-java-0.1.0.jar /app/app.jar
 EXPOSE 8080
-CMD ["java", "Main"]
+ENTRYPOINT ["java","-jar","/app/app.jar"]

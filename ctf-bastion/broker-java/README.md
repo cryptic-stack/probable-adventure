@@ -1,14 +1,13 @@
-﻿# broker-java
+# broker-java
 
-Session broker placeholder.
+Spring Boot 3 + Java 21 broker service.
 
 Current state:
 
-- Minimal Java 21 HTTP endpoint for compose health checks.
+- `/ws/health` HTTP health endpoint
+- `/ws/terminal` WebSocket echo stub for browser terminal integration
 
-Target responsibilities:
+Next implementation:
 
-- WebSocket ingress from browser terminal
-- Netty frame handling
-- Apache Mina SSHD bridge to ephemeral lab containers
-- Session recording + idle timeout + abuse kill-switch
+- Replace echo with Netty + Apache Mina SSHD bridge
+- Add session recording and abuse kill-switch hooks

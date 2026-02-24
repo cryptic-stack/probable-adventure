@@ -1,14 +1,15 @@
-﻿# frontend-react
+# frontend-react
 
-React + Vite placeholder.
+React + Vite + Zustand scaffold.
 
-Target stack:
+Included:
 
-- React + Vite
-- TailwindCSS
-- xterm.js + WebSocket client
-- Zustand for state
+- Routes: `/`, `/dashboard`, `/login`, `/register`, `/challenges`
+- API integration for register/login health checks
+- Local auth state with Zustand
+- xterm.js terminal panel connected to `/ws/terminal?token=...`
 
-Current state:
+Next:
 
-- Static placeholder page in Nginx container for end-to-end routing smoke tests.
+- Replace broker echo with real shell stream
+- Add timer + attempts + challenge metadata panels
