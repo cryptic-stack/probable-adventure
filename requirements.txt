@@ -129,7 +129,7 @@ pillow==12.1.1
     # via -r requirements.in
 pycparser==2.22
     # via cffi
-pydantic==1.6.2
+pydantic==1.10.13
     # via -r requirements.in
 pymysql[rsa]==1.1.1
     # via
@@ -181,13 +181,14 @@ tenacity==9.1.2
 typing-extensions==4.14.1
     # via
     #   alembic
+    #   pydantic
     #   referencing
-urllib3==2.6.0
+urllib3==2.6.3
     # via
     #   -r requirements.in
     #   botocore
     #   requests
-werkzeug==2.2.3
+werkzeug==3.1.6
     # via
     #   -r requirements.in
     #   flask
