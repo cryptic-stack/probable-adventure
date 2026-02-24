@@ -19,11 +19,17 @@ Custom paths:
 python scripts/generate_linux_challenges.py --source "Labs/linux" --output "ctf-content/linux"
 ```
 
+Custom runtime image:
+```bash
+python scripts/generate_linux_challenges.py --runtime-image "ctfd-linux-lab-base:latest"
+```
+
 ## Runtime Integration
 - Generated challenges use `connection_info.schema = ctfd-access-v1`
 - Access type is `terminal`
 - Provisioning image is `ctfd-linux-lab-base:latest`
 - The static challenge flag is also injected into `/opt/ctf/flag.txt` at runtime
+- Workflow rule: Linux questions always connect players to the Linux base image runtime.
 
 ## Content Sanitization
 - Setup-only onboarding content is excluded (for example VM/VPN bootstrap tasks).

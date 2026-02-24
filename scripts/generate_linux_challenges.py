@@ -27,6 +27,7 @@ TAG_RE = re.compile(r"<[^>]+>")
 LAB_NUM_RE = re.compile(r"lab(\d+)", re.IGNORECASE)
 TOKEN_RE = re.compile(r"[A-Za-z0-9_./-]+")
 SENTENCE_SPLIT_RE = re.compile(r"[.!?]\s+")
+DEFAULT_LINUX_IMAGE = "ctfd-linux-lab-base:latest"
 
 CSV_FIELDS = [
     "name",
@@ -190,13 +191,13 @@ def build_flag(lab_num: int, q_num: int, prompt: str, seen: Dict[str, int]) -> s
     return f"flag{{{token}}}"
 
 
-def build_connection_info(flag: str) -> str:
+def build_connection_info(runtime_image: str, flag: str) -> str:
     payload = {
         "schema": "ctfd-access-v1",
         "type": "terminal",
         "provision": {
             "enabled": True,
-            "image": "ctfd-linux-lab-base:latest",
+            "image": runtime_image,
             "startup_command": "while true; do sleep 3600; done",
             "flag": flag,
         },
@@ -210,6 +211,7 @@ def build_description(
     expected: str,
     lab_num: int,
     level: str,
+    runtime_image: str,
 ) -> str:
     lines = [
         f"### {lab_title}",
@@ -221,6 +223,7 @@ def build_description(
     if expected:
         lines.extend(["", f"Expected behavior: {expected}"])
     lines.extend(["", "Environment: terminal access is provided in-platform."])
+    lines.extend(["", f"Runtime container: `{runtime_image}`"])
     lines.extend(["", f"Lab reference: `LAB-{lab_num:02d}`"])
     return "\n".join(lines)
 
@@ -277,7 +280,9 @@ def discover_index_files(source_root: Path) -> List[Path]:
     return sorted(source_root.rglob("index.html"))
 
 
-def generate(source_root: Path, output_dir: Path) -> Tuple[int, Path, Path, Path]:
+def generate(
+    source_root: Path, output_dir: Path, runtime_image: str
+) -> Tuple[int, Path, Path, Path]:
     rows: List[ChallengeRow] = []
     manifest = []
     seen_flag_tokens: Dict[str, int] = {}
@@ -323,6 +328,7 @@ def generate(source_root: Path, output_dir: Path) -> Tuple[int, Path, Path, Path
                     expected=expected,
                     lab_num=lab_num,
                     level=level,
+                    runtime_image=runtime_image,
                 ),
                 max_attempts=0,
                 value=points,
@@ -331,7 +337,7 @@ def generate(source_root: Path, output_dir: Path) -> Tuple[int, Path, Path, Path
                 type=challenge_type,
                 state="visible",
                 requirements="",
-                connection_info=build_connection_info(flag),
+                connection_info=build_connection_info(runtime_image, flag),
                 flags=json.dumps([{"type": "static", "content": flag}]),
                 tags=tags,
                 hints=hints,
@@ -381,6 +387,11 @@ def main() -> None:
         default="ctf-content/linux",
         help="Output directory for generated CTFd import files",
     )
+    parser.add_argument(
+        "--runtime-image",
+        default=DEFAULT_LINUX_IMAGE,
+        help="Docker image used for Linux challenge runtime provisioning",
+    )
     args = parser.parse_args()
 
     source_root = Path(args.source)
@@ -390,6 +401,7 @@ def main() -> None:
     count, csv_path, json_path, manifest_path = generate(
         source_root=source_root,
         output_dir=Path(args.output),
+        runtime_image=args.runtime_image.strip() or DEFAULT_LINUX_IMAGE,
     )
     print(f"Generated {count} challenges")
     print(f"CSV: {csv_path}")
