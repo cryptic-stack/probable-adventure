@@ -52,7 +52,8 @@ export function TerminalPanel({ token, wsPath, modeLabel }: Props) {
     wsRef.current?.close()
 
     const proto = window.location.protocol === 'https:' ? 'wss' : 'ws'
-    const url = `${proto}://${window.location.host}${wsPath}?token=${encodeURIComponent(token)}`
+    const separator = wsPath.includes('?') ? '&' : '?'
+    const url = `${proto}://${window.location.host}${wsPath}${separator}token=${encodeURIComponent(token)}`
     const ws = new WebSocket(url)
     wsRef.current = ws
 

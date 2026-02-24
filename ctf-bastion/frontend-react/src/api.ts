@@ -71,3 +71,19 @@ export async function getConnectionOptions(challengeId: number, token: string): 
   }
   return body as ChallengeSessionResponse
 }
+
+export async function submitFlag(challengeId: number, token: string, flag: string): Promise<{ correct: boolean; message: string }> {
+  const res = await fetch(`${API_BASE}/challenges/${challengeId}/submit`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ flag })
+  })
+  const body = await res.json()
+  if (!res.ok) {
+    throw new Error(body.error ?? 'submit failed')
+  }
+  return body as { correct: boolean; message: string }
+}

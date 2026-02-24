@@ -4,6 +4,7 @@ import com.ctf.api.config.JwtService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,6 +48,16 @@ public class ChallengeController {
             session.expiresAt(),
             session.options()
         );
+    }
+
+    @PostMapping("/{challengeId}/submit")
+    public SubmitFlagResponse submit(
+        @PathVariable int challengeId,
+        @RequestHeader("Authorization") String authorization,
+        @RequestBody SubmitFlagRequest req
+    ) {
+        String email = parseBearerSubject(authorization);
+        return challengeSessionService.submitFlag(email, challengeId, req.flag());
     }
 
     private String parseBearerSubject(String authorization) {

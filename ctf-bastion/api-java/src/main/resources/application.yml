@@ -13,6 +13,8 @@ spring:
       fetch-size: 100
 
 ctf:
+  orchestrator:
+    url: ${CTF_ORCHESTRATOR_URL:http://orchestrator:8000}
   jwt:
     secret: ${CTF_JWT_SECRET:change-this-super-long-dev-secret-for-jwt-1234567890}
     ttl-seconds: 900
