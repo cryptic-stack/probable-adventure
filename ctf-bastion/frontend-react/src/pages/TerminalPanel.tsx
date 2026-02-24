@@ -23,14 +23,22 @@ export function TerminalPanel({ token, wsPath, modeLabel }: Props) {
 
     const term = new Terminal({
       cursorBlink: true,
+      cursorStyle: 'bar',
+      cursorInactiveStyle: 'bar',
       convertEol: true,
-      theme: { background: '#101216', foreground: '#d3d7de' }
+      theme: {
+        background: '#101216',
+        foreground: '#d3d7de',
+        cursor: '#7cff8a',
+        cursorAccent: '#101216'
+      }
     })
     const fitAddon = new FitAddon()
     term.loadAddon(fitAddon)
     term.open(hostRef.current)
     fitAddon.fit()
     term.writeln('terminal ready')
+    term.focus()
 
     const onResize = () => fitAddon.fit()
     window.addEventListener('resize', onResize)
@@ -62,6 +70,7 @@ export function TerminalPanel({ token, wsPath, modeLabel }: Props) {
     ws.onopen = () => {
       setStatus('connected')
       termRef.current?.writeln('connected to broker')
+      termRef.current?.focus()
 
       inputDisposableRef.current?.dispose()
       inputDisposableRef.current = termRef.current?.onData((data) => {
@@ -94,9 +103,10 @@ export function TerminalPanel({ token, wsPath, modeLabel }: Props) {
       <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 8, flexWrap: 'wrap' }}>
         <button onClick={connect}>Connect {modeLabel}</button>
         <span className={status === 'connected' ? 'ok' : 'subtle'}>status: {status}</span>
+        <span className="subtle">cursor: green bar (click terminal if typing is not captured)</span>
       </div>
       <div className="terminal-wrap">
-        <div ref={hostRef} className="terminal-host" />
+        <div ref={hostRef} className="terminal-host" onClick={() => termRef.current?.focus()} />
       </div>
     </section>
   )
