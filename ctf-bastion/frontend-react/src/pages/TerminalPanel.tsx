@@ -5,9 +5,11 @@ import 'xterm/css/xterm.css'
 
 type Props = {
   token: string
+  wsPath: string
+  modeLabel: string
 }
 
-export function TerminalPanel({ token }: Props) {
+export function TerminalPanel({ token, wsPath, modeLabel }: Props) {
   const hostRef = useRef<HTMLDivElement | null>(null)
   const termRef = useRef<Terminal | null>(null)
   const wsRef = useRef<WebSocket | null>(null)
@@ -50,7 +52,7 @@ export function TerminalPanel({ token }: Props) {
     wsRef.current?.close()
 
     const proto = window.location.protocol === 'https:' ? 'wss' : 'ws'
-    const url = `${proto}://${window.location.host}/ws/terminal?token=${encodeURIComponent(token)}`
+    const url = `${proto}://${window.location.host}${wsPath}?token=${encodeURIComponent(token)}`
     const ws = new WebSocket(url)
     wsRef.current = ws
 
@@ -83,7 +85,7 @@ export function TerminalPanel({ token }: Props) {
   return (
     <section>
       <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 8, flexWrap: 'wrap' }}>
-        <button onClick={connect}>Connect Terminal</button>
+        <button onClick={connect}>Connect {modeLabel}</button>
         <span className={status === 'connected' ? 'ok' : 'subtle'}>status: {status}</span>
       </div>
       <div className="terminal-wrap">

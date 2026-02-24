@@ -46,10 +46,12 @@ public class TerminalWebSocketHandler extends TextWebSocketHandler {
 
         try {
             Claims claims = jwtVerifier.verify(token);
+            String channel = extractChannel(session.getUri());
             session.getAttributes().put("user", claims.getSubject());
+            session.getAttributes().put("channel", channel);
             sessions.put(session.getId(), session);
             resetIdleTimeout(session);
-            session.sendMessage(new TextMessage("broker connected user=" + claims.getSubject()));
+            session.sendMessage(new TextMessage("broker connected channel=" + channel + " user=" + claims.getSubject()));
         } catch (Exception ex) {
             session.close(CloseStatus.NOT_ACCEPTABLE.withReason("invalid token"));
         }
@@ -64,7 +66,8 @@ public class TerminalWebSocketHandler extends TextWebSocketHandler {
         resetIdleTimeout(session);
         String payload = message.getPayload();
         String user = (String) session.getAttributes().getOrDefault("user", "unknown");
-        String response = "[" + Instant.now() + "] user=" + user + " broker-echo: " + payload;
+        String channel = (String) session.getAttributes().getOrDefault("channel", "terminal");
+        String response = "[" + Instant.now() + "] channel=" + channel + " user=" + user + " broker-echo: " + payload;
         session.sendMessage(new TextMessage(response));
     }
 
@@ -111,6 +114,16 @@ public class TerminalWebSocketHandler extends TextWebSocketHandler {
             .map(parts -> URLDecoder.decode(parts[1], StandardCharsets.UTF_8))
             .findFirst()
             .orElse(null);
+    }
+
+    private static String extractChannel(URI uri) {
+        if (uri == null || uri.getPath() == null) {
+            return "terminal";
+        }
+        if (uri.getPath().endsWith("/rdp")) {
+            return "rdp";
+        }
+        return "terminal";
     }
 
     @PreDestroy
