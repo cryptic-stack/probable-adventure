@@ -1,4 +1,5 @@
 import datetime
+import csv
 import shutil
 from pathlib import Path
 
@@ -11,6 +12,8 @@ from CTFd.utils.config import ctf_name
 from CTFd.utils.exports import export_ctf as export_ctf_util
 from CTFd.utils.exports import import_ctf as import_ctf_util
 from CTFd.utils.exports import set_import_end_time, set_import_error
+from CTFd.utils.csv import load_challenges_csv
+from CTFd.models import Challenges, db
 
 _cli = Blueprint("cli", __name__)
 
@@ -90,3 +93,32 @@ def import_ctf(path, delete_import_on_finish=False):
     if delete_import_on_finish:
         print(f"Deleting {path}")
         Path(path).unlink()
+
+
+@_cli.cli.command("import_challenges_csv")
+@click.argument("path", type=click.Path(exists=True))
+@click.option(
+    "--truncate-existing",
+    default=False,
+    is_flag=True,
+    help="Delete all existing challenges before importing CSV rows",
+)
+def import_challenges_csv(path, truncate_existing=False):
+    if truncate_existing:
+        for challenge in Challenges.query.all():
+            db.session.delete(challenge)
+        db.session.commit()
+        print("Deleted existing challenges")
+
+    with open(path, encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f)
+        result = load_challenges_csv(reader)
+
+    if result is True:
+        print(f"Imported challenge CSV from {path}")
+        return
+
+    print("Challenge CSV import encountered errors:")
+    for line_num, errors in result:
+        print(f"- line {line_num}: {errors}")
+    raise SystemExit(1)

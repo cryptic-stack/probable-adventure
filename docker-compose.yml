@@ -70,6 +70,15 @@ services:
     networks:
       internal:
 
+  linux-lab-base:
+    image: ctfd-linux-lab-base:latest
+    build: ./docker/linux-lab-base
+    profiles:
+      - tools
+    command: ["bash", "-lc", "echo base image ready"]
+    networks:
+      internal:
+
 networks:
     default:
     internal:

@@ -384,6 +384,7 @@ def load_challenges_csv(dict_reader):
             continue
 
         ChallengeClass = get_chal_class(challenge_type)
+        line["type"] = challenge_type
         challenge = ChallengeClass.challenge_model(**line)
         db.session.add(challenge)
         db.session.commit()

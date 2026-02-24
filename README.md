@@ -58,6 +58,14 @@ For this repository's container control panel, set a shared token before startup
 
 `set CHALLENGE_CONTROL_TOKEN=change-me` (PowerShell: `$env:CHALLENGE_CONTROL_TOKEN="change-me"`)
 
+Enable local-leak pre-commit protection:
+
+- PowerShell: `powershell -ExecutionPolicy Bypass -File scripts/install-git-hooks.ps1`
+- Bash: `bash scripts/install-git-hooks.sh`
+
+The hook blocks staged commits containing local filesystem paths or private IP addresses.
+If a reference is intentionally required, add `allow-local-ref` on that line.
+
 Check out the [CTFd docs](https://docs.ctfd.io/) for [deployment options](https://docs.ctfd.io/docs/deployment/installation) and the [Getting Started](https://docs.ctfd.io/tutorials/getting-started/) guide
 
 ## Live Demo
