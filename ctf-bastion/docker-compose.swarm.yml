@@ -1,0 +1,30 @@
+﻿services:
+  api:
+    deploy:
+      replicas: ${API_REPLICAS:-2}
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+
+  broker:
+    deploy:
+      replicas: ${BROKER_REPLICAS:-2}
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+
+  lab-worker:
+    deploy:
+      replicas: ${WORKER_REPLICAS:-3}
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2G

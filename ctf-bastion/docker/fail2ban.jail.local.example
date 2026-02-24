@@ -1,0 +1,15 @@
+﻿[DEFAULT]
+bantime = 1h
+findtime = 10m
+maxretry = 5
+backend = auto
+
+[nginx-http-auth]
+enabled = true
+port = http,https
+logpath = /var/log/nginx/access.log
+
+[sshd]
+enabled = true
+port = ssh
+logpath = /var/log/auth.log
