@@ -8,22 +8,69 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ChallengeSessionService {
     private final Map<String, ChallengeSession> sessions = new ConcurrentHashMap<>();
+    private final Map<UserChallengeKey, Integer> failedAttempts = new ConcurrentHashMap<>();
+    private final Map<UserChallengeKey, SolveRecord> solvesByUserChallenge = new ConcurrentHashMap<>();
+    private final Map<Integer, Integer> solvesByChallenge = new ConcurrentHashMap<>();
+    private final AtomicLong solveOrder = new AtomicLong(1);
+
     private final Map<Integer, ChallengeDefinition> catalog = Map.of(
         1,
         new ChallengeDefinition(
             1,
+            "Warmup Shell",
+            "intro",
+            "Connect to the ephemeral shell and recover the flag from /challenge/flag.txt",
+            "visible",
+            10,
+            500,
+            100,
+            20,
             "alpine:3.21",
             "sh -lc \"mkdir -p /challenge && echo 'flag{ctf_demo_01}' >/challenge/flag.txt && chmod 400 /challenge/flag.txt && sleep infinity\"",
             "flag{ctf_demo_01}"
+        ),
+        2,
+        new ChallengeDefinition(
+            2,
+            "Permissions Trap",
+            "linux",
+            "Find the readable artifact and escalate within container constraints.",
+            "visible",
+            8,
+            400,
+            150,
+            15,
+            "alpine:3.21",
+            "sh -lc \"mkdir -p /challenge && echo 'flag{ctf_demo_02}' >/challenge/hidden.flag && chmod 440 /challenge/hidden.flag && sleep infinity\"",
+            "flag{ctf_demo_02}"
+        ),
+        3,
+        new ChallengeDefinition(
+            3,
+            "Forensics Quick",
+            "forensics",
+            "Inspect container filesystem traces and extract the expected token.",
+            "visible",
+            6,
+            300,
+            120,
+            10,
+            "alpine:3.21",
+            "sh -lc \"mkdir -p /challenge/logs && echo 'trace=flag{ctf_demo_03}' >/challenge/logs/audit.log && sleep infinity\"",
+            "flag{ctf_demo_03}"
         )
     );
 
@@ -41,8 +88,70 @@ public class ChallengeSessionService {
         this.objectMapper = objectMapper;
     }
 
+    public List<ChallengeSummaryResponse> listChallenges(String userEmail) {
+        return catalog
+            .values()
+            .stream()
+            .sorted(Comparator.comparingInt(ChallengeDefinition::id))
+            .map(definition -> {
+                int solveCount = solvesByChallenge.getOrDefault(definition.id(), 0);
+                boolean solvedByMe =
+                    userEmail != null && solvesByUserChallenge.containsKey(new UserChallengeKey(userEmail, definition.id()));
+                return new ChallengeSummaryResponse(
+                    definition.id(),
+                    definition.name(),
+                    definition.category(),
+                    definition.description(),
+                    definition.state(),
+                    currentValue(definition, solveCount),
+                    solveCount,
+                    definition.maxAttempts(),
+                    solvedByMe
+                );
+            })
+            .toList();
+    }
+
+    public List<ScoreboardEntryResponse> scoreboard() {
+        Map<String, List<SolveRecord>> grouped =
+            solvesByUserChallenge
+                .values()
+                .stream()
+                .collect(Collectors.groupingBy(SolveRecord::userEmail));
+
+        List<UserScore> scores = new ArrayList<>();
+        for (Map.Entry<String, List<SolveRecord>> entry : grouped.entrySet()) {
+            int total = entry.getValue().stream().mapToInt(SolveRecord::awardedPoints).sum();
+            int solveCount = entry.getValue().size();
+            SolveRecord lastSolve = entry
+                .getValue()
+                .stream()
+                .max(Comparator.comparingLong(SolveRecord::solveOrder))
+                .orElseThrow();
+            scores.add(new UserScore(entry.getKey(), total, solveCount, lastSolve.solvedAt(), lastSolve.solveOrder()));
+        }
+
+        scores.sort(
+            Comparator
+                .comparingInt(UserScore::score)
+                .reversed()
+                .thenComparingLong(UserScore::lastSolveOrder)
+                .thenComparing(UserScore::email)
+        );
+
+        List<ScoreboardEntryResponse> rows = new ArrayList<>();
+        for (int i = 0; i < scores.size(); i++) {
+            UserScore score = scores.get(i);
+            rows.add(new ScoreboardEntryResponse(i + 1, score.email(), score.score(), score.solves(), score.lastSolveAt()));
+        }
+        return rows;
+    }
+
     public ChallengeSession startSession(String userEmail, int challengeId) {
         ChallengeDefinition definition = requireChallenge(challengeId);
+        if (!"visible".equalsIgnoreCase(definition.state())) {
+            throw new IllegalArgumentException("challenge unavailable");
+        }
         terminateExistingSession(userEmail, challengeId);
 
         SpawnLabResponse spawn = spawnContainer(userEmail, definition);
@@ -82,6 +191,22 @@ public class ChallengeSessionService {
     public SubmitFlagResponse submitFlag(String userEmail, int challengeId, String flag) {
         ChallengeDefinition definition = requireChallenge(challengeId);
         getSession(userEmail, challengeId);
+        UserChallengeKey key = new UserChallengeKey(userEmail, challengeId);
+
+        if (solvesByUserChallenge.containsKey(key)) {
+            return new SubmitFlagResponse(true, "already solved", 0, totalScore(userEmail), attemptsRemaining(definition, key));
+        }
+
+        Integer remainingBefore = attemptsRemaining(definition, key);
+        if (remainingBefore != null && remainingBefore <= 0) {
+            return new SubmitFlagResponse(
+                false,
+                "max attempts reached",
+                null,
+                totalScore(userEmail),
+                0
+            );
+        }
 
         boolean correct = MessageDigest.isEqual(
             definition.expectedFlag().getBytes(StandardCharsets.UTF_8),
@@ -89,9 +214,29 @@ public class ChallengeSessionService {
         );
 
         if (correct) {
-            return new SubmitFlagResponse(true, "correct flag");
+            int awardedPoints = currentValue(definition, solvesByChallenge.getOrDefault(challengeId, 0));
+            solvesByChallenge.merge(challengeId, 1, Integer::sum);
+            solvesByUserChallenge.put(
+                key,
+                new SolveRecord(userEmail, challengeId, awardedPoints, Instant.now(), solveOrder.getAndIncrement())
+            );
+            return new SubmitFlagResponse(
+                true,
+                "correct flag",
+                awardedPoints,
+                totalScore(userEmail),
+                attemptsRemaining(definition, key)
+            );
         }
-        return new SubmitFlagResponse(false, "incorrect flag");
+
+        failedAttempts.merge(key, 1, Integer::sum);
+        return new SubmitFlagResponse(
+            false,
+            "incorrect flag",
+            null,
+            totalScore(userEmail),
+            attemptsRemaining(definition, key)
+        );
     }
 
     private ChallengeDefinition requireChallenge(int challengeId) {
@@ -154,4 +299,38 @@ public class ChallengeSessionService {
     private String key(String userEmail, int challengeId) {
         return userEmail + ":" + challengeId;
     }
+
+    private int currentValue(ChallengeDefinition definition, int solveCount) {
+        int value = definition.initialValue() - (solveCount * definition.decay());
+        return Math.max(definition.minimumValue(), value);
+    }
+
+    private int totalScore(String userEmail) {
+        return solvesByUserChallenge
+            .values()
+            .stream()
+            .filter(solve -> solve.userEmail().equals(userEmail))
+            .mapToInt(SolveRecord::awardedPoints)
+            .sum();
+    }
+
+    private Integer attemptsRemaining(ChallengeDefinition definition, UserChallengeKey key) {
+        if (definition.maxAttempts() <= 0) {
+            return null;
+        }
+        int used = failedAttempts.getOrDefault(key, 0);
+        return Math.max(definition.maxAttempts() - used, 0);
+    }
+
+    private record UserChallengeKey(String userEmail, int challengeId) {}
+
+    private record SolveRecord(
+        String userEmail,
+        int challengeId,
+        int awardedPoints,
+        Instant solvedAt,
+        long solveOrder
+    ) {}
+
+    private record UserScore(String email, int score, int solves, Instant lastSolveAt, long lastSolveOrder) {}
 }

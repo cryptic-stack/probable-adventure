@@ -1,10 +1,19 @@
 import { useEffect, useState } from 'react'
-import { apiHealth, ConnectionOption, getConnectionOptions, startChallenge, submitFlag } from '../api'
+import {
+  apiHealth,
+  ChallengeInfo,
+  ConnectionOption,
+  getConnectionOptions,
+  listChallenges,
+  startChallenge,
+  submitFlag
+} from '../api'
 import { useAuthStore } from '../store/auth'
 import { TerminalPanel } from './TerminalPanel'
 
 export function ChallengesPage() {
   const [health, setHealth] = useState('loading')
+  const [challenges, setChallenges] = useState<ChallengeInfo[]>([])
   const [challengeId, setChallengeId] = useState(1)
   const [containerId, setContainerId] = useState('')
   const [expiresAt, setExpiresAt] = useState('')
@@ -13,12 +22,29 @@ export function ChallengesPage() {
   const [message, setMessage] = useState('')
   const [flag, setFlag] = useState('flag{ctf_demo_01}')
   const [submitMessage, setSubmitMessage] = useState('')
+  const [score, setScore] = useState(0)
   const token = useAuthStore((s) => s.token)
   const email = useAuthStore((s) => s.email)
 
   useEffect(() => {
     apiHealth().then(setHealth).catch(() => setHealth('api unavailable'))
   }, [])
+
+  async function refreshChallenges() {
+    try {
+      const list = await listChallenges(token || undefined)
+      setChallenges(list)
+      if (!list.some((item) => item.id === challengeId) && list[0]) {
+        setChallengeId(list[0].id)
+      }
+    } catch (err) {
+      setMessage((err as Error).message)
+    }
+  }
+
+  useEffect(() => {
+    refreshChallenges()
+  }, [token])
 
   async function onStart() {
     if (!token) {
@@ -64,7 +90,12 @@ export function ChallengesPage() {
 
     try {
       const result = await submitFlag(challengeId, token, flag)
-      setSubmitMessage(result.message)
+      setScore(result.totalScore)
+      const attemptsSuffix =
+        result.attemptsRemaining === null ? '' : ` | attempts left: ${result.attemptsRemaining}`
+      const pointsSuffix = result.awardedPoints ? ` | +${result.awardedPoints} pts` : ''
+      setSubmitMessage(`${result.message}${pointsSuffix}${attemptsSuffix}`)
+      await refreshChallenges()
     } catch (err) {
       setSubmitMessage((err as Error).message)
     }
@@ -75,16 +106,27 @@ export function ChallengesPage() {
       <h2 className="title">Challenge Terminal</h2>
       <p className="subtle">API health: {health}</p>
       <p className="subtle">Active user: {email || 'not logged in'}</p>
+      <p className="subtle">My score: {score}</p>
       <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', marginBottom: 10 }}>
-        <span className="subtle">Challenge ID</span>
-        <input
-          type="number"
-          value={challengeId}
-          onChange={(e) => setChallengeId(Number(e.target.value))}
-          style={{ width: 100 }}
-        />
+        <span className="subtle">Challenge</span>
+        <select value={challengeId} onChange={(e) => setChallengeId(Number(e.target.value))}>
+          {challenges.map((challenge) => (
+            <option key={challenge.id} value={challenge.id}>
+              #{challenge.id} {challenge.name} ({challenge.value} pts)
+            </option>
+          ))}
+        </select>
         <button onClick={onStart}>Start Challenge</button>
         <button onClick={onRefreshOptions}>Refresh Connections</button>
+        <button onClick={refreshChallenges}>Refresh Catalog</button>
+      </div>
+      <div style={{ marginBottom: 10 }}>
+        {challenges.map((challenge) => (
+          <p key={challenge.id} className="subtle">
+            [{challenge.category}] #{challenge.id} {challenge.name} | {challenge.value} pts | solves {challenge.solves} |
+            attempts {challenge.maxAttempts} {challenge.solvedByMe ? '| solved' : ''}
+          </p>
+        ))}
       </div>
       <p className="subtle">{message}</p>
       {containerId ? <p className="subtle">Assigned container: {containerId}</p> : null}

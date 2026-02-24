@@ -5,6 +5,7 @@ import { Dashboard } from './pages/Dashboard'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
 import { ChallengesPage } from './pages/ChallengesPage'
+import { ScoreboardPage } from './pages/ScoreboardPage'
 import { useAuthStore } from './store/auth'
 import './styles.css'
 
@@ -19,6 +20,7 @@ function Shell() {
           <NavLink to="/login">Login</NavLink>
           <NavLink to="/register">Register</NavLink>
           <NavLink to="/challenges">Challenges</NavLink>
+          <NavLink to="/scoreboard">Scoreboard</NavLink>
         </nav>
         <div className="subtle">{email || 'guest'}</div>
       </header>
@@ -37,6 +39,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/challenges" element={<ChallengesPage />} />
+          <Route path="/scoreboard" element={<ScoreboardPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/challenges")
@@ -18,6 +19,18 @@ public class ChallengeController {
     public ChallengeController(ChallengeSessionService challengeSessionService, JwtService jwtService) {
         this.challengeSessionService = challengeSessionService;
         this.jwtService = jwtService;
+    }
+
+    @GetMapping
+    public List<ChallengeSummaryResponse> list(
+        @RequestHeader(value = "Authorization", required = false) String authorization
+    ) {
+        return challengeSessionService.listChallenges(parseOptionalBearerSubject(authorization));
+    }
+
+    @GetMapping("/scoreboard")
+    public List<ScoreboardEntryResponse> scoreboard() {
+        return challengeSessionService.scoreboard();
     }
 
     @PostMapping("/{challengeId}/start")
@@ -66,5 +79,12 @@ public class ChallengeController {
         }
         String token = authorization.substring("Bearer ".length()).trim();
         return jwtService.extractSubject(token);
+    }
+
+    private String parseOptionalBearerSubject(String authorization) {
+        if (authorization == null || authorization.isBlank()) {
+            return null;
+        }
+        return parseBearerSubject(authorization);
     }
 }
