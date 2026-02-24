@@ -78,9 +78,89 @@ Alpine.data("Challenge", () => ({
   selectedRating: 0,
   ratingReview: "",
   ratingSubmitted: false,
+  access: {
+    type: "",
+    url: "",
+    host: "",
+    port: "",
+    username: "",
+    password: "",
+    instructions: "",
+    command: "",
+    raw: "",
+    hasData: false,
+  },
 
   async init() {
     highlight();
+  },
+
+  initConnectionInfo(raw) {
+    const empty = {
+      type: "",
+      url: "",
+      host: "",
+      port: "",
+      username: "",
+      password: "",
+      instructions: "",
+      command: "",
+      raw: "",
+      hasData: false,
+    };
+
+    const value = (raw || "").trim();
+    if (!value) {
+      this.access = empty;
+      return;
+    }
+
+    let parsed = null;
+    try {
+      parsed = JSON.parse(value);
+    } catch (_e) {}
+
+    if (parsed && parsed.schema === "ctfd-access-v1") {
+      const type = (parsed.type || "").toLowerCase();
+      const host = (parsed.host || "").trim();
+      const port = (parsed.port || "").toString().trim();
+      const username = (parsed.username || "").trim();
+      let command = "";
+      if (type === "ssh" || (type === "terminal" && host)) {
+        const target = username ? `${username}@${host}` : host;
+        command = port ? `ssh ${target} -p ${port}` : `ssh ${target}`;
+      }
+      this.access = {
+        type,
+        url: (parsed.url || "").trim(),
+        host,
+        port,
+        username,
+        password: (parsed.password || "").trim(),
+        instructions: (parsed.instructions || "").trim(),
+        command,
+        raw: "",
+        hasData: true,
+      };
+      return;
+    }
+
+    if (/^https?:\/\//i.test(value)) {
+      this.access = {
+        ...empty,
+        type: "url",
+        url: value,
+        hasData: true,
+      };
+      return;
+    }
+
+    this.access = {
+      ...empty,
+      type: "plain",
+      raw: value,
+      hasData: true,
+    };
   },
 
   getStyles() {
