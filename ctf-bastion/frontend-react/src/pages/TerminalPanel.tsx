@@ -75,7 +75,6 @@ export function TerminalPanel({ token, wsPath, modeLabel }: Props) {
       inputDisposableRef.current?.dispose()
       inputDisposableRef.current = termRef.current?.onData((data) => {
         if (ws.readyState === WebSocket.OPEN) {
-          localEcho(termRef.current, data)
           ws.send(data)
         }
       }) || null
@@ -110,24 +109,4 @@ export function TerminalPanel({ token, wsPath, modeLabel }: Props) {
       </div>
     </section>
   )
-}
-
-function localEcho(term: Terminal | null, data: string) {
-  if (!term) {
-    return
-  }
-
-  for (const char of data) {
-    if (char === '\r') {
-      term.write('\r\n')
-      continue
-    }
-    if (char === '\u007f') {
-      term.write('\b \b')
-      continue
-    }
-    if (char >= ' ') {
-      term.write(char)
-    }
-  }
 }
