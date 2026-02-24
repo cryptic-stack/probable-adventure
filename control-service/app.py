@@ -1,0 +1,349 @@
+import os
+import re
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Tuple
+
+import docker
+from fastapi import FastAPI, Header, HTTPException, Query
+from pydantic import BaseModel
+
+app = FastAPI(title="CTFd Challenge Control Service")
+
+INFRA_SERVICES = {"ctfd", "db", "cache", "nginx", "control-service"}
+CHALLENGE_KEYS = ("ctfd.challenge_id", "challenge_id", "ctf.challenge_id")
+USER_KEYS = ("ctfd.user_id", "user_id", "ctf.user_id")
+TEAM_KEYS = ("ctfd.team_id", "team_id", "ctf.team_id")
+SESSION_KEYS = ("ctfd.session_id", "session_id", "ctf.session_id")
+
+
+class ActionBody(BaseModel):
+    action: str
+
+
+def _required_token() -> str:
+    return os.getenv("CHALLENGE_CONTROL_TOKEN", "").strip()
+
+
+def _authz(authorization: Optional[str]) -> None:
+    expected = _required_token()
+    if not expected:
+        return
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing bearer token")
+    provided = authorization.split(" ", 1)[1].strip()
+    if provided != expected:
+        raise HTTPException(status_code=403, detail="Invalid token")
+
+
+def _client():
+    try:
+        c = docker.from_env()
+        c.ping()
+        return c
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Docker unavailable: {e}")
+
+
+def _format_ts(raw: str) -> str:
+    if not raw:
+        return ""
+    try:
+        return datetime.fromisoformat(raw.replace("Z", "+00:00")).strftime(
+            "%Y-%m-%d %H:%M:%S UTC"
+        )
+    except Exception:
+        return raw
+
+
+def _to_int_label(labels: Dict[str, str], keys: Tuple[str, ...]) -> Optional[int]:
+    for key in keys:
+        value = labels.get(key)
+        if value is None:
+            continue
+        s = str(value).strip()
+        if s.isdigit():
+            return int(s)
+    return None
+
+
+def _to_text_label(labels: Dict[str, str], keys: Tuple[str, ...]) -> str:
+    for key in keys:
+        value = labels.get(key)
+        if value:
+            return str(value).strip()
+    return ""
+
+
+def _extract_from_name(name: str) -> Tuple[Optional[int], Optional[int], Optional[int]]:
+    challenge = re.search(r"challenge[-_](\d+)", name)
+    user = re.search(r"user[-_](\d+)", name)
+    team = re.search(r"team[-_](\d+)", name)
+    return (
+        int(challenge.group(1)) if challenge else None,
+        int(user.group(1)) if user else None,
+        int(team.group(1)) if team else None,
+    )
+
+
+def _active_logons(container) -> Optional[int]:
+    cmds = [
+        "sh -lc \"who | wc -l\"",
+        "sh -lc \"ps -eo tty= | grep -E 'pts|tty' | wc -l\"",
+    ]
+    for cmd in cmds:
+        try:
+            result = container.exec_run(cmd)
+        except Exception:
+            continue
+        if result.exit_code != 0:
+            continue
+        text = result.output.decode(errors="ignore").strip()
+        if text.isdigit():
+            return int(text)
+    return None
+
+
+def _container_row(container) -> Dict[str, Any]:
+    attrs = container.attrs
+    config = attrs.get("Config") or {}
+    labels = config.get("Labels") or {}
+    state = attrs.get("State") or {}
+
+    image = config.get("Image") or ""
+    if not image:
+        tags = container.image.tags or []
+        image = tags[0] if tags else container.image.short_id
+
+    compose_service = labels.get("com.docker.compose.service", "")
+    challenge_id = _to_int_label(labels, CHALLENGE_KEYS)
+    user_id = _to_int_label(labels, USER_KEYS)
+    team_id = _to_int_label(labels, TEAM_KEYS)
+    session_id = _to_text_label(labels, SESSION_KEYS)
+
+    if challenge_id is None or user_id is None or team_id is None:
+        from_name = _extract_from_name(container.name)
+        if challenge_id is None:
+            challenge_id = from_name[0]
+        if user_id is None:
+            user_id = from_name[1]
+        if team_id is None:
+            team_id = from_name[2]
+
+    managed = bool(challenge_id or labels.get("ctfd.managed") == "true")
+    protected = compose_service in INFRA_SERVICES
+
+    return {
+        "id": container.id,
+        "short_id": container.short_id,
+        "name": container.name,
+        "image": image,
+        "status": container.status,
+        "created": _format_ts(attrs.get("Created")),
+        "started_at": _format_ts(state.get("StartedAt")),
+        "finished_at": _format_ts(state.get("FinishedAt")),
+        "challenge_id": challenge_id,
+        "user_id": user_id,
+        "team_id": team_id,
+        "session_id": session_id,
+        "compose_service": compose_service,
+        "managed": managed,
+        "protected": protected,
+    }
+
+
+def _build_reset_spec(container) -> Dict[str, Any]:
+    attrs = container.attrs
+    config = attrs.get("Config") or {}
+    host = attrs.get("HostConfig") or {}
+    networks = (attrs.get("NetworkSettings") or {}).get("Networks") or {}
+
+    network_mode = host.get("NetworkMode") or "default"
+    primary_network = next(iter(networks.keys()), None)
+    spec = {
+        "image": config.get("Image"),
+        "name": container.name,
+        "detach": True,
+        "command": config.get("Cmd"),
+        "entrypoint": config.get("Entrypoint"),
+        "environment": config.get("Env"),
+        "working_dir": config.get("WorkingDir") or None,
+        "hostname": config.get("Hostname") or None,
+        "user": config.get("User") or None,
+        "labels": config.get("Labels") or {},
+        "tty": bool(config.get("Tty")),
+        "stdin_open": bool(config.get("OpenStdin")),
+        "read_only": bool(host.get("ReadonlyRootfs")),
+        "privileged": bool(host.get("Privileged")),
+        "security_opt": host.get("SecurityOpt") or None,
+        "cap_add": host.get("CapAdd") or None,
+        "cap_drop": host.get("CapDrop") or None,
+        "pids_limit": host.get("PidsLimit") if (host.get("PidsLimit") or 0) > 0 else None,
+        "restart_policy": host.get("RestartPolicy") or None,
+        "mem_limit": host.get("Memory") if (host.get("Memory") or 0) > 0 else None,
+        "nano_cpus": host.get("NanoCpus") if (host.get("NanoCpus") or 0) > 0 else None,
+        "cpu_quota": host.get("CpuQuota") if (host.get("CpuQuota") or 0) > 0 else None,
+        "cpu_period": host.get("CpuPeriod") if (host.get("CpuPeriod") or 0) > 0 else None,
+        "dns": host.get("Dns") or None,
+        "extra_hosts": host.get("ExtraHosts") or None,
+        "network_mode": None,
+        "network": None,
+        "volumes": host.get("Binds") or None,
+    }
+    if network_mode not in {"default", "bridge"}:
+        spec["network_mode"] = network_mode
+    elif primary_network:
+        spec["network"] = primary_network
+
+    port_bindings = {}
+    for container_port, bindings in (host.get("PortBindings") or {}).items():
+        if not bindings:
+            continue
+        host_values = []
+        for bind in bindings:
+            host_port = bind.get("HostPort")
+            host_ip = bind.get("HostIp")
+            if not host_port:
+                continue
+            if host_ip and host_ip not in {"0.0.0.0", ""}:
+                host_values.append((host_ip, int(host_port)))
+            else:
+                host_values.append(int(host_port))
+        if host_values:
+            port_bindings[container_port] = host_values[0] if len(host_values) == 1 else host_values
+
+    spec["ports"] = port_bindings or None
+
+    secondary = []
+    if primary_network:
+        for network_name, network_cfg in networks.items():
+            if network_name == primary_network:
+                continue
+            secondary.append({"name": network_name, "aliases": network_cfg.get("Aliases") or None})
+    spec["secondary_networks"] = secondary
+    return spec
+
+
+def _cleanup_spec(spec: Dict[str, Any]) -> Dict[str, Any]:
+    out = {}
+    for key, value in spec.items():
+        if key == "secondary_networks":
+            continue
+        if value is None:
+            continue
+        out[key] = value
+    return out
+
+
+def _reset_container(client, container):
+    spec = _build_reset_spec(container)
+    run_spec = _cleanup_spec(spec)
+    container.remove(force=True)
+    new_container = client.containers.run(**run_spec)
+    for network in spec["secondary_networks"]:
+        try:
+            client.networks.get(network["name"]).connect(
+                new_container, aliases=network["aliases"]
+            )
+        except Exception:
+            continue
+    return new_container
+
+
+@app.get("/health")
+def health(authorization: Optional[str] = Header(default=None)):
+    _authz(authorization)
+    c = _client()
+    return {"success": True, "data": {"ok": bool(c.ping())}}
+
+
+@app.get("/containers")
+def list_containers(
+    running: bool = Query(default=True),
+    managed: bool = Query(default=False),
+    logons: bool = Query(default=True),
+    authorization: Optional[str] = Header(default=None),
+):
+    _authz(authorization)
+    client = _client()
+    rows: List[Dict[str, Any]] = []
+    containers = client.containers.list(all=(not running))
+    for container in containers:
+        row = _container_row(container)
+        if managed and not row["managed"]:
+            continue
+        row["active_logons"] = _active_logons(container) if (logons and row["status"] == "running") else None
+        rows.append(row)
+    rows.sort(key=lambda r: (r["status"] != "running", r["name"]))
+    return {"success": True, "data": rows}
+
+
+@app.get("/containers/{container_id}/logs")
+def container_logs(
+    container_id: str,
+    tail: int = Query(default=300, ge=10, le=2000),
+    authorization: Optional[str] = Header(default=None),
+):
+    _authz(authorization)
+    client = _client()
+    try:
+        container = client.containers.get(container_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    try:
+        data = container.logs(tail=tail).decode(errors="ignore")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"success": True, "data": {"logs": data}}
+
+
+@app.post("/containers/{container_id}/action")
+def container_action(
+    container_id: str,
+    body: ActionBody,
+    authorization: Optional[str] = Header(default=None),
+):
+    _authz(authorization)
+    action = (body.action or "").strip().lower()
+    if action not in {"restart", "reset", "stop", "remove"}:
+        raise HTTPException(status_code=400, detail="Invalid action")
+
+    client = _client()
+    try:
+        container = client.containers.get(container_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+    details = _container_row(container)
+    if details["protected"]:
+        raise HTTPException(
+            status_code=403, detail="Refusing to mutate protected infrastructure container"
+        )
+
+    try:
+        if action == "restart":
+            container.restart(timeout=5)
+            message = "Container restarted"
+        elif action == "stop":
+            container.stop(timeout=5)
+            message = "Container stopped"
+        elif action == "remove":
+            container.remove(force=True)
+            message = "Container removed"
+        else:
+            new_container = _reset_container(client, container)
+            message = f"Container reset to {new_container.short_id}"
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    return {"success": True, "data": {"message": message}}
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(_request, exc: HTTPException):
+    return fastapi_json(exc.status_code, exc.detail)
+
+
+def fastapi_json(status_code: int, message: str):
+    from fastapi.responses import JSONResponse
+
+    return JSONResponse(status_code=status_code, content={"success": False, "error": message})

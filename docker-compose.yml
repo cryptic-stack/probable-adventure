@@ -13,12 +13,15 @@ services:
       - ACCESS_LOG=-
       - ERROR_LOG=-
       - REVERSE_PROXY=true
+      - CHALLENGE_CONTROL_URL=http://control-service:9001
+      - CHALLENGE_CONTROL_TOKEN=${CHALLENGE_CONTROL_TOKEN:-change-me}
     volumes:
       - .data/CTFd/logs:/var/log/CTFd
       - .data/CTFd/uploads:/var/uploads
       - .:/opt/CTFd:ro
     depends_on:
       - db
+      - control-service
     networks:
         default:
         internal:
@@ -56,6 +59,16 @@ services:
     - .data/redis:/data
     networks:
         internal:
+
+  control-service:
+    build: ./control-service
+    restart: always
+    environment:
+      - CHALLENGE_CONTROL_TOKEN=${CHALLENGE_CONTROL_TOKEN:-change-me}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      internal:
 
 networks:
     default:

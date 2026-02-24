@@ -1,0 +1,242 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="jumbotron">
+  <div class="container">
+    <h1>Challenge Containers</h1>
+    <p class="mb-0">
+      Restart/reset challenge labs, view active logons, and inspect runtime logs.
+    </p>
+  </div>
+</div>
+
+<div class="container pb-5">
+  <div class="row mb-3">
+    <div class="col-md-3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="cc-running-only" checked>
+        <label class="form-check-label" for="cc-running-only">Running only</label>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="cc-managed-only">
+        <label class="form-check-label" for="cc-managed-only">Managed only</label>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="cc-include-logons" checked>
+        <label class="form-check-label" for="cc-include-logons">Detect active logons</label>
+      </div>
+    </div>
+    <div class="col-md-3 text-right">
+      <button id="cc-refresh" class="btn btn-primary">Refresh</button>
+    </div>
+  </div>
+
+  <div class="row mb-2">
+    <div class="col-md-12">
+      <div class="alert alert-info mb-0" id="cc-summary">Loading...</div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Status</th>
+              <th>Challenge</th>
+              <th>User / Team</th>
+              <th>Logons</th>
+              <th>Image</th>
+              <th>Started</th>
+              <th class="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="cc-table-body">
+            <tr>
+              <td colspan="8" class="text-center text-muted">Loading...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="cc-log-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Container Logs</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre id="cc-log-content" style="max-height: 65vh; overflow:auto; white-space: pre-wrap;"></pre>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function() {
+    function getFilters() {
+      return {
+        running: $("#cc-running-only").is(":checked"),
+        managed: $("#cc-managed-only").is(":checked"),
+        logons: $("#cc-include-logons").is(":checked")
+      };
+    }
+
+    function renderSummary(rows) {
+      var total = rows.length;
+      var running = rows.filter(function(r) { return r.status === "running"; }).length;
+      var managed = rows.filter(function(r) { return r.managed; }).length;
+      var protectedCount = rows.filter(function(r) { return r.protected; }).length;
+      $("#cc-summary").text(
+        "Total: " + total + " | Running: " + running + " | Managed: " + managed + " | Protected: " + protectedCount
+      );
+    }
+
+    function challengeLabel(row) {
+      if (!row.challenge_id) return '<span class="text-muted">-</span>';
+      if (row.challenge_name) return row.challenge_name + " (#" + row.challenge_id + ")";
+      return "#" + row.challenge_id;
+    }
+
+    function identityLabel(row) {
+      var user = row.user_id ? (row.user_name || "User") + " #" + row.user_id : null;
+      var team = row.team_id ? (row.team_name || "Team") + " #" + row.team_id : null;
+      if (user && team) return user + '<br><small class="text-muted">' + team + "</small>";
+      return user || team || '<span class="text-muted">-</span>';
+    }
+
+    function actionButtons(row) {
+      if (row.protected) return '<span class="badge badge-secondary">Protected</span>';
+      var disabled = row.status === "running" ? "" : 'disabled="disabled"';
+      return (
+        '<div class="btn-group btn-group-sm" role="group">' +
+        '<button class="btn btn-outline-primary cc-action" data-id="' + row.id + '" data-action="restart" ' + disabled + ">Restart</button>" +
+        '<button class="btn btn-outline-warning cc-action" data-id="' + row.id + '" data-action="reset">Reset</button>' +
+        '<button class="btn btn-outline-danger cc-action" data-id="' + row.id + '" data-action="remove">Remove</button>' +
+        '<button class="btn btn-outline-secondary cc-logs" data-id="' + row.id + '" data-name="' + row.name + '">Logs</button>' +
+        "</div>"
+      );
+    }
+
+    function renderRows(rows) {
+      var body = $("#cc-table-body");
+      if (!rows.length) {
+        body.html('<tr><td colspan="8" class="text-center text-muted">No containers matched the current filters.</td></tr>');
+        return;
+      }
+
+      var html = rows.map(function(row) {
+        var statusBadge = row.status === "running" ? "badge-success" : "badge-secondary";
+        var managedBadge = row.managed ? '<span class="badge badge-info ml-1">Managed</span>' : "";
+        var logons = row.active_logons === null ? '<span class="text-muted">-</span>' : row.active_logons;
+        return (
+          "<tr>" +
+          "<td><code>" + row.name + "</code><br><small class='text-muted'>" + row.short_id + "</small></td>" +
+          "<td><span class='badge " + statusBadge + "'>" + row.status + "</span> " + managedBadge + "</td>" +
+          "<td>" + challengeLabel(row) + "</td>" +
+          "<td>" + identityLabel(row) + "</td>" +
+          "<td>" + logons + "</td>" +
+          "<td><small>" + row.image + "</small></td>" +
+          "<td><small>" + (row.started_at || row.created || "-") + "</small></td>" +
+          "<td class='text-right'>" + actionButtons(row) + "</td>" +
+          "</tr>"
+        );
+      }).join("");
+      body.html(html);
+    }
+
+    function loadContainers() {
+      var filters = getFilters();
+      $("#cc-table-body").html('<tr><td colspan="8" class="text-center text-muted">Loading...</td></tr>');
+      var query = $.param({
+        running: String(filters.running),
+        managed: String(filters.managed),
+        logons: String(filters.logons)
+      });
+
+      return $.getJSON(CTFd.config.urlRoot + "/admin/challenge-containers/data?" + query).done(function(payload) {
+        if (!payload.success) {
+          $("#cc-summary").text("Error: " + payload.error);
+          $("#cc-table-body").html('<tr><td colspan="8" class="text-center text-danger">Unable to load container data.</td></tr>');
+          return;
+        }
+        renderSummary(payload.data);
+        renderRows(payload.data);
+      }).fail(function(xhr) {
+        var error = "Unable to load containers";
+        if (xhr && xhr.responseJSON && xhr.responseJSON.error) error = xhr.responseJSON.error;
+        $("#cc-summary").text("Error: " + error);
+      });
+    }
+
+    function runAction(containerId, action) {
+      return $.ajax({
+        url: CTFd.config.urlRoot + "/admin/challenge-containers/" + containerId + "/action",
+        method: "POST",
+        contentType: "application/json",
+        dataType: "json",
+        data: JSON.stringify({ action: action }),
+        headers: { "CSRF-Token": CTFd.config.csrfNonce }
+      }).done(function(payload) {
+        if (!payload.success) {
+          alert(payload.error || "Action failed");
+          return;
+        }
+        loadContainers();
+      }).fail(function(xhr) {
+        alert((xhr.responseJSON && xhr.responseJSON.error) || "Action failed");
+      });
+    }
+
+    function viewLogs(containerId, name) {
+      return $.getJSON(CTFd.config.urlRoot + "/admin/challenge-containers/" + containerId + "/logs?tail=300").done(function(payload) {
+        if (!payload.success) {
+          alert(payload.error || "Unable to read logs");
+          return;
+        }
+        $("#cc-log-content").text(payload.data.logs || "");
+        $("#cc-log-modal .modal-title").text("Container Logs: " + name);
+        $("#cc-log-modal").modal("show");
+      }).fail(function(xhr) {
+        alert((xhr.responseJSON && xhr.responseJSON.error) || "Unable to read logs");
+      });
+    }
+
+    $(function() {
+      $("#cc-refresh").on("click", function() { loadContainers(); });
+      $("#cc-running-only, #cc-managed-only, #cc-include-logons").on("change", function() { loadContainers(); });
+
+      $("#cc-table-body").on("click", ".cc-action", function() {
+        var containerId = $(this).data("id");
+        var action = $(this).data("action");
+        if (action === "remove" && !window.confirm("Remove this container? This cannot be undone.")) return;
+        if (action === "reset" && !window.confirm("Reset this container? This recreates it from its image.")) return;
+        runAction(containerId, action);
+      });
+
+      $("#cc-table-body").on("click", ".cc-logs", function() {
+        var containerId = $(this).data("id");
+        var name = $(this).data("name");
+        viewLogs(containerId, name);
+      });
+
+      loadContainers();
+      window.setInterval(loadContainers, 15000);
+    });
+  })();
+</script>
+{% endblock %}

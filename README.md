@@ -54,6 +54,10 @@ Or you can use Docker Compose with the following command from the source reposit
 
 `docker compose up`
 
+For this repository's container control panel, set a shared token before startup:
+
+`set CHALLENGE_CONTROL_TOKEN=change-me` (PowerShell: `$env:CHALLENGE_CONTROL_TOKEN="change-me"`)
+
 Check out the [CTFd docs](https://docs.ctfd.io/) for [deployment options](https://docs.ctfd.io/docs/deployment/installation) and the [Getting Started](https://docs.ctfd.io/tutorials/getting-started/) guide
 
 ## Live Demo
