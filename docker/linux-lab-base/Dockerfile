@@ -28,6 +28,7 @@ RUN apt-get update \
         nmap \
         curl \
         wget \
+        python3 \
         rsync \
         zip \
         unzip \
@@ -48,6 +49,8 @@ RUN apt-get update \
         jq \
         openssh-client \
         openssh-server \
+        tcpdump \
+        netplan.io \
         gnupg \
         screen \
         tmux \

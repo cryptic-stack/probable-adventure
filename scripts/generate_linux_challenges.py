@@ -178,7 +178,17 @@ def prompt_from_section(
     return f"Complete {lab_title} question {q_num}"
 
 
+EXACT_ANSWER_OVERRIDES = {
+    "what is your current working directory?": "/home/ctf",
+    "what account are you currently logged in as?": "ctf",
+}
+
+
 def build_flag(lab_num: int, q_num: int, prompt: str, seen: Dict[str, int]) -> str:
+    normalized_prompt = prompt.strip().lower()
+    if normalized_prompt in EXACT_ANSWER_OVERRIDES:
+        return EXACT_ANSWER_OVERRIDES[normalized_prompt]
+
     task = re.sub(r"[^a-z0-9]+", "_", prompt.lower()).strip("_")
     if not task:
         task = "complete_the_task"
@@ -188,7 +198,7 @@ def build_flag(lab_num: int, q_num: int, prompt: str, seen: Dict[str, int]) -> s
         base = base[:64].rstrip("_")
     seen[base] = seen.get(base, 0) + 1
     token = base if seen[base] == 1 else f"{base}_{seen[base]}"
-    return f"flag{{{token}}}"
+    return token
 
 
 def build_connection_info(runtime_image: str, flag: str) -> str:
