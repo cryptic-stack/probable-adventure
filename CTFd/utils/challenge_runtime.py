@@ -153,12 +153,11 @@ def activate_challenge_container(challenge) -> Tuple[Optional[Dict[str, Any]], O
 def _autograde_payload(challenge) -> Optional[Dict[str, Any]]:
     connection = parse_connection_info(challenge.connection_info)
     autograde = connection.get("autograde") if isinstance(connection, dict) else None
-    if not isinstance(autograde, dict):
-        return None
-    if not autograde.get("enabled"):
+    # If autograde is explicitly configured and disabled, do nothing.
+    if isinstance(autograde, dict) and autograde.get("enabled") is False:
         return None
 
-    commands = autograde.get("commands")
+    commands = autograde.get("commands") if isinstance(autograde, dict) else None
     if not isinstance(commands, list):
         commands = []
     expected: List[str] = [str(cmd).strip() for cmd in commands if str(cmd).strip()]

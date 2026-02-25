@@ -148,6 +148,7 @@ Alpine.data("Challenge", () => ({
     if (parsed && (parsed.schema === "ctfd-access-v1" || parsed.type || parsed.url || parsed.host)) {
       const type = (parsed.type || "").toLowerCase();
       const autograde = parsed.autograde || {};
+      const hasAutogradeConfig = Object.prototype.hasOwnProperty.call(parsed, "autograde");
       const host = (parsed.host || "").trim();
       const port = (parsed.port || "").toString().trim();
       const username = (parsed.username || "").trim();
@@ -167,7 +168,7 @@ Alpine.data("Challenge", () => ({
         password: (parsed.password || "").trim(),
         instructions: (parsed.instructions || "").trim(),
         command,
-        autogradeEnabled: Boolean(autograde.enabled),
+        autogradeEnabled: hasAutogradeConfig ? Boolean(autograde.enabled) : type === "terminal",
         raw: "",
         hasData: true,
       };
