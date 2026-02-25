@@ -123,3 +123,65 @@ Keep CTFd core mostly upstream-compatible, and layer the custom browser-shell/la
 3. Implement launch endpoint with stub orchestrator call.
 4. Add challenge modal UI extension with Launch button and terminal panel.
 5. Add signed token issuance/verification path between CTFd plugin and broker.
+
+## Content Track Expansion Plan
+
+### PowerShell Track
+- Goal:
+  - Add practical command-line and scripting challenges for offensive and defensive workflows.
+- Scope:
+  - Cmdlets, pipeline usage, object filtering, remoting basics, script execution policy concepts.
+- Implementation:
+  - Add PowerShell-tagged challenge set (`powershell`, `windows`, difficulty tags).
+  - Use lab tasks that require command output validation and parsing.
+
+### Windows Track
+- Goal:
+  - Add core Windows administration and incident-response style exercises.
+- Scope:
+  - Users/groups, services, scheduled tasks, event logs, filesystem ACLs, process inspection.
+- Implementation:
+  - Introduce Windows-compatible runtime profile metadata for challenge routing.
+  - Define challenge categories like `Windows / Beginner`, `Windows / Advanced`.
+
+### Nmap Track
+- Goal:
+  - Build network reconnaissance challenges that teach safe and structured scanning.
+- Scope:
+  - Host discovery, service/version detection, scripts, scan tuning and output interpretation.
+- Implementation:
+  - Include isolated target services in lab environments for realistic scan results.
+  - Add anti-abuse limits for scan rate and destination scope.
+
+### Wireshark Track
+- Goal:
+  - Add packet-analysis challenges from basic protocol identification to deeper forensic workflows.
+- Scope:
+  - Capture filtering, display filters, stream analysis, credential/artifact extraction.
+- Implementation:
+  - Provide pcap files as challenge assets and optional live-capture lab scenarios.
+  - Add replayable “expected findings” hints with progressive unlock costs.
+
+### Zeek Track
+- Goal:
+  - Add network security monitoring challenges using Zeek logs and detections.
+- Scope:
+  - `conn.log`, `dns.log`, `http.log` interpretation, anomaly triage, timeline correlation.
+- Implementation:
+  - Bundle curated Zeek log datasets per challenge.
+  - Add scoring for multi-step investigations (partial progress where appropriate).
+
+### cURL Track
+- Goal:
+  - Add HTTP/API interaction challenges emphasizing protocol fluency and request crafting.
+- Scope:
+  - Methods, headers, auth tokens, JSON payloads, cookies, redirects, response parsing.
+- Implementation:
+  - Provide intentionally vulnerable API endpoints in isolated lab containers.
+  - Add rate limits and request telemetry for anti-automation controls.
+
+## Phased Rollout For New Tracks
+1. Phase A: Create category taxonomy and tags for all six tracks.
+2. Phase B: Ship 5-10 starter challenges per track (Beginner/Intermediate mix).
+3. Phase C: Add Advanced/Expert dynamic-scored challenges per track.
+4. Phase D: Add track-specific analytics in admin panel (solve rates, fail patterns, time-to-solve).

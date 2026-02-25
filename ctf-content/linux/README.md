@@ -36,6 +36,7 @@ python scripts/generate_linux_challenges.py --runtime-image "ctfd-linux-lab-base
 - Generic workstation setup tasks are excluded.
 - Command-by-command walkthroughs are not embedded in challenge descriptions.
 - Generated hints are intentionally less revealing to avoid solving the task in the prompt itself.
+- Challenge names and descriptions are prompt-only (no `Lab XX` prefixes or lab-reference lines).
 
 ## Dynamic Scoring
 - Advanced and Expert challenges are generated as `dynamic` challenge type.

@@ -213,19 +213,8 @@ def build_description(
     level: str,
     runtime_image: str,
 ) -> str:
-    lines = [
-        f"### {lab_title}",
-        "",
-        f"Difficulty: **{level}**",
-        "",
-        f"Task: {prompt}",
-    ]
-    if expected:
-        lines.extend(["", f"Expected behavior: {expected}"])
-    lines.extend(["", "Environment: terminal access is provided in-platform."])
-    lines.extend(["", f"Runtime container: `{runtime_image}`"])
-    lines.extend(["", f"Lab reference: `LAB-{lab_num:02d}`"])
-    return "\n".join(lines)
+    # Keep challenge body minimal: only the question/task itself.
+    return prompt.strip()
 
 
 def should_skip_question(
@@ -286,6 +275,7 @@ def generate(
     rows: List[ChallengeRow] = []
     manifest = []
     seen_flag_tokens: Dict[str, int] = {}
+    seen_names: Dict[str, int] = {}
 
     for index_file in discover_index_files(source_root):
         rel = index_file.relative_to(source_root)
@@ -313,7 +303,13 @@ def generate(
                 continue
 
             flag = build_flag(lab_num, q_num, prompt, seen=seen_flag_tokens)
-            challenge_name = f"Lab {lab_num:02d} Q{q_num:02d} - {prompt[:48]}".strip()
+            base_name = prompt.strip()
+            seen_names[base_name] = seen_names.get(base_name, 0) + 1
+            challenge_name = (
+                base_name
+                if seen_names[base_name] == 1
+                else f"{base_name} ({seen_names[base_name]})"
+            )
             category = f"Linux / {level}"
             tags = ",".join(["linux", f"lab{lab_num:02d}", level.lower()])
             hints = generic_hints(prompt, expected, commands)
