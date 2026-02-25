@@ -306,6 +306,9 @@ Alpine.data("Challenge", () => ({
     let styles = {
       "modal-dialog": true,
     };
+    if (this.access.embedTerminal) {
+      styles["modal-xl"] = true;
+    }
     try {
       let size = CTFd.config.themeSettings.challenge_window_size;
       switch (size) {

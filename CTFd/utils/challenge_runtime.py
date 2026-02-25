@@ -160,11 +160,36 @@ def _autograde_payload(challenge) -> Optional[Dict[str, Any]]:
 
     commands = autograde.get("commands")
     if not isinstance(commands, list):
-        return None
+        commands = []
     expected: List[str] = [str(cmd).strip() for cmd in commands if str(cmd).strip()]
+    if not expected:
+        expected = _infer_autograde_commands(challenge)
     if not expected:
         return None
     return {"commands": expected}
+
+
+def _infer_autograde_commands(challenge) -> List[str]:
+    text = " ".join(
+        [
+            getattr(challenge, "name", "") or "",
+            getattr(challenge, "description", "") or "",
+        ]
+    ).lower()
+
+    if "current working directory" in text or " with pwd" in text:
+        return ["pwd"]
+    if "logged in as" in text or "whoami" in text:
+        return ["whoami"]
+    if "long directory listing" in text:
+        return ["ls -l"]
+    if "include hidden files" in text:
+        return ["ls -la"]
+    if "list the current directory contents" in text:
+        return ["ls"]
+    if "create a new file with touch" in text:
+        return ["touch"]
+    return []
 
 
 def attempt_runtime_autograde(
