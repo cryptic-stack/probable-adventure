@@ -182,6 +182,11 @@ Alpine.data("Challenge", () => ({
     if (!this.id || !this.access.hasData || this.connecting) {
       return;
     }
+    let launchWindow = null;
+    // Open synchronously to avoid popup blockers after awaiting network calls.
+    if (this.access.type === "terminal" || this.access.type === "rdp" || this.access.type === "url") {
+      launchWindow = window.open("", "_blank", "noopener");
+    }
     this.connecting = true;
     try {
       const response = await CTFd.fetch(`/api/v1/challenges/${this.id}/connect`, {
@@ -202,7 +207,14 @@ Alpine.data("Challenge", () => ({
       const data = payload.data || {};
       if (data.url) {
         this.access.url = data.url;
-        window.open(data.url, "_blank", "noopener");
+        if (launchWindow) {
+          launchWindow.location = data.url;
+        } else {
+          window.open(data.url, "_blank", "noopener");
+        }
+      } else if (launchWindow) {
+        launchWindow.close();
+        alert("Challenge launched but no terminal URL is configured for this challenge.");
       }
       if (data.host) {
         this.access.host = data.host;
@@ -211,6 +223,9 @@ Alpine.data("Challenge", () => ({
         this.access.port = data.port;
       }
     } catch (_e) {
+      if (launchWindow) {
+        launchWindow.close();
+      }
       alert("Unable to activate challenge connection");
     } finally {
       this.connecting = false;

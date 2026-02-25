@@ -180,9 +180,25 @@ def _find_challenge_container(client, challenge_id: int):
     return None
 
 
-def _build_lab_command(startup_command: Optional[str]) -> List[str]:
-    startup = (startup_command or "while true; do sleep 3600; done").strip()
-    script = "mkdir -p /opt/ctf && printf '%s' \"$FLAG\" > /opt/ctf/flag.txt && chmod 400 /opt/ctf/flag.txt; " + startup
+def _build_lab_command(
+    startup_command: Optional[str], access_type: str, internal_port: Optional[int]
+) -> List[str]:
+    setup = "mkdir -p /opt/ctf && printf '%s' \"$FLAG\" > /opt/ctf/flag.txt && chmod 400 /opt/ctf/flag.txt;"
+    startup = (startup_command or "").strip()
+
+    if access_type == "terminal":
+        port = internal_port or 7681
+        startup_bg = f"({startup}) & " if startup else ""
+        # ttyd provides browser-based PTY access to bash.
+        script = (
+            f"{setup} "
+            f"{startup_bg}"
+            f"exec ttyd -W -p {port} -i 0.0.0.0 bash -lc 'exec bash -li'"
+        )
+        return ["sh", "-lc", script]
+
+    startup = startup or "while true; do sleep 3600; done"
+    script = f"{setup} {startup}"
     return ["sh", "-lc", script]
 
 
@@ -197,6 +213,9 @@ def _provision_challenge_container(
 ):
     if not image:
         raise HTTPException(status_code=400, detail="Missing image for challenge container")
+
+    if access_type == "terminal" and not internal_port:
+        internal_port = 7681
 
     existing = _find_challenge_container(client, challenge_id)
     if existing is not None:
@@ -216,7 +235,7 @@ def _provision_challenge_container(
         image=image,
         name=_challenge_container_name(challenge_id),
         detach=True,
-        command=_build_lab_command(startup_command),
+        command=_build_lab_command(startup_command, access_type, internal_port),
         environment={"FLAG": flag or ""},
         labels=labels,
         ports=ports,
@@ -478,6 +497,18 @@ def activate_challenge(
     client = _client()
     container = _find_challenge_container(client, challenge_id)
 
+    requested_access_type = (body.access_type or "terminal").strip().lower()
+    requested_internal_port = body.internal_port
+    if requested_access_type == "terminal" and not requested_internal_port:
+        requested_internal_port = 7681
+
+    # Re-provision stale terminal containers that were created before port mapping logic.
+    if container is not None:
+        labels = (container.attrs.get("Config") or {}).get("Labels") or {}
+        if requested_access_type == "terminal" and not labels.get("ctfd.internal_port"):
+            container.remove(force=True)
+            container = None
+
     # If challenge wasn't pre-provisioned, create it now from provided config.
     if container is None:
         container = _provision_challenge_container(
@@ -485,9 +516,9 @@ def activate_challenge(
             challenge_id=challenge_id,
             image=(body.image or "").strip(),
             flag=body.flag or "",
-            internal_port=body.internal_port,
+            internal_port=requested_internal_port,
             startup_command=body.startup_command,
-            access_type=(body.access_type or "terminal").strip().lower(),
+            access_type=requested_access_type,
         )
 
     # Optional flag refresh on activate.

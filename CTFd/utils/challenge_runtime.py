@@ -79,18 +79,23 @@ def _provision_payload(challenge, flag_value: Optional[str] = None) -> Optional[
     if not image:
         return None
 
+    access_type = (connection.get("type") or "terminal").strip().lower()
+
     internal_port = provision.get("internal_port")
     try:
         internal_port = int(internal_port) if internal_port not in (None, "") else None
     except (TypeError, ValueError):
         internal_port = None
+    if internal_port is None and access_type == "terminal":
+        # Default web terminal port used by the lab base image (ttyd).
+        internal_port = 7681
 
     return {
         "image": image,
         "flag": flag_value if flag_value is not None else (provision.get("flag") or ""),
         "internal_port": internal_port,
         "startup_command": (provision.get("startup_command") or "").strip() or None,
-        "access_type": (connection.get("type") or "terminal").strip().lower(),
+        "access_type": access_type,
     }
 
 

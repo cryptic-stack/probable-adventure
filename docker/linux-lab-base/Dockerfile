@@ -40,6 +40,7 @@ RUN apt-get update \
         man-db \
         manpages \
         plocate \
+        ttyd \
         passwd \
         acl \
         nano \
