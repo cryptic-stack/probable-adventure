@@ -78,16 +78,29 @@ RUN useradd -m -s /bin/bash ctf \
     && chown -R student2:student2 /home/student2 \
     && chown -R student3:student3 /home/student3 \
     && chmod 0640 /home/student/doc /home/student/secret \
+    && touch /home/ctf/.bash_history /home/ctf/.ctfd_commands \
+    && chown ctf:ctf /home/ctf/.bash_history /home/ctf/.ctfd_commands \
+    && chmod 0600 /home/ctf/.bash_history /home/ctf/.ctfd_commands \
     && updatedb || true
 
 RUN printf '%s\n' \
     'export SHELL=/bin/bash' \
     'export TERM=${TERM:-xterm-256color}' \
     'export HISTFILE=/home/ctf/.bash_history' \
+    'export CTFD_CMDLOG=/home/ctf/.ctfd_commands' \
     'export HISTSIZE=5000' \
     'export HISTFILESIZE=10000' \
     'shopt -s histappend' \
+    '__ctfd_log_last_command() {' \
+    '  local last prev' \
+    '  last="$(HISTTIMEFORMAT= history 1 2>/dev/null | sed -E "s/^[[:space:]]*[0-9]+[[:space:]]*//")"' \
+    '  [ -n "${last}" ] || return 0' \
+    '  case "${last}" in __ctfd_log_last_command*|history\ -a*|history\ -n*) return 0;; esac' \
+    '  prev="$(tail -n 1 "${CTFD_CMDLOG}" 2>/dev/null || true)"' \
+    '  [ "${prev}" = "${last}" ] || printf "%s\n" "${last}" >> "${CTFD_CMDLOG}"' \
+    '}' \
     'case ":${PROMPT_COMMAND:-}:" in *":history -a; history -n:"*) ;; *) PROMPT_COMMAND="history -a; history -n${PROMPT_COMMAND:+; ${PROMPT_COMMAND}}";; esac' \
+    'case ":${PROMPT_COMMAND:-}:" in *":__ctfd_log_last_command:"*) ;; *) PROMPT_COMMAND="__ctfd_log_last_command${PROMPT_COMMAND:+; ${PROMPT_COMMAND}}";; esac' \
     'PS1="[\u@\h \w]\\$ "' > /etc/profile.d/ctf-shell.sh \
     && chmod 0644 /etc/profile.d/ctf-shell.sh
 

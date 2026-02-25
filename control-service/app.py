@@ -424,7 +424,11 @@ def _line_matches_expected(line: str, expected: str) -> bool:
 
 def _read_command_history(container) -> List[str]:
     result = container.exec_run(
-        ["sh", "-lc", "tail -n 4000 /home/ctf/.bash_history 2>/dev/null || true"]
+        [
+            "sh",
+            "-lc",
+            "tail -n 4000 /home/ctf/.ctfd_commands 2>/dev/null || tail -n 4000 /home/ctf/.bash_history 2>/dev/null || true",
+        ]
     )
     if result.exit_code != 0:
         return []
