@@ -85,54 +85,73 @@
             </small>
             {% endif %}
 
-            <span class="challenge-desc">{% block description %}{{ challenge.html }}{% endblock %}</span>
+            <div class="row g-3 align-items-start">
+              <div class="col-12" :class="access.embedTerminal ? 'col-lg-6' : 'col-lg-12'">
+                <span class="challenge-desc">{% block description %}{{ challenge.html }}{% endblock %}</span>
 
-            <template x-if="access.hasData">
-              <div class="mb-3 border rounded p-3 challenge-connection-info">
-                <div class="mb-2">
-                  <strong>Challenge Access</strong>
-                </div>
-                <div class="mb-2" x-show="access.type === 'terminal'">
-                  <button class="btn btn-sm btn-success" @click="activateConnection()" :disabled="connecting">
-                    <span x-show="!connecting">Open Terminal</span>
-                    <span x-show="connecting">Starting...</span>
-                  </button>
-                </div>
-                <div class="mb-2" x-show="access.type === 'rdp'">
-                  <button class="btn btn-sm btn-warning" @click="activateConnection()" :disabled="connecting">
-                    <span x-show="!connecting">Open RDP Session</span>
-                    <span x-show="connecting">Starting...</span>
-                  </button>
-                </div>
-                <div class="mb-2" x-show="access.type === 'url'">
-                  <button class="btn btn-sm btn-info" @click="activateConnection()" :disabled="connecting">
-                    <span x-show="!connecting">Open Challenge Service</span>
-                    <span x-show="connecting">Starting...</span>
-                  </button>
-                </div>
-                <div class="mb-2" x-show="access.command">
-                  <small class="text-muted d-block">Connection command</small>
-                  <code x-text="access.command"></code>
-                </div>
-                <div class="mb-2" x-show="access.host && access.type === 'rdp' && !access.url">
-                  <small class="text-muted d-block">RDP target</small>
-                  <code><span x-text="access.host"></span><span x-show="access.port">:<span x-text="access.port"></span></span></code>
-                </div>
-                <div class="mb-2" x-show="access.username || access.password">
-                  <small class="text-muted d-block">Credentials</small>
-                  <code x-show="access.username">user: <span x-text="access.username"></span></code>
-                  <br x-show="access.username && access.password">
-                  <code x-show="access.password">pass/token: <span x-text="access.password"></span></code>
-                </div>
-                <div class="mb-2" x-show="access.instructions">
-                  <small class="text-muted d-block">Instructions</small>
-                  <span x-text="access.instructions"></span>
-                </div>
-                <div class="mb-0" x-show="access.raw">
-                  <code x-text="access.raw"></code>
+                <template x-if="access.hasData">
+                  <div class="mb-3 border rounded p-3 challenge-connection-info">
+                    <div class="mb-2">
+                      <strong>Challenge Access</strong>
+                    </div>
+                    <div class="mb-2" x-show="access.type === 'terminal'">
+                      <button class="btn btn-sm btn-success" @click="activateConnection()" :disabled="connecting">
+                        <span x-show="!connecting">Start Terminal</span>
+                        <span x-show="connecting">Starting...</span>
+                      </button>
+                    </div>
+                    <div class="mb-2" x-show="access.type === 'rdp'">
+                      <button class="btn btn-sm btn-warning" @click="activateConnection()" :disabled="connecting">
+                        <span x-show="!connecting">Open RDP Session</span>
+                        <span x-show="connecting">Starting...</span>
+                      </button>
+                    </div>
+                    <div class="mb-2" x-show="access.type === 'url'">
+                      <button class="btn btn-sm btn-info" @click="activateConnection()" :disabled="connecting">
+                        <span x-show="!connecting">Open Challenge Service</span>
+                        <span x-show="connecting">Starting...</span>
+                      </button>
+                    </div>
+                    <div class="mb-2" x-show="access.command">
+                      <small class="text-muted d-block">Connection command</small>
+                      <code x-text="access.command"></code>
+                    </div>
+                    <div class="mb-2" x-show="access.host && access.type === 'rdp' && !access.url">
+                      <small class="text-muted d-block">RDP target</small>
+                      <code><span x-text="access.host"></span><span x-show="access.port">:<span x-text="access.port"></span></span></code>
+                    </div>
+                    <div class="mb-2" x-show="access.username || access.password">
+                      <small class="text-muted d-block">Credentials</small>
+                      <code x-show="access.username">user: <span x-text="access.username"></span></code>
+                      <br x-show="access.username && access.password">
+                      <code x-show="access.password">pass/token: <span x-text="access.password"></span></code>
+                    </div>
+                    <div class="mb-2" x-show="access.instructions">
+                      <small class="text-muted d-block">Instructions</small>
+                      <span x-text="access.instructions"></span>
+                    </div>
+                    <div class="mb-0" x-show="access.raw">
+                      <code x-text="access.raw"></code>
+                    </div>
+                  </div>
+                </template>
+              </div>
+
+              <div class="col-12 col-lg-6" x-show="access.embedTerminal" x-cloak>
+                <div class="border rounded overflow-hidden">
+                  <div class="d-flex justify-content-between align-items-center bg-dark text-light px-3 py-2">
+                    <strong class="small">Terminal</strong>
+                    <button class="btn btn-sm btn-outline-light" @click="closeEmbeddedTerminal()">Hide</button>
+                  </div>
+                  <iframe
+                    :src="access.embeddedUrl"
+                    title="Challenge terminal"
+                    style="width: 100%; min-height: 420px; border: 0;"
+                    referrerpolicy="no-referrer"
+                  ></iframe>
                 </div>
               </div>
-            </template>
+            </div>
 
             {% if hints %}
               <div class="challenge-hints hint-row row">

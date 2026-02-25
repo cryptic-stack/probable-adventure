@@ -1,5 +1,6 @@
 import os
 import re
+import shlex
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -34,6 +35,10 @@ class ActivateBody(BaseModel):
     internal_port: Optional[int] = None
     startup_command: Optional[str] = None
     access_type: Optional[str] = None
+
+
+class AutoGradeBody(BaseModel):
+    commands: Optional[List[str]] = None
 
 
 def _required_token() -> str:
@@ -380,6 +385,56 @@ def _reset_container(client, container):
     return new_container
 
 
+def _tokenize_command(value: str) -> List[str]:
+    try:
+        return shlex.split(value)
+    except ValueError:
+        return value.split()
+
+
+def _line_matches_expected(line: str, expected: str) -> bool:
+    actual = _tokenize_command(line.strip())
+    target = _tokenize_command(expected.strip())
+    if not actual or not target:
+        return False
+    if actual[0] != target[0]:
+        return False
+
+    actual_args = actual[1:]
+    for token in target[1:]:
+        if token.startswith("--"):
+            if token not in actual_args:
+                return False
+            continue
+        if token.startswith("-") and len(token) > 1:
+            required = {c for c in token[1:] if c.isalnum()}
+            if not required:
+                continue
+            present: set[str] = set()
+            for arg in actual_args:
+                if arg.startswith("-") and not arg.startswith("--") and len(arg) > 1:
+                    present.update({c for c in arg[1:] if c.isalnum()})
+            if not required.issubset(present):
+                return False
+            continue
+        if token not in actual_args:
+            return False
+    return True
+
+
+def _read_command_history(container) -> List[str]:
+    result = container.exec_run(
+        ["sh", "-lc", "tail -n 4000 /home/ctf/.bash_history 2>/dev/null || true"]
+    )
+    if result.exit_code != 0:
+        return []
+    return [
+        line.strip()
+        for line in result.output.decode(errors="ignore").splitlines()
+        if line.strip()
+    ]
+
+
 @app.get("/health")
 def health(authorization: Optional[str] = Header(default=None)):
     _authz(authorization)
@@ -549,6 +604,41 @@ def activate_challenge(
         raise HTTPException(status_code=400, detail=str(e))
 
     return {"success": True, "data": _container_connection(container)}
+
+
+@app.post("/challenges/{challenge_id}/autograde")
+def autograde_challenge(
+    challenge_id: int,
+    body: AutoGradeBody,
+    authorization: Optional[str] = Header(default=None),
+):
+    _authz(authorization)
+    expected = [c.strip() for c in (body.commands or []) if c and c.strip()]
+    if not expected:
+        raise HTTPException(status_code=400, detail="Missing expected command list")
+
+    client = _client()
+    container = _find_challenge_container(client, challenge_id)
+    if container is None:
+        return {
+            "success": True,
+            "data": {"matched": False, "reason": "container_not_found"},
+        }
+
+    history = _read_command_history(container)
+    for line in reversed(history):
+        for command in expected:
+            if _line_matches_expected(line, command):
+                return {
+                    "success": True,
+                    "data": {
+                        "matched": True,
+                        "matched_command": line,
+                        "expected_command": command,
+                        "message": f"Auto-validated from terminal activity: `{command}`",
+                    },
+                }
+    return {"success": True, "data": {"matched": False, "reason": "no_match"}}
 
 
 @app.exception_handler(HTTPException)

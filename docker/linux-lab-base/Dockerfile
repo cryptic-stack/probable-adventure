@@ -83,6 +83,11 @@ RUN useradd -m -s /bin/bash ctf \
 RUN printf '%s\n' \
     'export SHELL=/bin/bash' \
     'export TERM=${TERM:-xterm-256color}' \
+    'export HISTFILE=/home/ctf/.bash_history' \
+    'export HISTSIZE=5000' \
+    'export HISTFILESIZE=10000' \
+    'shopt -s histappend' \
+    'case ":${PROMPT_COMMAND:-}:" in *":history -a; history -n:"*) ;; *) PROMPT_COMMAND="history -a; history -n${PROMPT_COMMAND:+; ${PROMPT_COMMAND}}";; esac' \
     'PS1="[\u@\h \w]\\$ "' > /etc/profile.d/ctf-shell.sh \
     && chmod 0644 /etc/profile.d/ctf-shell.sh
 

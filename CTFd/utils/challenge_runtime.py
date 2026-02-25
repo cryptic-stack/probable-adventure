@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import requests
 
@@ -148,3 +148,39 @@ def activate_challenge_container(challenge) -> Tuple[Optional[Dict[str, Any]], O
     if error:
         return None, error
     return data, None
+
+
+def _autograde_payload(challenge) -> Optional[Dict[str, Any]]:
+    connection = parse_connection_info(challenge.connection_info)
+    autograde = connection.get("autograde") if isinstance(connection, dict) else None
+    if not isinstance(autograde, dict):
+        return None
+    if not autograde.get("enabled"):
+        return None
+
+    commands = autograde.get("commands")
+    if not isinstance(commands, list):
+        return None
+    expected: List[str] = [str(cmd).strip() for cmd in commands if str(cmd).strip()]
+    if not expected:
+        return None
+    return {"commands": expected}
+
+
+def attempt_runtime_autograde(
+    challenge,
+) -> Tuple[bool, Optional[str], Optional[str]]:
+    payload = _autograde_payload(challenge)
+    if not payload:
+        return False, None, None
+
+    data, error = _control_request(
+        "POST", f"/challenges/{challenge.id}/autograde", payload=payload
+    )
+    if error:
+        return False, None, error
+    if not data:
+        return False, None, None
+    if not data.get("matched"):
+        return False, None, None
+    return True, data.get("message"), None

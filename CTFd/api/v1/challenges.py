@@ -46,7 +46,10 @@ from CTFd.utils.challenges import (
     get_solve_ids_for_user_id,
     get_solves_for_challenge_id,
 )
-from CTFd.utils.challenge_runtime import activate_challenge_container
+from CTFd.utils.challenge_runtime import (
+    activate_challenge_container,
+    attempt_runtime_autograde,
+)
 from CTFd.utils.config.visibility import (
     accounts_visible,
     challenges_visible,
@@ -880,6 +883,51 @@ class ChallengeAttempt(Resource):
                     "data": {"status": "partial", "message": message},
                 }
             elif status == "incorrect" or status is False:
+                # Try command-based runtime autograde before recording a wrong submission.
+                auto_solved, auto_message, auto_error = attempt_runtime_autograde(challenge)
+                if auto_solved:
+                    if ctftime() or current_user.is_admin():
+                        try:
+                            chal_class.solve(
+                                user=user,
+                                team=team,
+                                challenge=challenge,
+                                request=request,
+                            )
+                        except ChallengeSolveException:
+                            message = auto_message or message
+                            return {
+                                "success": True,
+                                "data": {
+                                    "status": "already_solved",
+                                    "message": f"{message} but you already solved this",
+                                },
+                            }
+
+                        clear_standings()
+                        clear_challenges()
+
+                    message = auto_message or "Auto-validated from terminal activity."
+                    log(
+                        "submissions",
+                        "[{date}] {name} submitted {submission} on {challenge_id} with kpm {kpm} [AUTO-CORRECT]",
+                        name=user.name,
+                        submission=request_data.get("submission", "").encode("utf-8"),
+                        challenge_id=challenge_id,
+                        kpm=kpm,
+                    )
+                    return {
+                        "success": True,
+                        "data": {"status": "correct", "message": message},
+                    }
+                if auto_error:
+                    log(
+                        "submissions",
+                        "[{date}] autograde unavailable for challenge {challenge_id}: {error}",
+                        challenge_id=challenge_id,
+                        error=auto_error,
+                    )
+
                 # The challenge plugin says the input is wrong
                 if ctftime() or current_user.is_admin():
                     chal_class.fail(
@@ -995,6 +1043,75 @@ class ChallengeConnect(Resource):
             return {"success": False, "errors": {"connection": [error]}}, 400
 
         return {"success": True, "data": data}
+
+
+class _RuntimeSolveRequest:
+    def __init__(self, base_request, submission: str):
+        self._submission = submission
+        self.access_route = list(base_request.access_route)
+        self.remote_addr = base_request.remote_addr
+        self.form = {"submission": submission}
+
+    def get_json(self):
+        return {"submission": self._submission}
+
+
+@challenges_namespace.route("/<challenge_id>/autocheck")
+class ChallengeAutoCheck(Resource):
+    @check_challenge_visibility
+    @during_ctf_time_only
+    @authed_only
+    @require_verified_emails
+    def post(self, challenge_id):
+        if is_admin():
+            challenge = Challenges.query.filter(Challenges.id == challenge_id).first_or_404()
+        else:
+            challenge = Challenges.query.filter(
+                Challenges.id == challenge_id,
+                and_(Challenges.state != "hidden", Challenges.state != "locked"),
+            ).first_or_404()
+
+        user = get_current_user()
+        team = get_current_team()
+        chal_class = get_chal_class(challenge.type)
+        if chal_class is None:
+            return {"success": False, "errors": {"challenge": ["Invalid challenge type"]}}, 400
+
+        solve = Solves.query.filter_by(
+            account_id=user.account_id, challenge_id=challenge.id
+        ).first()
+        if solve:
+            return {"success": True, "data": {"status": "already_solved"}}
+
+        matched, message, error = attempt_runtime_autograde(challenge)
+        if error:
+            return {"success": True, "data": {"status": "pending", "message": error}}
+        if not matched:
+            return {"success": True, "data": {"status": "pending"}}
+
+        if ctftime() or current_user.is_admin():
+            try:
+                solve_request = _RuntimeSolveRequest(
+                    request, submission="AUTO_RUNTIME_VALIDATION"
+                )
+                chal_class.solve(
+                    user=user,
+                    team=team,
+                    challenge=challenge,
+                    request=solve_request,
+                )
+            except ChallengeSolveException:
+                return {"success": True, "data": {"status": "already_solved"}}
+            clear_standings()
+            clear_challenges()
+
+        return {
+            "success": True,
+            "data": {
+                "status": "correct",
+                "message": message or "Auto-validated from terminal activity.",
+            },
+        }
 
 
 @challenges_namespace.route("/<challenge_id>/solves")

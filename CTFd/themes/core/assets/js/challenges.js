@@ -79,9 +79,13 @@ Alpine.data("Challenge", () => ({
   ratingReview: "",
   ratingSubmitted: false,
   connecting: false,
+  autocheckTimer: null,
+  autocheckInFlight: false,
   access: {
     type: "",
     url: "",
+    embeddedUrl: "",
+    embedTerminal: false,
     host: "",
     port: "",
     username: "",
@@ -89,6 +93,7 @@ Alpine.data("Challenge", () => ({
     instructions: "",
     command: "",
     raw: "",
+    autogradeEnabled: false,
     hasData: false,
   },
 
@@ -100,6 +105,8 @@ Alpine.data("Challenge", () => ({
     const empty = {
       type: "",
       url: "",
+      embeddedUrl: "",
+      embedTerminal: false,
       host: "",
       port: "",
       username: "",
@@ -107,8 +114,11 @@ Alpine.data("Challenge", () => ({
       instructions: "",
       command: "",
       raw: "",
+      autogradeEnabled: false,
       hasData: false,
     };
+
+    this.stopAutoCheck();
 
     if (!raw) {
       this.access = empty;
@@ -137,6 +147,7 @@ Alpine.data("Challenge", () => ({
 
     if (parsed && (parsed.schema === "ctfd-access-v1" || parsed.type || parsed.url || parsed.host)) {
       const type = (parsed.type || "").toLowerCase();
+      const autograde = parsed.autograde || {};
       const host = (parsed.host || "").trim();
       const port = (parsed.port || "").toString().trim();
       const username = (parsed.username || "").trim();
@@ -148,12 +159,15 @@ Alpine.data("Challenge", () => ({
       this.access = {
         type,
         url: (parsed.url || "").trim(),
+        embeddedUrl: "",
+        embedTerminal: false,
         host,
         port,
         username,
         password: (parsed.password || "").trim(),
         instructions: (parsed.instructions || "").trim(),
         command,
+        autogradeEnabled: Boolean(autograde.enabled),
         raw: "",
         hasData: true,
       };
@@ -182,11 +196,6 @@ Alpine.data("Challenge", () => ({
     if (!this.id || !this.access.hasData || this.connecting) {
       return;
     }
-    let launchWindow = null;
-    // Open synchronously to avoid popup blockers after awaiting network calls.
-    if (this.access.type === "terminal" || this.access.type === "rdp" || this.access.type === "url") {
-      launchWindow = window.open("", "_blank", "noopener");
-    }
     this.connecting = true;
     try {
       const response = await CTFd.fetch(`/api/v1/challenges/${this.id}/connect`, {
@@ -207,13 +216,13 @@ Alpine.data("Challenge", () => ({
       const data = payload.data || {};
       if (data.url) {
         this.access.url = data.url;
-        if (launchWindow) {
-          launchWindow.location = data.url;
+        if (this.access.type === "terminal") {
+          this.access.embeddedUrl = data.url;
+          this.access.embedTerminal = true;
         } else {
           window.open(data.url, "_blank", "noopener");
         }
-      } else if (launchWindow) {
-        launchWindow.close();
+      } else {
         alert("Challenge launched but no terminal URL is configured for this challenge.");
       }
       if (data.host) {
@@ -222,13 +231,74 @@ Alpine.data("Challenge", () => ({
       if (data.port) {
         this.access.port = data.port;
       }
+      this.startAutoCheck();
     } catch (_e) {
-      if (launchWindow) {
-        launchWindow.close();
-      }
       alert("Unable to activate challenge connection");
     } finally {
       this.connecting = false;
+    }
+  },
+
+  closeEmbeddedTerminal() {
+    this.access.embedTerminal = false;
+    this.access.embeddedUrl = "";
+    this.stopAutoCheck();
+  },
+
+  stopAutoCheck() {
+    if (this.autocheckTimer) {
+      window.clearInterval(this.autocheckTimer);
+      this.autocheckTimer = null;
+    }
+    this.autocheckInFlight = false;
+  },
+
+  startAutoCheck() {
+    this.stopAutoCheck();
+    if (this.access.type !== "terminal" || !this.access.autogradeEnabled || !this.id) {
+      return;
+    }
+    this.autocheckTimer = window.setInterval(() => {
+      this.runAutoCheck();
+    }, 6000);
+    this.runAutoCheck();
+  },
+
+  async runAutoCheck() {
+    if (this.autocheckInFlight || !this.id) {
+      return;
+    }
+    this.autocheckInFlight = true;
+    try {
+      const response = await CTFd.fetch(`/api/v1/challenges/${this.id}/autocheck`, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { Accept: "application/json" },
+      });
+      const payload = await response.json();
+      if (!payload.success || !payload.data) {
+        return;
+      }
+      const status = payload.data.status;
+      if (status === "correct" || status === "already_solved") {
+        this.response = {
+          data: {
+            status,
+            message:
+              payload.data.message ||
+              (status === "correct"
+                ? "Auto-validated from terminal activity."
+                : "Already solved"),
+          },
+        };
+        this.submission = "";
+        this.$dispatch("load-challenges");
+        this.stopAutoCheck();
+      }
+    } catch (_e) {
+      // Best-effort polling; ignore transient failures.
+    } finally {
+      this.autocheckInFlight = false;
     }
   },
 

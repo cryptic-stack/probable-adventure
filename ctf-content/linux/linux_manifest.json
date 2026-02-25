@@ -1,3345 +1,3345 @@
 [
   {
-    "name": "Lab 02 Q01 - What is your current working directory?",
+    "name": "What is your current working directory?",
     "lab": 2,
     "difficulty": "Beginner",
     "points": 100,
-    "flag": "lab02_q01_what_is_your_current_working_directory"
+    "flag": "/home/ctf"
   },
   {
-    "name": "Lab 02 Q02 - What account are you currently logged in as?",
+    "name": "What account are you currently logged in as?",
     "lab": 2,
     "difficulty": "Beginner",
     "points": 100,
-    "flag": "lab02_q02_what_account_are_you_currently_logged_in_as"
+    "flag": "ctf"
   },
   {
-    "name": "Lab 02 Q03 - Do a long directory listing of an empty director",
+    "name": "Do a long directory listing of an empty directory",
     "lab": 2,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab02_q03_do_a_long_directory_listing_of_an_empty_directory"
   },
   {
-    "name": "Lab 02 Q04 - Create a new file with touch",
+    "name": "Create a new file with touch",
     "lab": 2,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab02_q04_create_a_new_file_with_touch"
   },
   {
-    "name": "Lab 02 Q05 - List the current directory contents to see the f",
+    "name": "List the current directory contents to see the file you just created",
     "lab": 2,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab02_q05_list_the_current_directory_contents_to_see_the_file_yo"
   },
   {
-    "name": "Lab 02 Q06 - Do a directory listing and include hidden files",
+    "name": "Do a directory listing and include hidden files",
     "lab": 2,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab02_q06_do_a_directory_listing_and_include_hidden_files"
   },
   {
-    "name": "Lab 02 Q07 - Change to the /etc/ directory with relative path",
+    "name": "Change to the /etc/ directory with relative path",
     "lab": 2,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab02_q07_change_to_the_etc_directory_with_relative_path"
   },
   {
-    "name": "Lab 02 Q08 - Look at your current working directory with pwd",
+    "name": "Look at your current working directory with pwd",
     "lab": 2,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab02_q08_look_at_your_current_working_directory_with_pwd"
   },
   {
-    "name": "Lab 02 Q09 - Do a long directory listing of /etc/network usin",
+    "name": "Do a long directory listing of /etc/network using relative path to your current working directory",
     "lab": 2,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab02_q09_do_a_long_directory_listing_of_etc_network_using_relat"
   },
   {
-    "name": "Lab 02 Q10 - Do a long directory listing of /etc/network/ usi",
+    "name": "Do a long directory listing of /etc/network/ using absolute path",
     "lab": 2,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab02_q10_do_a_long_directory_listing_of_etc_network_using_absol"
   },
   {
-    "name": "Lab 02 Q11 - Search the ls man page for the various sort para",
+    "name": "Search the ls man page for the various sort parameter flags and find the 'sort by modification time, newest first'",
     "lab": 2,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab02_q11_search_the_ls_man_page_for_the_various_sort_parameter"
   },
   {
-    "name": "Lab 02 Q12 - Run the last command with the new option found i",
+    "name": "Run the last command with the new option found in the Manual page for ls",
     "lab": 2,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab02_q12_run_the_last_command_with_the_new_option_found_in_the"
   },
   {
-    "name": "Lab 03 Q01 - Use Tab + Tab to retrieve a list of everything t",
+    "name": "Use Tab + Tab to retrieve a list of everything that matches what you have typed",
     "lab": 3,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab03_q01_use_tab_tab_to_retrieve_a_list_of_everything_that_matc"
   },
   {
-    "name": "Lab 03 Q02 - Complete Lab 03: Tab Completion question 2",
+    "name": "Complete Lab 03: Tab Completion question 2",
     "lab": 3,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab03_q02_complete_lab_03_tab_completion_question_2"
   },
   {
-    "name": "Lab 03 Q03 - Use Tab to complete a command where there is onl",
+    "name": "Use Tab to complete a command where there is only one match",
     "lab": 3,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab03_q03_use_tab_to_complete_a_command_where_there_is_only_one"
   },
   {
-    "name": "Lab 04 Q01 - Use find to look for files named resolv.conf",
+    "name": "Use find to look for files named resolv.conf",
     "lab": 4,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab04_q01_use_find_to_look_for_files_named_resolv_conf"
   },
   {
-    "name": "Lab 04 Q02 - Find a potential backdoor",
+    "name": "Find a potential backdoor",
     "lab": 4,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab04_q02_find_a_potential_backdoor"
   },
   {
-    "name": "Lab 04 Q03 - Use locate to look for a file named resolv.conf",
+    "name": "Use locate to look for a file named resolv.conf .",
     "lab": 4,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab04_q03_use_locate_to_look_for_a_file_named_resolv_conf"
   },
   {
-    "name": "Lab 04 Q04 - Use which to determine the location of the init",
+    "name": "Use which to determine the location of the init executable.",
     "lab": 4,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab04_q04_use_which_to_determine_the_location_of_the_init_execut"
   },
   {
-    "name": "Lab 04 Q05 - Use whereis to find files related to the init ex",
+    "name": "Use whereis to find files related to the init executable.",
     "lab": 4,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab04_q05_use_whereis_to_find_files_related_to_the_init_executab"
   },
   {
-    "name": "Lab 04 Q06 - Use hash to see what $PATH commands the shell al",
+    "name": "Use hash to see what $PATH commands the shell already knows.",
     "lab": 4,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab04_q06_use_hash_to_see_what_path_commands_the_shell_already_k"
   },
   {
-    "name": "Lab 04 Q07 - Use type on the tail command.",
+    "name": "Use type on the tail command.",
     "lab": 4,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab04_q07_use_type_on_the_tail_command"
   },
   {
-    "name": "Lab 04 Q08 - Use tail on /var/log/syslog .",
+    "name": "Use tail on /var/log/syslog .",
     "lab": 4,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab04_q08_use_tail_on_var_log_syslog"
   },
   {
-    "name": "Lab 04 Q09 - Use type on tail .",
+    "name": "Use type on tail .",
     "lab": 4,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab04_q09_use_type_on_tail"
   },
   {
-    "name": "Lab 04 Q10 - Use type on cat with the -a option.",
+    "name": "Use type on cat with the -a option.",
     "lab": 4,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab04_q10_use_type_on_cat_with_the_a_option"
   },
   {
-    "name": "Lab 04 Q11 - Use type on ip with the -a option.",
+    "name": "Use type on ip with the -a option.",
     "lab": 4,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab04_q11_use_type_on_ip_with_the_a_option"
   },
   {
-    "name": "Lab 05 Q01 - Determine your current working directory",
+    "name": "Determine your current working directory",
     "lab": 5,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab05_q01_determine_your_current_working_directory"
   },
   {
-    "name": "Lab 05 Q02 - Change directory into /etc",
+    "name": "Change directory into /etc",
     "lab": 5,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab05_q02_change_directory_into_etc"
   },
   {
-    "name": "Lab 05 Q03 - Display the contents of /etc",
+    "name": "Display the contents of /etc",
     "lab": 5,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab05_q03_display_the_contents_of_etc"
   },
   {
-    "name": "Lab 05 Q04 - Display the contents of /etc as a list",
+    "name": "Display the contents of /etc as a list",
     "lab": 5,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab05_q04_display_the_contents_of_etc_as_a_list"
   },
   {
-    "name": "Lab 05 Q05 - Change directory into ssh",
+    "name": "Change directory into ssh",
     "lab": 5,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab05_q05_change_directory_into_ssh"
   },
   {
-    "name": "Lab 05 Q06 - Change directory into a parent directory",
+    "name": "Change directory into a parent directory",
     "lab": 5,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab05_q06_change_directory_into_a_parent_directory"
   },
   {
-    "name": "Lab 05 Q07 - Change into your home directory",
+    "name": "Change into your home directory",
     "lab": 5,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab05_q07_change_into_your_home_directory"
   },
   {
-    "name": "Lab 05 Q08 - Show files in your home directory",
+    "name": "Show files in your home directory",
     "lab": 5,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab05_q08_show_files_in_your_home_directory"
   },
   {
-    "name": "Lab 05 Q09 - Display the hidden files in a directory",
+    "name": "Display the hidden files in a directory",
     "lab": 5,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab05_q09_display_the_hidden_files_in_a_directory"
   },
   {
-    "name": "Lab 05 Q10 - Display directory listing using an absolute dire",
+    "name": "Display directory listing using an absolute directory path.",
     "lab": 5,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab05_q10_display_directory_listing_using_an_absolute_directory"
   },
   {
-    "name": "Lab 06 Q01 - Create a directory",
+    "name": "Create a directory",
     "lab": 6,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab06_q01_create_a_directory"
   },
   {
-    "name": "Lab 06 Q02 - Create multiple directories in a path",
+    "name": "Create multiple directories in a path",
     "lab": 6,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab06_q02_create_multiple_directories_in_a_path"
   },
   {
-    "name": "Lab 06 Q03 - Recurively list the contents of a directory",
+    "name": "Recurively list the contents of a directory",
     "lab": 6,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab06_q03_recurively_list_the_contents_of_a_directory"
   },
   {
-    "name": "Lab 06 Q04 - Create a new file and input contents with cat re",
+    "name": "Create a new file and input contents with cat redirection",
     "lab": 6,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab06_q04_create_a_new_file_and_input_contents_with_cat_redirect"
   },
   {
-    "name": "Lab 06 Q05 - Verify new file",
+    "name": "Verify new file",
     "lab": 6,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab06_q05_verify_new_file"
   },
   {
-    "name": "Lab 06 Q06 - Create a file using touch",
+    "name": "Create a file using touch",
     "lab": 6,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab06_q06_create_a_file_using_touch"
   },
   {
-    "name": "Lab 06 Q07 - Verify new file creation",
+    "name": "Verify new file creation",
     "lab": 6,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab06_q07_verify_new_file_creation"
   },
   {
-    "name": "Lab 06 Q08 - View the contents of a file using more",
+    "name": "View the contents of a file using more",
     "lab": 6,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab06_q08_view_the_contents_of_a_file_using_more"
   },
   {
-    "name": "Lab 06 Q09 - View the most recent events from the syslog file",
+    "name": "View the most recent events from the syslog file first.",
     "lab": 6,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab06_q09_view_the_most_recent_events_from_the_syslog_file_first"
   },
   {
-    "name": "Lab 06 Q10 - Copy a directory and its contents",
+    "name": "Copy a directory and its contents",
     "lab": 6,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab06_q10_copy_a_directory_and_its_contents"
   },
   {
-    "name": "Lab 06 Q11 - Confirm copy was successful",
+    "name": "Confirm copy was successful",
     "lab": 6,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab06_q11_confirm_copy_was_successful"
   },
   {
-    "name": "Lab 06 Q12 - Verify that MyFiles is still in home directory",
+    "name": "Verify that MyFiles is still in home directory",
     "lab": 6,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab06_q12_verify_that_myfiles_is_still_in_home_directory"
   },
   {
-    "name": "Lab 06 Q13 - Move a directory and its contents",
+    "name": "Move a directory and its contents",
     "lab": 6,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab06_q13_move_a_directory_and_its_contents"
   },
   {
-    "name": "Lab 06 Q14 - Delete a directory and its contents",
+    "name": "Delete a directory and its contents",
     "lab": 6,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab06_q14_delete_a_directory_and_its_contents"
   },
   {
-    "name": "Lab 06 Q15 - Verify deletion",
+    "name": "Verify deletion",
     "lab": 6,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab06_q15_verify_deletion"
   },
   {
-    "name": "Lab 06 Q16 - Delete a directory and its contents",
+    "name": "Delete a directory and its contents (2)",
     "lab": 6,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab06_q16_delete_a_directory_and_its_contents"
   },
   {
-    "name": "Lab 06 Q17 - Verify MyFiles was removed",
+    "name": "Verify MyFiles was removed",
     "lab": 6,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab06_q17_verify_myfiles_was_removed"
   },
   {
-    "name": "Lab 06 Q18 - Create a symbolic link",
+    "name": "Create a symbolic link",
     "lab": 6,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab06_q18_create_a_symbolic_link"
   },
   {
-    "name": "Lab 06 Q19 - Verify symobolic link creation",
+    "name": "Verify symobolic link creation",
     "lab": 6,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab06_q19_verify_symobolic_link_creation"
   },
   {
-    "name": "Lab 06 Q20 - Change directories",
+    "name": "Change directories",
     "lab": 6,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab06_q20_change_directories"
   },
   {
-    "name": "Lab 06 Q21 - Change directories into a symbolic link",
+    "name": "Change directories into a symbolic link",
     "lab": 6,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab06_q21_change_directories_into_a_symbolic_link"
   },
   {
-    "name": "Lab 06 Q22 - Change directories into a symbolic link",
+    "name": "Change directories into a symbolic link (2)",
     "lab": 6,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab06_q22_change_directories_into_a_symbolic_link"
   },
   {
-    "name": "Lab 06 Q23 - Change to your home directory",
+    "name": "Change to your home directory",
     "lab": 6,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab06_q23_change_to_your_home_directory"
   },
   {
-    "name": "Lab 06 Q24 - Remove a symbolic link",
+    "name": "Remove a symbolic link",
     "lab": 6,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab06_q24_remove_a_symbolic_link"
   },
   {
-    "name": "Lab 06 Q25 - Verify the files still exist",
+    "name": "Verify the files still exist",
     "lab": 6,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab06_q25_verify_the_files_still_exist"
   },
   {
-    "name": "Lab 07 Q01 - Navigate to ~/web-logs/ directory",
+    "name": "Navigate to ~/web-logs/ directory",
     "lab": 7,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab07_q01_navigate_to_web_logs_directory"
   },
   {
-    "name": "Lab 07 Q02 - Verify files are present",
+    "name": "Verify files are present",
     "lab": 7,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab07_q02_verify_files_are_present"
   },
   {
-    "name": "Lab 07 Q03 - Count occurrences of an IP in access.log",
+    "name": "Count occurrences of an IP in access.log",
     "lab": 7,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab07_q03_count_occurrences_of_an_ip_in_access_log"
   },
   {
-    "name": "Lab 07 Q04 - Count the number of excluded matches",
+    "name": "Count the number of excluded matches",
     "lab": 7,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab07_q04_count_the_number_of_excluded_matches"
   },
   {
-    "name": "Lab 07 Q05 - Return the first record with its associated line",
+    "name": "Return the first record with its associated line number",
     "lab": 7,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab07_q05_return_the_first_record_with_its_associated_line_numbe"
   },
   {
-    "name": "Lab 07 Q06 - Counting occurrences across compressed log files",
+    "name": "Counting occurrences across compressed log files using zgrep",
     "lab": 7,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab07_q06_counting_occurrences_across_compressed_log_files_using"
   },
   {
-    "name": "Lab 07 Q07 - Search for the term /apache-log/access.log",
+    "name": "Search for the term /apache-log/access.log",
     "lab": 7,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab07_q07_search_for_the_term_apache_log_access_log"
   },
   {
-    "name": "Lab 07 Q08 - Return lines before the match",
+    "name": "Return lines before the match",
     "lab": 7,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab07_q08_return_lines_before_the_match"
   },
   {
-    "name": "Lab 07 Q09 - Search for the term exe",
+    "name": "Search for the term exe",
     "lab": 7,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab07_q09_search_for_the_term_exe"
   },
   {
-    "name": "Lab 07 Q10 - Get 4 lines before and after the first match of",
+    "name": "Get 4 lines before and after the first match of exe",
     "lab": 7,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab07_q10_get_4_lines_before_and_after_the_first_match_of_exe"
   },
   {
-    "name": "Lab 07 Q11 - Use fgrep to search for the values in ./terms",
+    "name": "Use fgrep to search for the values in ./terms",
     "lab": 7,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab07_q11_use_fgrep_to_search_for_the_values_in_terms"
   },
   {
-    "name": "Lab 07 Q12 - Use fgrep to return the first matched record fro",
+    "name": "Use fgrep to return the first matched record from the search terms",
     "lab": 7,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab07_q12_use_fgrep_to_return_the_first_matched_record_from_the"
   },
   {
-    "name": "Lab 07 Q13 - Analyze User Agent strings",
+    "name": "Analyze User Agent strings",
     "lab": 7,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab07_q13_analyze_user_agent_strings"
   },
   {
-    "name": "Lab 07 Q14 - Using a basic regular expression ( -E ) instead",
+    "name": "Using a basic regular expression ( -E ) instead of a fixed string ( -F )",
     "lab": 7,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab07_q14_using_a_basic_regular_expression_e_instead_of_a_fixed"
   },
   {
-    "name": "Lab 07 Q15 - Using -P with a more complicated search term",
+    "name": "Using -P with a more complicated search term",
     "lab": 7,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab07_q15_using_p_with_a_more_complicated_search_term"
   },
   {
-    "name": "Lab 07 Q16 - Don't count, just return the lines",
+    "name": "Don't count, just return the lines",
     "lab": 7,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab07_q16_don_t_count_just_return_the_lines"
   },
   {
-    "name": "Lab 08 Q01 - What is in the $PWD environment variable?",
+    "name": "What is in the $PWD environment variable?",
     "lab": 8,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab08_q01_what_is_in_the_pwd_environment_variable"
   },
   {
-    "name": "Lab 08 Q02 - What is in the $HOME environment variable?",
+    "name": "What is in the $HOME environment variable?",
     "lab": 8,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab08_q02_what_is_in_the_home_environment_variable"
   },
   {
-    "name": "Lab 08 Q03 - What is the \"Effective User ID\"? In other words,",
+    "name": "What is the \"Effective User ID\"? In other words, what user account are you running commands as?",
     "lab": 8,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab08_q03_what_is_the_effective_user_id_in_other_words_what_user"
   },
   {
-    "name": "Lab 08 Q04 - What is the command execution search path?",
+    "name": "What is the command execution search path?",
     "lab": 8,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab08_q04_what_is_the_command_execution_search_path"
   },
   {
-    "name": "Lab 08 Q05 - What commands define the prompt used in your she",
+    "name": "What commands define the prompt used in your shell?",
     "lab": 8,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab08_q05_what_commands_define_the_prompt_used_in_your_shell"
   },
   {
-    "name": "Lab 08 Q06 - Examine ALL of the environment variables includi",
+    "name": "Examine ALL of the environment variables including Globals, locals and shell options.",
     "lab": 8,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab08_q06_examine_all_of_the_environment_variables_including_glo"
   },
   {
-    "name": "Lab 08 Q07 - Create a new environment variable called MYVAR w",
+    "name": "Create a new environment variable called MYVAR with a value of 10",
     "lab": 8,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab08_q07_create_a_new_environment_variable_called_myvar_with_a"
   },
   {
-    "name": "Lab 08 Q08 - Examine the contents of MYVAR with echo",
+    "name": "Examine the contents of MYVAR with echo",
     "lab": 8,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab08_q08_examine_the_contents_of_myvar_with_echo"
   },
   {
-    "name": "Lab 08 Q09 - Examine ALL of the global variables",
+    "name": "Examine ALL of the global variables",
     "lab": 8,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab08_q09_examine_all_of_the_global_variables"
   },
   {
-    "name": "Lab 08 Q10 - Make a custom variable global",
+    "name": "Make a custom variable global",
     "lab": 8,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab08_q10_make_a_custom_variable_global"
   },
   {
-    "name": "Lab 08 Q11 - Run env again to see that MYVAR is now an export",
+    "name": "Run env again to see that MYVAR is now an exported global variable!",
     "lab": 8,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab08_q11_run_env_again_to_see_that_myvar_is_now_an_exported_glo"
   },
   {
-    "name": "Lab 08 Q12 - Change shell prompt display",
+    "name": "Change shell prompt display",
     "lab": 8,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab08_q12_change_shell_prompt_display"
   },
   {
-    "name": "Lab 08 Q13 - Use NANO to change the prompt for your account p",
+    "name": "Use NANO to change the prompt for your account permanently",
     "lab": 8,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab08_q13_use_nano_to_change_the_prompt_for_your_account_permane"
   },
   {
-    "name": "Lab 08 Q14 - Switch to the student2 user and check the prompt",
+    "name": "Switch to the student2 user and check the prompt",
     "lab": 8,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab08_q14_switch_to_the_student2_user_and_check_the_prompt"
   },
   {
-    "name": "Lab 08 Q15 - Observe the old prompt is used. Now exit back to",
+    "name": "Observe the old prompt is used. Now exit back to the student account.",
     "lab": 8,
     "difficulty": "Beginner",
     "points": 100,
     "flag": "lab08_q15_observe_the_old_prompt_is_used_now_exit_back_to_the_st"
   },
   {
-    "name": "Lab 09 Q01 - Command Line alias log=\"tail /var/log/syslog\"",
+    "name": "Command Line alias log=\"tail /var/log/syslog\"",
     "lab": 9,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab09_q01_command_line_alias_log_tail_var_log_syslog"
   },
   {
-    "name": "Lab 10 Q01 - View the syslog using tail .",
+    "name": "View the syslog using tail .",
     "lab": 10,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab10_q01_view_the_syslog_using_tail"
   },
   {
-    "name": "Lab 10 Q02 - Redirect the output of the previous command into",
+    "name": "Redirect the output of the previous command into a file called lastlines .",
     "lab": 10,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab10_q02_redirect_the_output_of_the_previous_command_into_a_fil"
   },
   {
-    "name": "Lab 10 Q03 - View auth.log using tail .",
+    "name": "View auth.log using tail .",
     "lab": 10,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab10_q03_view_auth_log_using_tail"
   },
   {
-    "name": "Lab 10 Q04 - Append the ouput of the last command onto lastli",
+    "name": "Append the ouput of the last command onto lastlines .",
     "lab": 10,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab10_q04_append_the_ouput_of_the_last_command_onto_lastlines"
   },
   {
-    "name": "Lab 10 Q05 - Attempt to view the contents of a non-existent f",
+    "name": "Attempt to view the contents of a non-existent file using tail .",
     "lab": 10,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab10_q05_attempt_to_view_the_contents_of_a_non_existent_file_us"
   },
   {
-    "name": "Lab 10 Q06 - Redirect the error from the last command into a",
+    "name": "Redirect the error from the last command into a file called errorout .",
     "lab": 10,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab10_q06_redirect_the_error_from_the_last_command_into_a_file_c"
   },
   {
-    "name": "Lab 10 Q07 - Cat the file called errorout to view redirected",
+    "name": "Cat the file called errorout to view redirected error message.",
     "lab": 10,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab10_q07_cat_the_file_called_errorout_to_view_redirected_error"
   },
   {
-    "name": "Lab 10 Q08 - Use cat to write the following values (without q",
+    "name": "Use cat to write the following values (without quotes) to a file: \"cabbage\", \"xerox\", \"tiger\", and \"apple\".",
     "lab": 10,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab10_q08_use_cat_to_write_the_following_values_without_quotes_t"
   },
   {
-    "name": "Lab 10 Q09 - Verify cat redirected the text to the file you c",
+    "name": "Verify cat redirected the text to the file you created.",
     "lab": 10,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab10_q09_verify_cat_redirected_the_text_to_the_file_you_created"
   },
   {
-    "name": "Lab 10 Q10 - Sort from the file you created using redirection",
+    "name": "Sort from the file you created using redirection",
     "lab": 10,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab10_q10_sort_from_the_file_you_created_using_redirection"
   },
   {
-    "name": "Lab 10 Q11 - Find files named user.conf",
+    "name": "Find files named user.conf",
     "lab": 10,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab10_q11_find_files_named_user_conf"
   },
   {
-    "name": "Lab 10 Q12 - Redirect error output to null",
+    "name": "Redirect error output to null",
     "lab": 10,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab10_q12_redirect_error_output_to_null"
   },
   {
-    "name": "Lab 11 Q01 - Use cat and grep to search syslog for the word \"",
+    "name": "Use cat and grep to search syslog for the word \" kernel \"",
     "lab": 11,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab11_q01_use_cat_and_grep_to_search_syslog_for_the_word_kernel"
   },
   {
-    "name": "Lab 11 Q02 - Pipe the output of grep to more .",
+    "name": "Pipe the output of grep to more .",
     "lab": 11,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab11_q02_pipe_the_output_of_grep_to_more"
   },
   {
-    "name": "Lab 11 Q03 - Count the number of items found within the syslo",
+    "name": "Count the number of items found within the syslog file.",
     "lab": 11,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab11_q03_count_the_number_of_items_found_within_the_syslog_file"
   },
   {
-    "name": "Lab 11 Q04 - Use grep without cat on a binary file.",
+    "name": "Use grep without cat on a binary file.",
     "lab": 11,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab11_q04_use_grep_without_cat_on_a_binary_file"
   },
   {
-    "name": "Lab 11 Q05 - Use tee to send the output of grep to both a fil",
+    "name": "Use tee to send the output of grep to both a file and the terminal.",
     "lab": 11,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab11_q05_use_tee_to_send_the_output_of_grep_to_both_a_file_and"
   },
   {
-    "name": "Lab 11 Q06 - Verify redirected text to open.txt file.",
+    "name": "Verify redirected text to open.txt file.",
     "lab": 11,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab11_q06_verify_redirected_text_to_open_txt_file"
   },
   {
-    "name": "Lab 11 Q07 - Witness the power of piping",
+    "name": "Witness the power of piping",
     "lab": 11,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab11_q07_witness_the_power_of_piping"
   },
   {
-    "name": "Lab 12 Q01 - What files are present in your home directory?",
+    "name": "What files are present in your home directory?",
     "lab": 12,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab12_q01_what_files_are_present_in_your_home_directory"
   },
   {
-    "name": "Lab 12 Q02 - What commands are being stored in history?",
+    "name": "What commands are being stored in history?",
     "lab": 12,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab12_q02_what_commands_are_being_stored_in_history"
   },
   {
-    "name": "Lab 12 Q03 - Check file listing in home directory.",
+    "name": "Check file listing in home directory.",
     "lab": 12,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab12_q03_check_file_listing_in_home_directory"
   },
   {
-    "name": "Lab 12 Q04 - Create a new file with echo and text redirection",
+    "name": "Create a new file with echo and text redirection",
     "lab": 12,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab12_q04_create_a_new_file_with_echo_and_text_redirection"
   },
   {
-    "name": "Lab 12 Q05 - Run history to see if the history command reads",
+    "name": "Run history to see if the history command reads from .bash_history file.",
     "lab": 12,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab12_q05_run_history_to_see_if_the_history_command_reads_from_b"
   },
   {
-    "name": "Lab 12 Q06 - Open a second bash shell.",
+    "name": "Open a second bash shell.",
     "lab": 12,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab12_q06_open_a_second_bash_shell"
   },
   {
-    "name": "Lab 12 Q07 - Run history on second bash shell.",
+    "name": "Run history on second bash shell.",
     "lab": 12,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab12_q07_run_history_on_second_bash_shell"
   },
   {
-    "name": "Lab 12 Q08 - Exit the second bash shell into the first bash s",
+    "name": "Exit the second bash shell into the first bash shell.",
     "lab": 12,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab12_q08_exit_the_second_bash_shell_into_the_first_bash_shell"
   },
   {
-    "name": "Lab 12 Q09 - Use an alternate method to list the commands you",
+    "name": "Use an alternate method to list the commands you've entered.",
     "lab": 12,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab12_q09_use_an_alternate_method_to_list_the_commands_you_ve_en"
   },
   {
-    "name": "Lab 12 Q10 - Check for bash commands from bash shell that we",
+    "name": "Check for bash commands from bash shell that we just exited.",
     "lab": 12,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab12_q10_check_for_bash_commands_from_bash_shell_that_we_just_e"
   },
   {
-    "name": "Lab 12 Q11 - Clear the history from memory",
+    "name": "Clear the history from memory",
     "lab": 12,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab12_q11_clear_the_history_from_memory"
   },
   {
-    "name": "Lab 12 Q12 - Read inside ~./bash_history",
+    "name": "Read inside ~./bash_history",
     "lab": 12,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab12_q12_read_inside_bash_history"
   },
   {
-    "name": "Lab 12 Q13 - Bash History Understanding",
+    "name": "Bash History Understanding",
     "lab": 12,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab12_q13_bash_history_understanding"
   },
   {
-    "name": "Lab 12 Q14 - Use Ctrl + R to search history for \" cat \" then",
+    "name": "Use Ctrl + R to search history for \" cat \" then run the command",
     "lab": 12,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab12_q14_use_ctrl_r_to_search_history_for_cat_then_run_the_comm"
   },
   {
-    "name": "Lab 12 Q15 - Learn bash history shortcuts",
+    "name": "Learn bash history shortcuts",
     "lab": 12,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab12_q15_learn_bash_history_shortcuts"
   },
   {
-    "name": "Lab 12 Q16 - Search history, replace string, and run",
+    "name": "Search history, replace string, and run",
     "lab": 12,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab12_q16_search_history_replace_string_and_run"
   },
   {
-    "name": "Lab 12 Q17 - Search history then run",
+    "name": "Search history then run",
     "lab": 12,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab12_q17_search_history_then_run"
   },
   {
-    "name": "Lab 12 Q18 - End of the command history recall",
+    "name": "End of the command history recall",
     "lab": 12,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab12_q18_end_of_the_command_history_recall"
   },
   {
-    "name": "Lab 12 Q19 - Single replacement history recall",
+    "name": "Single replacement history recall",
     "lab": 12,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab12_q19_single_replacement_history_recall"
   },
   {
-    "name": "Lab 13 Q01 - View the passwd file.",
+    "name": "View the passwd file.",
     "lab": 13,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab13_q01_view_the_passwd_file"
   },
   {
-    "name": "Lab 13 Q02 - Create a user.",
+    "name": "Create a user.",
     "lab": 13,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab13_q02_create_a_user"
   },
   {
-    "name": "Lab 13 Q03 - Set the password for the new account.",
+    "name": "Set the password for the new account.",
     "lab": 13,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab13_q03_set_the_password_for_the_new_account"
   },
   {
-    "name": "Lab 13 Q04 - Create the new users home directory.",
+    "name": "Create the new users home directory.",
     "lab": 13,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab13_q04_create_the_new_users_home_directory"
   },
   {
-    "name": "Lab 13 Q05 - Assign ownership of the new directory to the use",
+    "name": "Assign ownership of the new directory to the user.",
     "lab": 13,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab13_q05_assign_ownership_of_the_new_directory_to_the_user"
   },
   {
-    "name": "Lab 13 Q06 - View the passwd file.",
+    "name": "View the passwd file. (2)",
     "lab": 13,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab13_q06_view_the_passwd_file"
   },
   {
-    "name": "Lab 13 Q07 - View the users.",
+    "name": "View the users.",
     "lab": 13,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab13_q07_view_the_users"
   },
   {
-    "name": "Lab 13 Q08 - Switch to the user\u2019s account.",
+    "name": "Switch to the user\u2019s account.",
     "lab": 13,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab13_q08_switch_to_the_user_s_account"
   },
   {
-    "name": "Lab 13 Q09 - Exit current user\u2019s shell.",
+    "name": "Exit current user\u2019s shell.",
     "lab": 13,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab13_q09_exit_current_user_s_shell"
   },
   {
-    "name": "Lab 13 Q10 - Check history",
+    "name": "Check history",
     "lab": 13,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab13_q10_check_history"
   },
   {
-    "name": "Lab 13 Q11 - usermod command",
+    "name": "usermod command",
     "lab": 13,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab13_q11_usermod_command"
   },
   {
-    "name": "Lab 13 Q12 - chfn command",
+    "name": "chfn command",
     "lab": 13,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab13_q12_chfn_command"
   },
   {
-    "name": "Lab 13 Q13 - chsh command",
+    "name": "chsh command",
     "lab": 13,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab13_q13_chsh_command"
   },
   {
-    "name": "Lab 13 Q14 - Is there a history command that we can run to ve",
+    "name": "Is there a history command that we can run to verify the changes?",
     "lab": 13,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab13_q14_is_there_a_history_command_that_we_can_run_to_verify_t"
   },
   {
-    "name": "Lab 14 Q01 - Switch to the root user.",
+    "name": "Switch to the root user.",
     "lab": 14,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab14_q01_switch_to_the_root_user"
   },
   {
-    "name": "Lab 14 Q02 - Create a user.",
+    "name": "Create a user. (2)",
     "lab": 14,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab14_q02_create_a_user"
   },
   {
-    "name": "Lab 14 Q03 - Repeat previous command with substitutions.",
+    "name": "Repeat previous command with substitutions.",
     "lab": 14,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab14_q03_repeat_previous_command_with_substitutions"
   },
   {
-    "name": "Lab 14 Q04 - Set user leia\u2019s password.",
+    "name": "Set user leia\u2019s password.",
     "lab": 14,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab14_q04_set_user_leia_s_password"
   },
   {
-    "name": "Lab 14 Q05 - Set user han\u2019s password.",
+    "name": "Set user han\u2019s password.",
     "lab": 14,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab14_q05_set_user_han_s_password"
   },
   {
-    "name": "Lab 14 Q06 - Create a home directory for han.",
+    "name": "Create a home directory for han.",
     "lab": 14,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab14_q06_create_a_home_directory_for_han"
   },
   {
-    "name": "Lab 14 Q07 - Create a home directory for leia.",
+    "name": "Create a home directory for leia.",
     "lab": 14,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab14_q07_create_a_home_directory_for_leia"
   },
   {
-    "name": "Lab 14 Q08 - Change ownership of the han\u2019s home directory.",
+    "name": "Change ownership of the han\u2019s home directory.",
     "lab": 14,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab14_q08_change_ownership_of_the_han_s_home_directory"
   },
   {
-    "name": "Lab 14 Q09 - Change ownership of the leia\u2019s home directory.",
+    "name": "Change ownership of the leia\u2019s home directory.",
     "lab": 14,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab14_q09_change_ownership_of_the_leia_s_home_directory"
   },
   {
-    "name": "Lab 14 Q10 - Substitute user to han.",
+    "name": "Substitute user to han.",
     "lab": 14,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab14_q10_substitute_user_to_han"
   },
   {
-    "name": "Lab 14 Q11 - Export environment variable.",
+    "name": "Export environment variable.",
     "lab": 14,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab14_q11_export_environment_variable"
   },
   {
-    "name": "Lab 14 Q12 - Substitute user to leia.",
+    "name": "Substitute user to leia.",
     "lab": 14,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab14_q12_substitute_user_to_leia"
   },
   {
-    "name": "Lab 14 Q13 - Check environment variable.",
+    "name": "Check environment variable.",
     "lab": 14,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab14_q13_check_environment_variable"
   },
   {
-    "name": "Lab 14 Q14 - Exit current shell.",
+    "name": "Exit current shell.",
     "lab": 14,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab14_q14_exit_current_shell"
   },
   {
-    "name": "Lab 14 Q15 - What user are you logged in as now?",
+    "name": "What user are you logged in as now?",
     "lab": 14,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab14_q15_what_user_are_you_logged_in_as_now"
   },
   {
-    "name": "Lab 14 Q16 - Check the current working directory.",
+    "name": "Check the current working directory.",
     "lab": 14,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab14_q16_check_the_current_working_directory"
   },
   {
-    "name": "Lab 14 Q17 - Switch user to leia and inherit that users envir",
+    "name": "Switch user to leia and inherit that users enviroment variable.",
     "lab": 14,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab14_q17_switch_user_to_leia_and_inherit_that_users_enviroment"
   },
   {
-    "name": "Lab 14 Q18 - Check current working directory.",
+    "name": "Check current working directory.",
     "lab": 14,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab14_q18_check_current_working_directory"
   },
   {
-    "name": "Lab 14 Q19 - Check environment variable.",
+    "name": "Check environment variable. (2)",
     "lab": 14,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab14_q19_check_environment_variable"
   },
   {
-    "name": "Lab 14 Q20 - Press Enter .",
+    "name": "Press Enter .",
     "lab": 14,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab14_q20_press_enter"
   },
   {
-    "name": "Lab 15 Q01 - View the groups on the system.",
+    "name": "View the groups on the system.",
     "lab": 15,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab15_q01_view_the_groups_on_the_system"
   },
   {
-    "name": "Lab 15 Q02 - Create a group.",
+    "name": "Create a group.",
     "lab": 15,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab15_q02_create_a_group"
   },
   {
-    "name": "Lab 15 Q03 - Add a user to a group.",
+    "name": "Add a user to a group.",
     "lab": 15,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab15_q03_add_a_user_to_a_group"
   },
   {
-    "name": "Lab 15 Q04 - Verify group addition.",
+    "name": "Verify group addition.",
     "lab": 15,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab15_q04_verify_group_addition"
   },
   {
-    "name": "Lab 15 Q05 - Remove a user from a group.",
+    "name": "Remove a user from a group.",
     "lab": 15,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab15_q05_remove_a_user_from_a_group"
   },
   {
-    "name": "Lab 15 Q06 - Verify removal from group.",
+    "name": "Verify removal from group.",
     "lab": 15,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab15_q06_verify_removal_from_group"
   },
   {
-    "name": "Lab 15 Q07 - Delete a group.",
+    "name": "Delete a group.",
     "lab": 15,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab15_q07_delete_a_group"
   },
   {
-    "name": "Lab 15 Q08 - Verify removal of group.",
+    "name": "Verify removal of group.",
     "lab": 15,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab15_q08_verify_removal_of_group"
   },
   {
-    "name": "Lab 16 Q01 - Create a group called research and add student t",
+    "name": "Create a group called research and add student to it.",
     "lab": 16,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab16_q01_create_a_group_called_research_and_add_student_to_it"
   },
   {
-    "name": "Lab 16 Q02 - Create a directory called \" RandD \".",
+    "name": "Create a directory called \" RandD \".",
     "lab": 16,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab16_q02_create_a_directory_called_randd"
   },
   {
-    "name": "Lab 16 Q03 - Determine the owner and group of RandD .",
+    "name": "Determine the owner and group of RandD .",
     "lab": 16,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab16_q03_determine_the_owner_and_group_of_randd"
   },
   {
-    "name": "Lab 16 Q04 - Change the owner and group of RandD .",
+    "name": "Change the owner and group of RandD .",
     "lab": 16,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab16_q04_change_the_owner_and_group_of_randd"
   },
   {
-    "name": "Lab 16 Q05 - Verify ownership change.",
+    "name": "Verify ownership change.",
     "lab": 16,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab16_q05_verify_ownership_change"
   },
   {
-    "name": "Lab 17 Q01 - Change directories into /RandD",
+    "name": "Change directories into /RandD",
     "lab": 17,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab17_q01_change_directories_into_randd"
   },
   {
-    "name": "Lab 17 Q02 - Create a file inside RandD called design_doc.odt",
+    "name": "Create a file inside RandD called design_doc.odt .",
     "lab": 17,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab17_q02_create_a_file_inside_randd_called_design_doc_odt"
   },
   {
-    "name": "Lab 17 Q03 - Attempt to change the permissions using symbolic",
+    "name": "Attempt to change the permissions using symbolic format",
     "lab": 17,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab17_q03_attempt_to_change_the_permissions_using_symbolic_forma"
   },
   {
-    "name": "Lab 17 Q04 - Change the owner of design_doc.odt .",
+    "name": "Change the owner of design_doc.odt .",
     "lab": 17,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab17_q04_change_the_owner_of_design_doc_odt"
   },
   {
-    "name": "Lab 17 Q05 - Verify changes in ownership",
+    "name": "Verify changes in ownership",
     "lab": 17,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab17_q05_verify_changes_in_ownership"
   },
   {
-    "name": "Lab 17 Q06 - Change the permissions using symbolic format aga",
+    "name": "Change the permissions using symbolic format again.",
     "lab": 17,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab17_q06_change_the_permissions_using_symbolic_format_again"
   },
   {
-    "name": "Lab 17 Q07 - Verify permissions",
+    "name": "Verify permissions",
     "lab": 17,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab17_q07_verify_permissions"
   },
   {
-    "name": "Lab 17 Q08 - Change permissions using octal format",
+    "name": "Change permissions using octal format",
     "lab": 17,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab17_q08_change_permissions_using_octal_format"
   },
   {
-    "name": "Lab 17 Q09 - Verify permissions",
+    "name": "Verify permissions (2)",
     "lab": 17,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab17_q09_verify_permissions"
   },
   {
-    "name": "Lab 17 Q10 - Switch user to student2",
+    "name": "Switch user to student2",
     "lab": 17,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab17_q10_switch_user_to_student2"
   },
   {
-    "name": "Lab 17 Q11 - Use cat to test read access for Others group to",
+    "name": "Use cat to test read access for Others group to file.",
     "lab": 17,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab17_q11_use_cat_to_test_read_access_for_others_group_to_file"
   },
   {
-    "name": "Lab 17 Q12 - Navigate to the the RandD directory.",
+    "name": "Navigate to the the RandD directory.",
     "lab": 17,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab17_q12_navigate_to_the_the_randd_directory"
   },
   {
-    "name": "Lab 17 Q13 - Test the permissions of an Other on the design_d",
+    "name": "Test the permissions of an Other on the design_doc.odt file and the RandD directory.",
     "lab": 17,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab17_q13_test_the_permissions_of_an_other_on_the_design_doc_odt"
   },
   {
-    "name": "Lab 17 Q14 - View the permissions to the RandD directory.",
+    "name": "View the permissions to the RandD directory.",
     "lab": 17,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab17_q14_view_the_permissions_to_the_randd_directory"
   },
   {
-    "name": "Lab 17 Q15 - Change the permissions of RandD .",
+    "name": "Change the permissions of RandD .",
     "lab": 17,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab17_q15_change_the_permissions_of_randd"
   },
   {
-    "name": "Lab 17 Q16 - Confirm permission changes to RandD directory.",
+    "name": "Confirm permission changes to RandD directory.",
     "lab": 17,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab17_q16_confirm_permission_changes_to_randd_directory"
   },
   {
-    "name": "Lab 17 Q17 - Change users to student2",
+    "name": "Change users to student2",
     "lab": 17,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab17_q17_change_users_to_student2"
   },
   {
-    "name": "Lab 17 Q18 - Navigate to the root directory.",
+    "name": "Navigate to the root directory.",
     "lab": 17,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab17_q18_navigate_to_the_root_directory"
   },
   {
-    "name": "Lab 17 Q19 - Navigate to the RandD directory.",
+    "name": "Navigate to the RandD directory.",
     "lab": 17,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab17_q19_navigate_to_the_randd_directory"
   },
   {
-    "name": "Lab 17 Q20 - Switch back to student user.",
+    "name": "Switch back to student user.",
     "lab": 17,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab17_q20_switch_back_to_student_user"
   },
   {
-    "name": "Lab 17 Q21 - Add student2 to the group research .",
+    "name": "Add student2 to the group research .",
     "lab": 17,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab17_q21_add_student2_to_the_group_research"
   },
   {
-    "name": "Lab 17 Q22 - Verify group addition.",
+    "name": "Verify group addition. (2)",
     "lab": 17,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab17_q22_verify_group_addition"
   },
   {
-    "name": "Lab 17 Q23 - Test the permissions of a group member on RandD",
+    "name": "Test the permissions of a group member on RandD and design_doc.odt .",
     "lab": 17,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab17_q23_test_the_permissions_of_a_group_member_on_randd_and_de"
   },
   {
-    "name": "Lab 17 Q24 - Test the permissions of a group member on RandD",
+    "name": "Test the permissions of a group member on RandD and design_doc.odt . (2)",
     "lab": 17,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab17_q24_test_the_permissions_of_a_group_member_on_randd_and_de"
   },
   {
-    "name": "Lab 18 Q01 - Change directory to /RandD .",
+    "name": "Change directory to /RandD .",
     "lab": 18,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab18_q01_change_directory_to_randd"
   },
   {
-    "name": "Lab 18 Q02 - Change the umask .",
+    "name": "Change the umask .",
     "lab": 18,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab18_q02_change_the_umask"
   },
   {
-    "name": "Lab 18 Q03 - Verify default permissions",
+    "name": "Verify default permissions",
     "lab": 18,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab18_q03_verify_default_permissions"
   },
   {
-    "name": "Lab 18 Q04 - Create a file named schedule.odt",
+    "name": "Create a file named schedule.odt",
     "lab": 18,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab18_q04_create_a_file_named_schedule_odt"
   },
   {
-    "name": "Lab 18 Q05 - Verify file creation",
+    "name": "Verify file creation",
     "lab": 18,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab18_q05_verify_file_creation"
   },
   {
-    "name": "Lab 18 Q06 - Set the sticky bit on the RandD directory.",
+    "name": "Set the sticky bit on the RandD directory.",
     "lab": 18,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab18_q06_set_the_sticky_bit_on_the_randd_directory"
   },
   {
-    "name": "Lab 18 Q07 - Verify the permissions change on the directory.",
+    "name": "Verify the permissions change on the directory.",
     "lab": 18,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab18_q07_verify_the_permissions_change_on_the_directory"
   },
   {
-    "name": "Lab 18 Q08 - Switch to the student2 user",
+    "name": "Switch to the student2 user",
     "lab": 18,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab18_q08_switch_to_the_student2_user"
   },
   {
-    "name": "Lab 18 Q09 - Try to delete a file in the RandD directory as t",
+    "name": "Try to delete a file in the RandD directory as the user student2 .",
     "lab": 18,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab18_q09_try_to_delete_a_file_in_the_randd_directory_as_the_use"
   },
   {
-    "name": "Lab 18 Q10 - Try to delete files in the RandD directory as th",
+    "name": "Try to delete files in the RandD directory as the user student2 .",
     "lab": 18,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab18_q10_try_to_delete_files_in_the_randd_directory_as_the_user"
   },
   {
-    "name": "Lab 18 Q11 - Logout of student2 .",
+    "name": "Logout of student2 .",
     "lab": 18,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab18_q11_logout_of_student2"
   },
   {
-    "name": "Lab 18 Q12 - Try to remove design_doc.odt as student.",
+    "name": "Try to remove design_doc.odt as student.",
     "lab": 18,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab18_q12_try_to_remove_design_doc_odt_as_student"
   },
   {
-    "name": "Lab 18 Q13 - Try to remove design_doc.odt as student.",
+    "name": "Try to remove design_doc.odt as student. (2)",
     "lab": 18,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab18_q13_try_to_remove_design_doc_odt_as_student"
   },
   {
-    "name": "Lab 18 Q14 - Remove the sticky bit from the RandD directory.",
+    "name": "Remove the sticky bit from the RandD directory.",
     "lab": 18,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab18_q14_remove_the_sticky_bit_from_the_randd_directory"
   },
   {
-    "name": "Lab 18 Q15 - Switch user to student2 .",
+    "name": "Switch user to student2 .",
     "lab": 18,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab18_q15_switch_user_to_student2"
   },
   {
-    "name": "Lab 18 Q16 - Try to remove schedule.odt as student2 .",
+    "name": "Try to remove schedule.odt as student2 .",
     "lab": 18,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab18_q16_try_to_remove_schedule_odt_as_student2"
   },
   {
-    "name": "Lab 18 Q17 - Verify file removal.",
+    "name": "Verify file removal.",
     "lab": 18,
     "difficulty": "Intermediate",
     "points": 200,
     "flag": "lab18_q17_verify_file_removal"
   },
   {
-    "name": "Lab 19 Q01 - Create an alias in the sudoers file.",
+    "name": "Create an alias in the sudoers file.",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q01_create_an_alias_in_the_sudoers_file"
   },
   {
-    "name": "Lab 19 Q02 - Add a user specification to the sudoers file.",
+    "name": "Add a user specification to the sudoers file.",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q02_add_a_user_specification_to_the_sudoers_file"
   },
   {
-    "name": "Lab 19 Q03 - Switch to student3 .",
+    "name": "Switch to student3 .",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q03_switch_to_student3"
   },
   {
-    "name": "Lab 19 Q04 - Testing accessing a file without the correct per",
+    "name": "Testing accessing a file without the correct permissions.",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q04_testing_accessing_a_file_without_the_correct_permissio"
   },
   {
-    "name": "Lab 19 Q05 - Test using sudo in a way not specified in the su",
+    "name": "Test using sudo in a way not specified in the sudoers file.",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q05_test_using_sudo_in_a_way_not_specified_in_the_sudoers"
   },
   {
-    "name": "Lab 19 Q06 - Test using sudo in a way allowed by the sudoers",
+    "name": "Test using sudo in a way allowed by the sudoers file.",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q06_test_using_sudo_in_a_way_allowed_by_the_sudoers_file"
   },
   {
-    "name": "Lab 19 Q01 - First Create a user named 's3' and set their she",
+    "name": "First Create a user named 's3' and set their shell to '/bin/bash'",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q01_first_create_a_user_named_s3_and_set_their_shell_to_bi"
   },
   {
-    "name": "Lab 19 Q02 - Next, create a user named 's6' amd set their she",
+    "name": "Next, create a user named 's6' amd set their shell to '/bin/sh'",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q02_next_create_a_user_named_s6_amd_set_their_shell_to_bin"
   },
   {
-    "name": "Lab 19 Q03 - Create a folder named 'server' on the root of th",
+    "name": "Create a folder named 'server' on the root of the drive",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q03_create_a_folder_named_server_on_the_root_of_the_drive"
   },
   {
-    "name": "Lab 19 Q04 - Create an 's3' and a 's6' folder beneath /server",
+    "name": "Create an 's3' and a 's6' folder beneath /server",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q04_create_an_s3_and_a_s6_folder_beneath_server"
   },
   {
-    "name": "Lab 19 Q05 - Set the two new users home directories to point",
+    "name": "Set the two new users home directories to point to your new folders",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q05_set_the_two_new_users_home_directories_to_point_to_you"
   },
   {
-    "name": "Lab 19 Q06 - Now create a group called 's3ands6' and put both",
+    "name": "Now create a group called 's3ands6' and put both users in it. Do not change the users primary group",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q06_now_create_a_group_called_s3ands6_and_put_both_users_i"
   },
   {
-    "name": "Lab 19 Q07 - Creating multiple directories Now create the fol",
+    "name": "Creating multiple directories Now create the following directory structure: /server/s3 /server/s3/private /server/s3/public /server/s3/shared /server/s6 /server/s6/private /server/s6/public",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q07_creating_multiple_directories_now_create_the_following"
   },
   {
-    "name": "Lab 19 Q08 - Make s3 the owner and group of their home direct",
+    "name": "Make s3 the owner and group of their home directory and everything in it",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q08_make_s3_the_owner_and_group_of_their_home_directory_an"
   },
   {
-    "name": "Lab 19 Q09 - Make s6 the owner and group of their home direct",
+    "name": "Make s6 the owner and group of their home directory and everything in it",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q09_make_s6_the_owner_and_group_of_their_home_directory_an"
   },
   {
-    "name": "Lab 19 Q10 - Now set the group of /server/s3/shared to the s3",
+    "name": "Now set the group of /server/s3/shared to the s3ands6 group",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q10_now_set_the_group_of_server_s3_shared_to_the_s3ands6_g"
   },
   {
-    "name": "Lab 19 Q11 - Set the permissions on /server/s3 such that the",
+    "name": "Set the permissions on /server/s3 such that the owner has full access and the group will have no access. To make the public folder and shared folder accessible, set the permissions on the home directory to allow EVERYONE to change into, but not list the contents of the home folders",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q11_set_the_permissions_on_server_s3_such_that_the_owner_h"
   },
   {
-    "name": "Lab 19 Q12 - Set the permissions on /server/s3/public such th",
+    "name": "Set the permissions on /server/s3/public such that everyone can read write and execute files in that folder",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q12_set_the_permissions_on_server_s3_public_such_that_ever"
   },
   {
-    "name": "Lab 19 Q13 - Set the permissions on /server/s3/private such t",
+    "name": "Set the permissions on /server/s3/private such that the owner has full permissions and everyone else has none",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q13_set_the_permissions_on_server_s3_private_such_that_the"
   },
   {
-    "name": "Lab 19 Q14 - Set the permissions on /server/s3/shared such th",
+    "name": "Set the permissions on /server/s3/shared such that the owner and group have full permissions and everyone else has none",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q14_set_the_permissions_on_server_s3_shared_such_that_the"
   },
   {
-    "name": "Lab 19 Q15 - Set the permissions on /server/s6 such that the",
+    "name": "Set the permissions on /server/s6 such that the owner has full access and the group will have no access. To make the public folder accessible, set the permissions on the home directory to allow EVERYONE to change into, but not list the contents of the home folders.",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q15_set_the_permissions_on_server_s6_such_that_the_owner_h"
   },
   {
-    "name": "Lab 19 Q16 - Set the permissions on /server/s6/public such th",
+    "name": "Set the permissions on /server/s6/public such that everyone can read write and execute files in that folder",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q16_set_the_permissions_on_server_s6_public_such_that_ever"
   },
   {
-    "name": "Lab 19 Q17 - Set the permissions on /server/s6/private such t",
+    "name": "Set the permissions on /server/s6/private such that the owner has full permissions and everyone else has none",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q17_set_the_permissions_on_server_s6_private_such_that_the"
   },
   {
-    "name": "Lab 19 Q18 - Change the s6 user shell to /bin/bash",
+    "name": "Change the s6 user shell to /bin/bash",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q18_change_the_s6_user_shell_to_bin_bash"
   },
   {
-    "name": "Lab 19 Q19 - Add the s6 user to the 'sudo' group",
+    "name": "Add the s6 user to the 'sudo' group",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q19_add_the_s6_user_to_the_sudo_group"
   },
   {
-    "name": "Lab 19 Q20 - Switch users to become the s6 user, but DO NOT s",
+    "name": "Switch users to become the s6 user, but DO NOT switch to the s6 users environment variables",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q20_switch_users_to_become_the_s6_user_but_do_not_switch_t"
   },
   {
-    "name": "Lab 19 Q21 - As the s6 user, change to the s3 users home dire",
+    "name": "As the s6 user, change to the s3 users home directory",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q21_as_the_s6_user_change_to_the_s3_users_home_directory"
   },
   {
-    "name": "Lab 19 Q22 - Run the command 'ls -la' and confirm you cannot",
+    "name": "Run the command 'ls -la' and confirm you cannot see any files",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q22_run_the_command_ls_la_and_confirm_you_cannot_see_any_f"
   },
   {
-    "name": "Lab 19 Q23 - As the s6 user change to the shared folder benea",
+    "name": "As the s6 user change to the shared folder beneath the s3 users home directory",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q23_as_the_s6_user_change_to_the_shared_folder_beneath_the"
   },
   {
-    "name": "Lab 19 Q24 - Copy the file /bin/cat to a new file /server/s3/",
+    "name": "Copy the file /bin/cat to a new file /server/s3/shared/supercat",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q24_copy_the_file_bin_cat_to_a_new_file_server_s3_shared_s"
   },
   {
-    "name": "Lab 19 Q25 - Set supercat's SUID bit so it executes as root f",
+    "name": "Set supercat's SUID bit so it executes as root for everyone",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q25_set_supercat_s_suid_bit_so_it_executes_as_root_for_eve"
   },
   {
-    "name": "Lab 19 Q26 - First try to use the normal cat program to view",
+    "name": "First try to use the normal cat program to view /etc/shadow. Type 'cat /etc/shadow'",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q26_first_try_to_use_the_normal_cat_program_to_view_etc_sh"
   },
   {
-    "name": "Lab 19 Q27 - Setting the SUID bit...",
+    "name": "Setting the SUID bit...",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q27_setting_the_suid_bit"
   },
   {
-    "name": "Lab 19 Q28 - Set the file permissions on /server/s3/shared/ru",
+    "name": "Set the file permissions on /server/s3/shared/runme.sh so both owner and group have only read and execute and everyone else has no permissions",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q28_set_the_file_permissions_on_server_s3_shared_runme_sh"
   },
   {
-    "name": "Lab 19 Q29 - As the s6 user try running the file. Type '/serv",
+    "name": "As the s6 user try running the file. Type '/server/s3/shared/runme.sh'",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q29_as_the_s6_user_try_running_the_file_type_server_s3_sha"
   },
   {
-    "name": "Lab 19 Q30 - Several steps!",
+    "name": "Several steps!",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q30_several_steps"
   },
   {
-    "name": "Lab 19 Q31 - Use sudo with -g",
+    "name": "Use sudo with -g",
     "lab": 19,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab19_q31_use_sudo_with_g"
   },
   {
-    "name": "Lab 20 Q01 - Create an alias in the sudoers file.",
+    "name": "Create an alias in the sudoers file. (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q01_create_an_alias_in_the_sudoers_file"
   },
   {
-    "name": "Lab 20 Q02 - Add a user specification to the sudoers file.",
+    "name": "Add a user specification to the sudoers file. (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q02_add_a_user_specification_to_the_sudoers_file"
   },
   {
-    "name": "Lab 20 Q03 - Switch to student3 .",
+    "name": "Switch to student3 . (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q03_switch_to_student3"
   },
   {
-    "name": "Lab 20 Q04 - Testing accessing a file without the correct per",
+    "name": "Testing accessing a file without the correct permissions. (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q04_testing_accessing_a_file_without_the_correct_permissio"
   },
   {
-    "name": "Lab 20 Q05 - Test using sudo in a way not specified in the su",
+    "name": "Test using sudo in a way not specified in the sudoers file. (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q05_test_using_sudo_in_a_way_not_specified_in_the_sudoers"
   },
   {
-    "name": "Lab 20 Q06 - Test using sudo in a way allowed by the sudoers",
+    "name": "Test using sudo in a way allowed by the sudoers file. (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q06_test_using_sudo_in_a_way_allowed_by_the_sudoers_file"
   },
   {
-    "name": "Lab 20 Q01 - First Create a user named 's3' and set their she",
+    "name": "First Create a user named 's3' and set their shell to '/bin/bash' (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q01_first_create_a_user_named_s3_and_set_their_shell_to_bi"
   },
   {
-    "name": "Lab 20 Q02 - Next, create a user named 's6' and set their she",
+    "name": "Next, create a user named 's6' and set their shell to '/bin/sh'",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q02_next_create_a_user_named_s6_and_set_their_shell_to_bin"
   },
   {
-    "name": "Lab 20 Q03 - Create a folder named 'server' on the root of th",
+    "name": "Create a folder named 'server' on the root of the drive (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q03_create_a_folder_named_server_on_the_root_of_the_drive"
   },
   {
-    "name": "Lab 20 Q04 - Create an 's3' and an 's6' folder beneath /serve",
+    "name": "Create an 's3' and an 's6' folder beneath /server",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q04_create_an_s3_and_an_s6_folder_beneath_server"
   },
   {
-    "name": "Lab 20 Q05 - Set the two new user home directories to point t",
+    "name": "Set the two new user home directories to point to your new folders",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q05_set_the_two_new_user_home_directories_to_point_to_your"
   },
   {
-    "name": "Lab 20 Q06 - Now create a group called 's3ands6' and put both",
+    "name": "Now create a group called 's3ands6' and put both users in it. Do not change the users primary group (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q06_now_create_a_group_called_s3ands6_and_put_both_users_i"
   },
   {
-    "name": "Lab 20 Q07 - Creating multiple directories Now create the fol",
+    "name": "Creating multiple directories Now create the following directory structure:",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q07_creating_multiple_directories_now_create_the_following"
   },
   {
-    "name": "Lab 20 Q08 - Make s3 the owner and group of their home direct",
+    "name": "Make s3 the owner and group of their home directory and everything in it (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q08_make_s3_the_owner_and_group_of_their_home_directory_an"
   },
   {
-    "name": "Lab 20 Q09 - Make s6 the owner and group of their home direct",
+    "name": "Make s6 the owner and group of their home directory and everything in it (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q09_make_s6_the_owner_and_group_of_their_home_directory_an"
   },
   {
-    "name": "Lab 20 Q10 - Now set the group of /server/s3/shared to the s3",
+    "name": "Now set the group of /server/s3/shared to the s3ands6 group (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q10_now_set_the_group_of_server_s3_shared_to_the_s3ands6_g"
   },
   {
-    "name": "Lab 20 Q11 - Set the permissions on /server/s3 such that the",
+    "name": "Set the permissions on /server/s3 such that the owner has full access and the group will have no access. To make the public folder and shared folder accessible, set the permissions on the home directory to allow EVERYONE to change into, but not list the contents of the home folders (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q11_set_the_permissions_on_server_s3_such_that_the_owner_h"
   },
   {
-    "name": "Lab 20 Q12 - Set the permissions on /server/s3/public such th",
+    "name": "Set the permissions on /server/s3/public such that everyone can read write and execute files in that folder (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q12_set_the_permissions_on_server_s3_public_such_that_ever"
   },
   {
-    "name": "Lab 20 Q13 - Set the permissions on /server/s3/private such t",
+    "name": "Set the permissions on /server/s3/private such that the owner has full permissions and everyone else has none (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q13_set_the_permissions_on_server_s3_private_such_that_the"
   },
   {
-    "name": "Lab 20 Q14 - Set the permissions on /server/s3/shared such th",
+    "name": "Set the permissions on /server/s3/shared such that the owner and group have full permissions and everyone else has none (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q14_set_the_permissions_on_server_s3_shared_such_that_the"
   },
   {
-    "name": "Lab 20 Q15 - Set the permissions on /server/s6 such that the",
+    "name": "Set the permissions on /server/s6 such that the owner has full access and the group will have no access. To make the public folder accessible, set the permissions on the home directory to allow EVERYONE to change into, but not list the contents of the home folders. (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q15_set_the_permissions_on_server_s6_such_that_the_owner_h"
   },
   {
-    "name": "Lab 20 Q16 - Set the permissions on /server/s6/public such th",
+    "name": "Set the permissions on /server/s6/public such that everyone can read write and execute files in that folder (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q16_set_the_permissions_on_server_s6_public_such_that_ever"
   },
   {
-    "name": "Lab 20 Q17 - Set the permissions on /server/s6/private such t",
+    "name": "Set the permissions on /server/s6/private such that the owner has full permissions and everyone else has none (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q17_set_the_permissions_on_server_s6_private_such_that_the"
   },
   {
-    "name": "Lab 20 Q18 - Change the s6 user shell to /bin/bash",
+    "name": "Change the s6 user shell to /bin/bash (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q18_change_the_s6_user_shell_to_bin_bash"
   },
   {
-    "name": "Lab 20 Q19 - Add the s6 user to the 'sudo' group",
+    "name": "Add the s6 user to the 'sudo' group (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q19_add_the_s6_user_to_the_sudo_group"
   },
   {
-    "name": "Lab 20 Q20 - Switch users to become the s6 user, but DO NOT s",
+    "name": "Switch users to become the s6 user, but DO NOT switch to the s6 users environment variables (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q20_switch_users_to_become_the_s6_user_but_do_not_switch_t"
   },
   {
-    "name": "Lab 20 Q21 - As the s6 user, change to the s3 users home dire",
+    "name": "As the s6 user, change to the s3 users home directory (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q21_as_the_s6_user_change_to_the_s3_users_home_directory"
   },
   {
-    "name": "Lab 20 Q22 - Run the command 'ls -la' and confirm you cannot",
+    "name": "Run the command 'ls -la' and confirm you cannot see any files (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q22_run_the_command_ls_la_and_confirm_you_cannot_see_any_f"
   },
   {
-    "name": "Lab 20 Q23 - As the s6 user change to the shared folder benea",
+    "name": "As the s6 user change to the shared folder beneath the s3 users home directory (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q23_as_the_s6_user_change_to_the_shared_folder_beneath_the"
   },
   {
-    "name": "Lab 20 Q24 - Copy the file /bin/cat to a new file /server/s3/",
+    "name": "Copy the file /bin/cat to a new file /server/s3/shared/supercat (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q24_copy_the_file_bin_cat_to_a_new_file_server_s3_shared_s"
   },
   {
-    "name": "Lab 20 Q25 - Set supercat's SUID bit so it executes as root f",
+    "name": "Set supercat's SUID bit so it executes as root for everyone (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q25_set_supercat_s_suid_bit_so_it_executes_as_root_for_eve"
   },
   {
-    "name": "Lab 20 Q26 - First try to use the normal cat program to view",
+    "name": "First try to use the normal cat program to view /etc/shadow. Type 'cat /etc/shadow' (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q26_first_try_to_use_the_normal_cat_program_to_view_etc_sh"
   },
   {
-    "name": "Lab 20 Q27 - Now as the s6 user, use supercat to show the con",
+    "name": "Now as the s6 user, use supercat to show the contents of /etc/shadow",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q27_now_as_the_s6_user_use_supercat_to_show_the_contents_o"
   },
   {
-    "name": "Lab 20 Q28 - Setting the SUID bit...",
+    "name": "Setting the SUID bit... (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q28_setting_the_suid_bit"
   },
   {
-    "name": "Lab 20 Q29 - Set the file permissions on /server/s3/shared/ru",
+    "name": "Set the file permissions on /server/s3/shared/runme.sh so both owner and group have only read and execute and everyone else has no permissions (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q29_set_the_file_permissions_on_server_s3_shared_runme_sh"
   },
   {
-    "name": "Lab 20 Q30 - As the s6 user try running the file. Type '/serv",
+    "name": "As the s6 user try running the file. Type '/server/s3/shared/runme.sh' (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q30_as_the_s6_user_try_running_the_file_type_server_s3_sha"
   },
   {
-    "name": "Lab 20 Q31 - Several steps!",
+    "name": "Several steps! (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q31_several_steps"
   },
   {
-    "name": "Lab 20 Q32 - Use sudo with -g",
+    "name": "Use sudo with -g (2)",
     "lab": 20,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab20_q32_use_sudo_with_g"
   },
   {
-    "name": "Lab 21 Q01 - Check limits set on student",
+    "name": "Check limits set on student",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q01_check_limits_set_on_student"
   },
   {
-    "name": "Lab 21 Q02 - Edit /etc/security/limits.conf",
+    "name": "Edit /etc/security/limits.conf",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q02_edit_etc_security_limits_conf"
   },
   {
-    "name": "Lab 21 Q03 - Add 2 entries to the end of the file /etc/securi",
+    "name": "Add 2 entries to the end of the file /etc/security/limits.conf .",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q03_add_2_entries_to_the_end_of_the_file_etc_security_limi"
   },
   {
-    "name": "Lab 21 Q04 - Switch user to student2 .",
+    "name": "Switch user to student2 . (2)",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q04_switch_user_to_student2"
   },
   {
-    "name": "Lab 21 Q05 - Verify soft file size limit.",
+    "name": "Verify soft file size limit.",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q05_verify_soft_file_size_limit"
   },
   {
-    "name": "Lab 21 Q06 - Verify hard file size limit.",
+    "name": "Verify hard file size limit.",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q06_verify_hard_file_size_limit"
   },
   {
-    "name": "Lab 21 Q07 - Set file size limit for student2 .",
+    "name": "Set file size limit for student2 .",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q07_set_file_size_limit_for_student2"
   },
   {
-    "name": "Lab 21 Q08 - Confirm file size limit.",
+    "name": "Confirm file size limit.",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q08_confirm_file_size_limit"
   },
   {
-    "name": "Lab 21 Q09 - Try to change file size limit above hard limit.",
+    "name": "Try to change file size limit above hard limit.",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q09_try_to_change_file_size_limit_above_hard_limit"
   },
   {
-    "name": "Lab 21 Q01 - First Create a user named 's3' and set their she",
+    "name": "First Create a user named 's3' and set their shell to '/bin/bash' (3)",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q01_first_create_a_user_named_s3_and_set_their_shell_to_bi"
   },
   {
-    "name": "Lab 21 Q02 - Next, create a user named 's6' and set their she",
+    "name": "Next, create a user named 's6' and set their shell to '/bin/sh' (2)",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q02_next_create_a_user_named_s6_and_set_their_shell_to_bin"
   },
   {
-    "name": "Lab 21 Q03 - Create a folder named 'server' on the root of th",
+    "name": "Create a folder named 'server' on the root of the drive (3)",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q03_create_a_folder_named_server_on_the_root_of_the_drive"
   },
   {
-    "name": "Lab 21 Q04 - Create an 's3' and an 's6' folder beneath /serve",
+    "name": "Create an 's3' and an 's6' folder beneath /server (2)",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q04_create_an_s3_and_an_s6_folder_beneath_server"
   },
   {
-    "name": "Lab 21 Q05 - Set the two new user home directories to point t",
+    "name": "Set the two new user home directories to point to your new folders (2)",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q05_set_the_two_new_user_home_directories_to_point_to_your"
   },
   {
-    "name": "Lab 21 Q06 - Now create a group called 's3ands6' and put both",
+    "name": "Now create a group called 's3ands6' and put both users in it. **Do not change the users primary group!",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q06_now_create_a_group_called_s3ands6_and_put_both_users_i"
   },
   {
-    "name": "Lab 21 Q07 - Creating multiple directories Now create the fol",
+    "name": "Creating multiple directories Now create the following directory structure: (2)",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q07_creating_multiple_directories_now_create_the_following"
   },
   {
-    "name": "Lab 21 Q08 - Make s3 the owner and group owner of their home",
+    "name": "Make s3 the owner and group owner of their home directory and everything in it",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q08_make_s3_the_owner_and_group_owner_of_their_home_direct"
   },
   {
-    "name": "Lab 21 Q09 - Make s6 the owner and group owner of their home",
+    "name": "Make s6 the owner and group owner of their home directory and everything in it",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q09_make_s6_the_owner_and_group_owner_of_their_home_direct"
   },
   {
-    "name": "Lab 21 Q10 - Now set the group owner of /server/s3/shared to",
+    "name": "Now set the group owner of /server/s3/shared to the s3ands6 group",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q10_now_set_the_group_owner_of_server_s3_shared_to_the_s3a"
   },
   {
-    "name": "Lab 21 Q11 - Set the permissions on /server/s3 such that the",
+    "name": "Set the permissions on /server/s3 such that the owner has full access and the group will have no access. To make the public folder and shared folder accessible, set the permissions on the home directory to allow EVERYONE to change into, but not list the contents of the home folders (3)",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q11_set_the_permissions_on_server_s3_such_that_the_owner_h"
   },
   {
-    "name": "Lab 21 Q12 - Set the permissions on /server/s3/public such th",
+    "name": "Set the permissions on /server/s3/public such that everyone can read write and execute files in that folder.",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q12_set_the_permissions_on_server_s3_public_such_that_ever"
   },
   {
-    "name": "Lab 21 Q13 - Set the permissions on /server/s3/private such t",
+    "name": "Set the permissions on /server/s3/private such that the owner has full permissions and all others have none.",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q13_set_the_permissions_on_server_s3_private_such_that_the"
   },
   {
-    "name": "Lab 21 Q14 - Set the permissions on /server/s3/shared such th",
+    "name": "Set the permissions on /server/s3/shared such that the owner and group have full permissions and all others have none.",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q14_set_the_permissions_on_server_s3_shared_such_that_the"
   },
   {
-    "name": "Lab 21 Q15 - Set the permissions on /server/s6 such that the",
+    "name": "Set the permissions on /server/s6 such that the owner has full access and the group will have no access. To make the public folder accessible, set the permissions on the home directory to allow EVERYONE to change into, but not list the contents of the home folders. (3)",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q15_set_the_permissions_on_server_s6_such_that_the_owner_h"
   },
   {
-    "name": "Lab 21 Q16 - Set the permissions on /server/s6/public such th",
+    "name": "Set the permissions on /server/s6/public such that everyone can read write and execute files in that folder (3)",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q16_set_the_permissions_on_server_s6_public_such_that_ever"
   },
   {
-    "name": "Lab 21 Q17 - Set the permissions on /server/s6/private such t",
+    "name": "Set the permissions on /server/s6/private such that the owner has full permissions and all others have none",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q17_set_the_permissions_on_server_s6_private_such_that_the"
   },
   {
-    "name": "Lab 21 Q18 - Change the s6 user shell to /bin/bash",
+    "name": "Change the s6 user shell to /bin/bash (3)",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q18_change_the_s6_user_shell_to_bin_bash"
   },
   {
-    "name": "Lab 21 Q19 - Add the s6 user to the 'sudo' group",
+    "name": "Add the s6 user to the 'sudo' group (3)",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q19_add_the_s6_user_to_the_sudo_group"
   },
   {
-    "name": "Lab 21 Q20 - Switch users to become the s6 user, but DO NOT s",
+    "name": "Switch users to become the s6 user, but DO NOT switch to the s6 users environment variables (3)",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q20_switch_users_to_become_the_s6_user_but_do_not_switch_t"
   },
   {
-    "name": "Lab 21 Q21 - As the s6 user, change to the s3 users home dire",
+    "name": "As the s6 user, change to the s3 users home directory (3)",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q21_as_the_s6_user_change_to_the_s3_users_home_directory"
   },
   {
-    "name": "Lab 21 Q22 - Run the command 'ls -la' and confirm you cannot",
+    "name": "Run the command 'ls -la' and confirm you cannot see any files (3)",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q22_run_the_command_ls_la_and_confirm_you_cannot_see_any_f"
   },
   {
-    "name": "Lab 21 Q23 - As the s6 user change to the shared folder benea",
+    "name": "As the s6 user change to the shared folder beneath the s3 users home directory (3)",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q23_as_the_s6_user_change_to_the_shared_folder_beneath_the"
   },
   {
-    "name": "Lab 21 Q24 - Copy the file /bin/cat to a new file /server/s3/",
+    "name": "Copy the file /bin/cat to a new file /server/s3/shared/supercat (3)",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q24_copy_the_file_bin_cat_to_a_new_file_server_s3_shared_s"
   },
   {
-    "name": "Lab 21 Q25 - Set supercat's SUID bit so it executes as root f",
+    "name": "Set supercat's SUID bit so it executes as root for everyone (3)",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q25_set_supercat_s_suid_bit_so_it_executes_as_root_for_eve"
   },
   {
-    "name": "Lab 21 Q26 - First try to use the normal cat program to view",
+    "name": "First try to use the normal cat program to view /etc/shadow. Type 'cat /etc/shadow' (3)",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q26_first_try_to_use_the_normal_cat_program_to_view_etc_sh"
   },
   {
-    "name": "Lab 21 Q27 - Now as the s6 user, use supercat to show the con",
+    "name": "Now as the s6 user, use supercat to show the contents of /etc/shadow (2)",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q27_now_as_the_s6_user_use_supercat_to_show_the_contents_o"
   },
   {
-    "name": "Lab 21 Q28 - Setting the SUID bit...",
+    "name": "Setting the SUID bit... (3)",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q28_setting_the_suid_bit"
   },
   {
-    "name": "Lab 21 Q29 - Set the file permissions on /server/s3/shared/ru",
+    "name": "Set the file permissions on /server/s3/shared/runme.sh so both owner and group have only read and execute and all others have no permissions",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q29_set_the_file_permissions_on_server_s3_shared_runme_sh"
   },
   {
-    "name": "Lab 21 Q30 - As the s6 user try running the file. Type '/serv",
+    "name": "As the s6 user try running the file. Type '/server/s3/shared/runme.sh' (3)",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q30_as_the_s6_user_try_running_the_file_type_server_s3_sha"
   },
   {
-    "name": "Lab 21 Q31 - Several steps!",
+    "name": "Several steps! (3)",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q31_several_steps"
   },
   {
-    "name": "Lab 21 Q32 - Use sudo with -g",
+    "name": "Use sudo with -g (3)",
     "lab": 21,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab21_q32_use_sudo_with_g"
   },
   {
-    "name": "Lab 22 Q01 - Complete Lab 22: Managing Processes question 1",
+    "name": "Complete Lab 22: Managing Processes question 1",
     "lab": 22,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab22_q01_complete_lab_22_managing_processes_question_1"
   },
   {
-    "name": "Lab 22 Q02 - What is the process id of the backdoor? Type ech",
+    "name": "What is the process id of the backdoor? Type echo followed by the process id number.",
     "lab": 22,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab22_q02_what_is_the_process_id_of_the_backdoor_type_echo_follo"
   },
   {
-    "name": "Lab 22 Q03 - What is the process id of the backdoor's parent",
+    "name": "What is the process id of the backdoor's parent process? Type echo followed by the parent process id number.",
     "lab": 22,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab22_q03_what_is_the_process_id_of_the_backdoor_s_parent_proces"
   },
   {
-    "name": "Lab 22 Q04 - Retreive a copy of the backdoor and execute it.",
+    "name": "Retreive a copy of the backdoor and execute it. What is flag that is printed when you run the backdoor?",
     "lab": 22,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab22_q04_retreive_a_copy_of_the_backdoor_and_execute_it_what_is"
   },
   {
-    "name": "Lab 22 Q05 - Now, kill the backdoor process.",
+    "name": "Now, kill the backdoor process.",
     "lab": 22,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab22_q05_now_kill_the_backdoor_process"
   },
   {
-    "name": "Lab 22 Q06 - pkill command This task requires the use of the",
+    "name": "pkill command This task requires the use of the pkill command. The pkill command has the capability to kill processes based on the commands that contain a search term. Because you know part of the process name, you can find every process that contains backdoor and kill it.",
     "lab": 22,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab22_q06_pkill_command_this_task_requires_the_use_of_the_pkill"
   },
   {
-    "name": "Lab 22 Q01 - Check limits set on student",
+    "name": "Check limits set on student (2)",
     "lab": 22,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab22_q01_check_limits_set_on_student"
   },
   {
-    "name": "Lab 22 Q02 - Edit /etc/security/limits.conf",
+    "name": "Edit /etc/security/limits.conf (2)",
     "lab": 22,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab22_q02_edit_etc_security_limits_conf"
   },
   {
-    "name": "Lab 22 Q03 - Add 2 entries to the end of the file /etc/securi",
+    "name": "Add 2 entries to the end of the file /etc/security/limits.conf . (2)",
     "lab": 22,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab22_q03_add_2_entries_to_the_end_of_the_file_etc_security_limi"
   },
   {
-    "name": "Lab 22 Q04 - Switch user to student2 .",
+    "name": "Switch user to student2 . (3)",
     "lab": 22,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab22_q04_switch_user_to_student2"
   },
   {
-    "name": "Lab 22 Q05 - Verify soft file size limit.",
+    "name": "Verify soft file size limit. (2)",
     "lab": 22,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab22_q05_verify_soft_file_size_limit"
   },
   {
-    "name": "Lab 22 Q06 - Verify hard file size limit.",
+    "name": "Verify hard file size limit. (2)",
     "lab": 22,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab22_q06_verify_hard_file_size_limit"
   },
   {
-    "name": "Lab 22 Q07 - Set file size limit for student2 .",
+    "name": "Set file size limit for student2 . (2)",
     "lab": 22,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab22_q07_set_file_size_limit_for_student2"
   },
   {
-    "name": "Lab 22 Q08 - Confirm file size limit.",
+    "name": "Confirm file size limit. (2)",
     "lab": 22,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab22_q08_confirm_file_size_limit"
   },
   {
-    "name": "Lab 22 Q09 - Try to change file size limit above hard limit.",
+    "name": "Try to change file size limit above hard limit. (2)",
     "lab": 22,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab22_q09_try_to_change_file_size_limit_above_hard_limit"
   },
   {
-    "name": "Lab 23 Q01 - The PIDs and job numbers on your machine may dif",
+    "name": "The PIDs and job numbers on your machine may differ from what is shown in this lab guide",
     "lab": 23,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab23_q01_the_pids_and_job_numbers_on_your_machine_may_differ_fr"
   },
   {
-    "name": "Lab 23 Q01 - Complete Lab 23: Managing Processes question 1",
+    "name": "Complete Lab 23: Managing Processes question 1",
     "lab": 23,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab23_q01_complete_lab_23_managing_processes_question_1"
   },
   {
-    "name": "Lab 23 Q02 - What is the process id of the backdoor? Type ech",
+    "name": "What is the process id of the backdoor? Type echo followed by the process id number. (2)",
     "lab": 23,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab23_q02_what_is_the_process_id_of_the_backdoor_type_echo_follo"
   },
   {
-    "name": "Lab 23 Q03 - What is the process id of the backdoor's parent",
+    "name": "What is the process id of the backdoor's parent process? Type echo followed by the parent process id number. (2)",
     "lab": 23,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab23_q03_what_is_the_process_id_of_the_backdoor_s_parent_proces"
   },
   {
-    "name": "Lab 23 Q04 - Retreive a copy of the backdoor and execute it.",
+    "name": "Retreive a copy of the backdoor and execute it. What is flag that is printed when you run the backdoor? (2)",
     "lab": 23,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab23_q04_retreive_a_copy_of_the_backdoor_and_execute_it_what_is"
   },
   {
-    "name": "Lab 23 Q05 - Now, kill the backdoor process.",
+    "name": "Now, kill the backdoor process. (2)",
     "lab": 23,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab23_q05_now_kill_the_backdoor_process"
   },
   {
-    "name": "Lab 23 Q06 - pkill command This task requires the use of the",
+    "name": "pkill command This task requires the use of the pkill command. The pkill command has the capability to kill processes based on the commands that contain a search term. Because you know part of the process name, you can find every process that contains backdoor and kill it. (2)",
     "lab": 23,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab23_q06_pkill_command_this_task_requires_the_use_of_the_pkill"
   },
   {
-    "name": "Lab 24 Q01 - The PIDs and job numbers on your machine may dif",
+    "name": "The PIDs and job numbers on your machine may differ from what is shown in this lab guide (2)",
     "lab": 24,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab24_q01_the_pids_and_job_numbers_on_your_machine_may_differ_fr"
   },
   {
-    "name": "Lab 24 Q01 - Use crontab to run the /bin/tar -cvf ~/mybackup.",
+    "name": "Use crontab to run the /bin/tar -cvf ~/mybackup.tar ~/ command every day of January at a time of your choosing.",
     "lab": 24,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab24_q01_use_crontab_to_run_the_bin_tar_cvf_mybackup_tar_comman"
   },
   {
-    "name": "Lab 24 Q02 - View the crontab file you have just created.",
+    "name": "View the crontab file you have just created.",
     "lab": 24,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab24_q02_view_the_crontab_file_you_have_just_created"
   },
   {
-    "name": "Lab 24 Q03 - Remove all crontab files that you have created.",
+    "name": "Remove all crontab files that you have created.",
     "lab": 24,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab24_q03_remove_all_crontab_files_that_you_have_created"
   },
   {
-    "name": "Lab 25 Q01 - Use crontab to run the /bin/tar -cvf ~/mybackup.",
+    "name": "Use crontab to run the /bin/tar -cvf ~/mybackup.tar ~/ command every day of January at a time of your choosing. (2)",
     "lab": 25,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab25_q01_use_crontab_to_run_the_bin_tar_cvf_mybackup_tar_comman"
   },
   {
-    "name": "Lab 25 Q02 - View the crontab file you have just created.",
+    "name": "View the crontab file you have just created. (2)",
     "lab": 25,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab25_q02_view_the_crontab_file_you_have_just_created"
   },
   {
-    "name": "Lab 25 Q03 - Remove all crontab files that you have created.",
+    "name": "Remove all crontab files that you have created. (2)",
     "lab": 25,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab25_q03_remove_all_crontab_files_that_you_have_created"
   },
   {
-    "name": "Lab 25 Q01 - Warning",
+    "name": "Warning",
     "lab": 25,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab25_q01_warning"
   },
   {
-    "name": "Lab 26 Q01 - Step 1 - Find the backdoor with the SUID bit set",
+    "name": "Step 1 - Find the backdoor with the SUID bit set",
     "lab": 26,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab26_q01_step_1_find_the_backdoor_with_the_suid_bit_set"
   },
   {
-    "name": "Lab 26 Q01 - Warning",
+    "name": "Warning (2)",
     "lab": 26,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab26_q01_warning"
   },
   {
-    "name": "Lab 27 Q01 - Step 1 - Find the backdoor with the SUID bit set",
+    "name": "Step 1 - Find the backdoor with the SUID bit set (2)",
     "lab": 27,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab27_q01_step_1_find_the_backdoor_with_the_suid_bit_set"
   },
   {
-    "name": "Lab 27 Q01 - Enter ssh user@ssh-server",
+    "name": "Enter ssh user@ssh-server",
     "lab": 27,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab27_q01_enter_ssh_user_ssh_server"
   },
   {
-    "name": "Lab 27 Q02 - Use scp to copy a file from another machine to y",
+    "name": "Use scp to copy a file from another machine to your machine.",
     "lab": 27,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab27_q02_use_scp_to_copy_a_file_from_another_machine_to_your_ma"
   },
   {
-    "name": "Lab 27 Q03 - Generate a public-private key pair.",
+    "name": "Generate a public-private key pair.",
     "lab": 27,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab27_q03_generate_a_public_private_key_pair"
   },
   {
-    "name": "Lab 27 Q04 - Copy your private key to an SSH server.",
+    "name": "Copy your private key to an SSH server.",
     "lab": 27,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab27_q04_copy_your_private_key_to_an_ssh_server"
   },
   {
-    "name": "Lab 27 Q05 - Log into an SSH server using SSH keys.",
+    "name": "Log into an SSH server using SSH keys.",
     "lab": 27,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab27_q05_log_into_an_ssh_server_using_ssh_keys"
   },
   {
-    "name": "Lab 27 Q06 - Attempt to SSH into a machine you don\u2019t have acc",
+    "name": "Attempt to SSH into a machine you don\u2019t have access to.",
     "lab": 27,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab27_q06_attempt_to_ssh_into_a_machine_you_don_t_have_access_to"
   },
   {
-    "name": "Lab 27 Q07 - Set up local port forwarding.",
+    "name": "Set up local port forwarding.",
     "lab": 27,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab27_q07_set_up_local_port_forwarding"
   },
   {
-    "name": "Lab 27 Q08 - Use ssh with port forwarding.",
+    "name": "Use ssh with port forwarding.",
     "lab": 27,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab27_q08_use_ssh_with_port_forwarding"
   },
   {
-    "name": "Lab 27 Q09 - Use scp with port forwarding",
+    "name": "Use scp with port forwarding",
     "lab": 27,
     "difficulty": "Advanced",
     "points": 350,
     "flag": "lab27_q09_use_scp_with_port_forwarding"
   },
   {
-    "name": "Lab 28 Q01 - Create a screen called abc.",
+    "name": "Create a screen called abc.",
     "lab": 28,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab28_q01_create_a_screen_called_abc"
   },
   {
-    "name": "Lab 28 Q02 - Detach from the screen.",
+    "name": "Detach from the screen.",
     "lab": 28,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab28_q02_detach_from_the_screen"
   },
   {
-    "name": "Lab 28 Q03 - List the existing screens. You should see abc am",
+    "name": "List the existing screens. You should see abc among them.",
     "lab": 28,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab28_q03_list_the_existing_screens_you_should_see_abc_among_the"
   },
   {
-    "name": "Lab 28 Q04 - Reattach to the screen.",
+    "name": "Reattach to the screen.",
     "lab": 28,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab28_q04_reattach_to_the_screen"
   },
   {
-    "name": "Lab 28 Q05 - Carefully read all of the question instructions",
+    "name": "Carefully read all of the question instructions first, then perform the steps",
     "lab": 28,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab28_q05_carefully_read_all_of_the_question_instructions_first"
   },
   {
-    "name": "Lab 28 Q01 - Enter ssh user@ssh-server",
+    "name": "Enter ssh user@ssh-server (2)",
     "lab": 28,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab28_q01_enter_ssh_user_ssh_server"
   },
   {
-    "name": "Lab 28 Q02 - Use scp to copy a file from another machine to y",
+    "name": "Use scp to copy a file from another machine to your machine. (2)",
     "lab": 28,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab28_q02_use_scp_to_copy_a_file_from_another_machine_to_your_ma"
   },
   {
-    "name": "Lab 28 Q03 - Generate a public-private key pair.",
+    "name": "Generate a public-private key pair. (2)",
     "lab": 28,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab28_q03_generate_a_public_private_key_pair"
   },
   {
-    "name": "Lab 28 Q04 - Copy your private key to an SSH server.",
+    "name": "Copy your private key to an SSH server. (2)",
     "lab": 28,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab28_q04_copy_your_private_key_to_an_ssh_server"
   },
   {
-    "name": "Lab 28 Q05 - Log into an SSH server using SSH keys.",
+    "name": "Log into an SSH server using SSH keys. (2)",
     "lab": 28,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab28_q05_log_into_an_ssh_server_using_ssh_keys"
   },
   {
-    "name": "Lab 28 Q06 - Attempt to SSH into a machine you don\u2019t have acc",
+    "name": "Attempt to SSH into a machine you don\u2019t have access to. (2)",
     "lab": 28,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab28_q06_attempt_to_ssh_into_a_machine_you_don_t_have_access_to"
   },
   {
-    "name": "Lab 28 Q07 - Set up local port forwarding.",
+    "name": "Set up local port forwarding. (2)",
     "lab": 28,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab28_q07_set_up_local_port_forwarding"
   },
   {
-    "name": "Lab 28 Q08 - Use ssh with port forwarding.",
+    "name": "Use ssh with port forwarding. (2)",
     "lab": 28,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab28_q08_use_ssh_with_port_forwarding"
   },
   {
-    "name": "Lab 28 Q09 - Use scp with port forwarding",
+    "name": "Use scp with port forwarding (2)",
     "lab": 28,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab28_q09_use_scp_with_port_forwarding"
   },
   {
-    "name": "Lab 29 Q01 - Generate key pairs by entering \" gpg --gen-key \"",
+    "name": "Generate key pairs by entering \" gpg --gen-key \"",
     "lab": 29,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab29_q01_generate_key_pairs_by_entering_gpg_gen_key"
   },
   {
-    "name": "Lab 29 Q02 - Create a file to test GPG .",
+    "name": "Create a file to test GPG .",
     "lab": 29,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab29_q02_create_a_file_to_test_gpg"
   },
   {
-    "name": "Lab 29 Q03 - Encrypt your file.",
+    "name": "Encrypt your file.",
     "lab": 29,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab29_q03_encrypt_your_file"
   },
   {
-    "name": "Lab 29 Q04 - Look at the contents of secret.gpg .",
+    "name": "Look at the contents of secret.gpg .",
     "lab": 29,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab29_q04_look_at_the_contents_of_secret_gpg"
   },
   {
-    "name": "Lab 29 Q05 - Decrypt the file.",
+    "name": "Decrypt the file.",
     "lab": 29,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab29_q05_decrypt_the_file"
   },
   {
-    "name": "Lab 29 Q01 - Create a screen called abc.",
+    "name": "Create a screen called abc. (2)",
     "lab": 29,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab29_q01_create_a_screen_called_abc"
   },
   {
-    "name": "Lab 29 Q02 - Detach from the screen.",
+    "name": "Detach from the screen. (2)",
     "lab": 29,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab29_q02_detach_from_the_screen"
   },
   {
-    "name": "Lab 29 Q03 - List the existing screens. You should see abc am",
+    "name": "List the existing screens. You should see abc among them. (2)",
     "lab": 29,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab29_q03_list_the_existing_screens_you_should_see_abc_among_the"
   },
   {
-    "name": "Lab 29 Q04 - Reattach to the screen.",
+    "name": "Reattach to the screen. (2)",
     "lab": 29,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab29_q04_reattach_to_the_screen"
   },
   {
-    "name": "Lab 29 Q05 - Carefully read all of the question instructions",
+    "name": "Carefully read all of the question instructions first, then perform the steps (2)",
     "lab": 29,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab29_q05_carefully_read_all_of_the_question_instructions_first"
   },
   {
-    "name": "Lab 30 Q01 - Use dpkg to list all packages that are installed",
+    "name": "Use dpkg to list all packages that are installed on the system.",
     "lab": 30,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab30_q01_use_dpkg_to_list_all_packages_that_are_installed_on_th"
   },
   {
-    "name": "Lab 30 Q02 - Change directory into /tmp/packages",
+    "name": "Change directory into /tmp/packages",
     "lab": 30,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab30_q02_change_directory_into_tmp_packages"
   },
   {
-    "name": "Lab 30 Q03 - Verify the checksum of the deb file in tmp direc",
+    "name": "Verify the checksum of the deb file in tmp directory.",
     "lab": 30,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab30_q03_verify_the_checksum_of_the_deb_file_in_tmp_directory"
   },
   {
-    "name": "Lab 30 Q04 - Use dpkg to install the debian package on the sy",
+    "name": "Use dpkg to install the debian package on the system.",
     "lab": 30,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab30_q04_use_dpkg_to_install_the_debian_package_on_the_system"
   },
   {
-    "name": "Lab 30 Q05 - Use dpkg to view the status for the vim package.",
+    "name": "Use dpkg to view the status for the vim package.",
     "lab": 30,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab30_q05_use_dpkg_to_view_the_status_for_the_vim_package"
   },
   {
-    "name": "Lab 30 Q06 - Use dpkg to remove vim from the system.",
+    "name": "Use dpkg to remove vim from the system.",
     "lab": 30,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab30_q06_use_dpkg_to_remove_vim_from_the_system"
   },
   {
-    "name": "Lab 30 Q07 - Use dpkg to view the details for the vim package",
+    "name": "Use dpkg to view the details for the vim package.",
     "lab": 30,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab30_q07_use_dpkg_to_view_the_details_for_the_vim_package"
   },
   {
-    "name": "Lab 30 Q08 - Use dpkg to remove the configuration files for v",
+    "name": "Use dpkg to remove the configuration files for vim from the system.",
     "lab": 30,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab30_q08_use_dpkg_to_remove_the_configuration_files_for_vim_fro"
   },
   {
-    "name": "Lab 30 Q01 - Generate key pairs by entering \" gpg --gen-key \"",
+    "name": "Generate key pairs by entering \" gpg --gen-key \" (2)",
     "lab": 30,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab30_q01_generate_key_pairs_by_entering_gpg_gen_key"
   },
   {
-    "name": "Lab 30 Q02 - Create a file to test GPG .",
+    "name": "Create a file to test GPG . (2)",
     "lab": 30,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab30_q02_create_a_file_to_test_gpg"
   },
   {
-    "name": "Lab 30 Q03 - Encrypt your file.",
+    "name": "Encrypt your file. (2)",
     "lab": 30,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab30_q03_encrypt_your_file"
   },
   {
-    "name": "Lab 30 Q04 - Look at the contents of secret.gpg .",
+    "name": "Look at the contents of secret.gpg . (2)",
     "lab": 30,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab30_q04_look_at_the_contents_of_secret_gpg"
   },
   {
-    "name": "Lab 30 Q05 - Decrypt the file.",
+    "name": "Decrypt the file. (2)",
     "lab": 30,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab30_q05_decrypt_the_file"
   },
   {
-    "name": "Lab 31 Q01 - Use dpkg to list all packages that are installed",
+    "name": "Use dpkg to list all packages that are installed on the system. (2)",
     "lab": 31,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab31_q01_use_dpkg_to_list_all_packages_that_are_installed_on_th"
   },
   {
-    "name": "Lab 31 Q02 - Change directory into /tmp/packages",
+    "name": "Change directory into /tmp/packages (2)",
     "lab": 31,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab31_q02_change_directory_into_tmp_packages"
   },
   {
-    "name": "Lab 31 Q03 - Verify the checksum of the deb file in tmp direc",
+    "name": "Verify the checksum of the deb file in tmp directory. (2)",
     "lab": 31,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab31_q03_verify_the_checksum_of_the_deb_file_in_tmp_directory"
   },
   {
-    "name": "Lab 31 Q04 - Use dpkg to install the debian package on the sy",
+    "name": "Use dpkg to install the debian package on the system. (2)",
     "lab": 31,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab31_q04_use_dpkg_to_install_the_debian_package_on_the_system"
   },
   {
-    "name": "Lab 31 Q05 - Use dpkg to view the status for the vim package.",
+    "name": "Use dpkg to view the status for the vim package. (2)",
     "lab": 31,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab31_q05_use_dpkg_to_view_the_status_for_the_vim_package"
   },
   {
-    "name": "Lab 31 Q06 - Use dpkg to remove vim from the system.",
+    "name": "Use dpkg to remove vim from the system. (2)",
     "lab": 31,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab31_q06_use_dpkg_to_remove_vim_from_the_system"
   },
   {
-    "name": "Lab 31 Q07 - Use dpkg to view the details for the vim package",
+    "name": "Use dpkg to view the details for the vim package. (2)",
     "lab": 31,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab31_q07_use_dpkg_to_view_the_details_for_the_vim_package"
   },
   {
-    "name": "Lab 31 Q08 - Use dpkg to remove the configuration files for v",
+    "name": "Use dpkg to remove the configuration files for vim from the system. (2)",
     "lab": 31,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab31_q08_use_dpkg_to_remove_the_configuration_files_for_vim_fro"
   },
   {
-    "name": "Lab 31 Q01 - IMPORTANT - This is a bad configuration that is",
+    "name": "IMPORTANT - This is a bad configuration that is intended to fail",
     "lab": 31,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab31_q01_important_this_is_a_bad_configuration_that_is_intended"
   },
   {
-    "name": "Lab 32 Q01 - DISCONNECT VPN BEFORE CONTINUING",
+    "name": "DISCONNECT VPN BEFORE CONTINUING",
     "lab": 32,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab32_q01_disconnect_vpn_before_continuing"
   },
   {
-    "name": "Lab 33 Q01 - What is the current configuration of iptables?",
+    "name": "What is the current configuration of iptables?",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q01_what_is_the_current_configuration_of_iptables"
   },
   {
-    "name": "Lab 33 Q02 - Apply a default DROP policy to INPUT and FORWARD",
+    "name": "Apply a default DROP policy to INPUT and FORWARD chains",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q02_apply_a_default_drop_policy_to_input_and_forward_chain"
   },
   {
-    "name": "Lab 33 Q03 - Allow RELATED or ESTABLISHED connections",
+    "name": "Allow RELATED or ESTABLISHED connections",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q03_allow_related_or_established_connections"
   },
   {
-    "name": "Lab 33 Q04 - Accept traffic across the incoming loopback inte",
+    "name": "Accept traffic across the incoming loopback interface",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q04_accept_traffic_across_the_incoming_loopback_interface"
   },
   {
-    "name": "Lab 33 Q05 - Allow traffic across the outgoing loopback inter",
+    "name": "Allow traffic across the outgoing loopback interface",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q05_allow_traffic_across_the_outgoing_loopback_interface"
   },
   {
-    "name": "Lab 33 Q06 - Apply a default DROP policy to OUTPUT chain",
+    "name": "Apply a default DROP policy to OUTPUT chain",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q06_apply_a_default_drop_policy_to_output_chain"
   },
   {
-    "name": "Lab 33 Q07 - Allow RELATED or ESTABLISHED connections outboun",
+    "name": "Allow RELATED or ESTABLISHED connections outbound",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q07_allow_related_or_established_connections_outbound"
   },
   {
-    "name": "Lab 33 Q08 - Complete the lab task using iptables",
+    "name": "Complete the lab task using iptables",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q08_complete_the_lab_task_using_iptables"
   },
   {
-    "name": "Lab 33 Q09 - Allow port 53 outbound requests",
+    "name": "Allow port 53 outbound requests",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q09_allow_port_53_outbound_requests"
   },
   {
-    "name": "Lab 33 Q10 - Allow HTTP traffic outbound",
+    "name": "Allow HTTP traffic outbound",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q10_allow_http_traffic_outbound"
   },
   {
-    "name": "Lab 33 Q11 - Allow HTTPS traffic outbound",
+    "name": "Allow HTTPS traffic outbound",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q11_allow_https_traffic_outbound"
   },
   {
-    "name": "Lab 33 Q12 - Allow outgoing XMPP traffic to a specific IP",
+    "name": "Allow outgoing XMPP traffic to a specific IP",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q12_allow_outgoing_xmpp_traffic_to_a_specific_ip"
   },
   {
-    "name": "Lab 33 Q13 - Allow outbound pings",
+    "name": "Allow outbound pings",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q13_allow_outbound_pings"
   },
   {
-    "name": "Lab 33 Q14 - Log firewall rule hits",
+    "name": "Log firewall rule hits",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q14_log_firewall_rule_hits"
   },
   {
-    "name": "Lab 33 Q15 - Create ALLOWED_OUT chain in filter table",
+    "name": "Create ALLOWED_OUT chain in filter table",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q15_create_allowed_out_chain_in_filter_table"
   },
   {
-    "name": "Lab 33 Q16 - Create ALLOWED_IN chain in filter table",
+    "name": "Create ALLOWED_IN chain in filter table",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q16_create_allowed_in_chain_in_filter_table"
   },
   {
-    "name": "Lab 33 Q17 - Move processing to the ALLOWED_IN chain",
+    "name": "Move processing to the ALLOWED_IN chain",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q17_move_processing_to_the_allowed_in_chain"
   },
   {
-    "name": "Lab 33 Q18 - Move processing to the ALLOWED_OUT chain Insert",
+    "name": "Move processing to the ALLOWED_OUT chain Insert into the second position on the OUTPUT chain a jump to the new ALLOWED_OUT chain. Jump to ALLOWED_OUT not configured correctly!",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q18_move_processing_to_the_allowed_out_chain_insert_into_t"
   },
   {
-    "name": "Lab 33 Q19 - Move rules from OUTPUT to ALLOWED_OUT",
+    "name": "Move rules from OUTPUT to ALLOWED_OUT",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q19_move_rules_from_output_to_allowed_out"
   },
   {
-    "name": "Lab 33 Q20 - Configure port forwarding from port 8443 to port",
+    "name": "Configure port forwarding from port 8443 to port 22",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q20_configure_port_forwarding_from_port_8443_to_port_22"
   },
   {
-    "name": "Lab 33 Q21 - Allow port 22 in the ALLOWED_IN chain",
+    "name": "Allow port 22 in the ALLOWED_IN chain",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q21_allow_port_22_in_the_allowed_in_chain"
   },
   {
-    "name": "Lab 33 Q22 - Delete the PREPREFILTER chain from the nat table",
+    "name": "Delete the PREPREFILTER chain from the nat table A chain has been added to the nat table. Your need task is to delete the chain from the table:",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q22_delete_the_preprefilter_chain_from_the_nat_table_a_cha"
   },
   {
-    "name": "Lab 33 Q23 - Flush the rules from the PREPREFILTER chain",
+    "name": "Flush the rules from the PREPREFILTER chain",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q23_flush_the_rules_from_the_preprefilter_chain"
   },
   {
-    "name": "Lab 33 Q24 - Delete the PREPREFILTER chain from the nat table",
+    "name": "Delete the PREPREFILTER chain from the nat table You can now delete the chain by running \"iptables -t nat -X PREPREFILTER\". PREPREFILTER chain NOT deleted from nat table!",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q24_delete_the_preprefilter_chain_from_the_nat_table_you_c"
   },
   {
-    "name": "Lab 33 Q25 - Have you made a backup yet?",
+    "name": "Have you made a backup yet?",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q25_have_you_made_a_backup_yet"
   },
   {
-    "name": "Lab 33 Q26 - You have your backup, now flush everything",
+    "name": "You have your backup, now flush everything",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q26_you_have_your_backup_now_flush_everything"
   },
   {
-    "name": "Lab 33 Q27 - Flush the nat table too",
+    "name": "Flush the nat table too",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q27_flush_the_nat_table_too"
   },
   {
-    "name": "Lab 33 Q28 - Restore a backup",
+    "name": "Restore a backup",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q28_restore_a_backup"
   },
   {
-    "name": "Lab 33 Q01 - How much disk space is available on the system?",
+    "name": "How much disk space is available on the system?",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q01_how_much_disk_space_is_available_on_the_system"
   },
   {
-    "name": "Lab 33 Q02 - As a human, can you make sense of the numerical",
+    "name": "As a human, can you make sense of the numerical output?",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q02_as_a_human_can_you_make_sense_of_the_numerical_output"
   },
   {
-    "name": "Lab 33 Q03 - How much memory is available on the system?",
+    "name": "How much memory is available on the system?",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q03_how_much_memory_is_available_on_the_system"
   },
   {
-    "name": "Lab 33 Q04 - As a human...take two...",
+    "name": "As a human...take two...",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q04_as_a_human_take_two"
   },
   {
-    "name": "Lab 33 Q05 - How long has this system been running?",
+    "name": "How long has this system been running?",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q05_how_long_has_this_system_been_running"
   },
   {
-    "name": "Lab 33 Q06 - Try out one of the different uptime options",
+    "name": "Try out one of the different uptime options",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q06_try_out_one_of_the_different_uptime_options"
   },
   {
-    "name": "Lab 33 Q07 - What's a banner anyways?",
+    "name": "What's a banner anyways?",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q07_what_s_a_banner_anyways"
   },
   {
-    "name": "Lab 33 Q08 - Making a banner, part deux",
+    "name": "Making a banner, part deux",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q08_making_a_banner_part_deux"
   },
   {
-    "name": "Lab 33 Q09 - Can you verify the change you made?",
+    "name": "Can you verify the change you made?",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q09_can_you_verify_the_change_you_made"
   },
   {
-    "name": "Lab 33 Q10 - Restart the SSH daemon to record changes",
+    "name": "Restart the SSH daemon to record changes",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q10_restart_the_ssh_daemon_to_record_changes"
   },
   {
-    "name": "Lab 33 Q11 - Now check the banner by using SSH",
+    "name": "Now check the banner by using SSH",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q11_now_check_the_banner_by_using_ssh"
   },
   {
-    "name": "Lab 33 Q12 - Get me all the LOGS!",
+    "name": "Get me all the LOGS!",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q12_get_me_all_the_logs"
   },
   {
-    "name": "Lab 33 Q13 - The Challenge...",
+    "name": "The Challenge...",
     "lab": 33,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab33_q13_the_challenge"
   },
   {
-    "name": "Lab 34 Q01 - How much disk space is available on the system?",
+    "name": "How much disk space is available on the system? (2)",
     "lab": 34,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab34_q01_how_much_disk_space_is_available_on_the_system"
   },
   {
-    "name": "Lab 34 Q02 - As a human, can you make sense of the numerical",
+    "name": "As a human, can you make sense of the numerical output? (2)",
     "lab": 34,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab34_q02_as_a_human_can_you_make_sense_of_the_numerical_output"
   },
   {
-    "name": "Lab 34 Q03 - How much memory is available on the system?",
+    "name": "How much memory is available on the system? (2)",
     "lab": 34,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab34_q03_how_much_memory_is_available_on_the_system"
   },
   {
-    "name": "Lab 34 Q04 - As a human...take two...",
+    "name": "As a human...take two... (2)",
     "lab": 34,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab34_q04_as_a_human_take_two"
   },
   {
-    "name": "Lab 34 Q05 - How long has this system been running?",
+    "name": "How long has this system been running? (2)",
     "lab": 34,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab34_q05_how_long_has_this_system_been_running"
   },
   {
-    "name": "Lab 34 Q06 - Try out one of the different uptime options",
+    "name": "Try out one of the different uptime options (2)",
     "lab": 34,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab34_q06_try_out_one_of_the_different_uptime_options"
   },
   {
-    "name": "Lab 34 Q07 - What's a banner anyways?",
+    "name": "What's a banner anyways? (2)",
     "lab": 34,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab34_q07_what_s_a_banner_anyways"
   },
   {
-    "name": "Lab 34 Q08 - Making a banner, part deux",
+    "name": "Making a banner, part deux (2)",
     "lab": 34,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab34_q08_making_a_banner_part_deux"
   },
   {
-    "name": "Lab 34 Q09 - Can you verify the change you made?",
+    "name": "Can you verify the change you made? (2)",
     "lab": 34,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab34_q09_can_you_verify_the_change_you_made"
   },
   {
-    "name": "Lab 34 Q10 - Restart the SSH daemon to record changes",
+    "name": "Restart the SSH daemon to record changes (2)",
     "lab": 34,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab34_q10_restart_the_ssh_daemon_to_record_changes"
   },
   {
-    "name": "Lab 34 Q11 - Now check the banner by using SSH",
+    "name": "Now check the banner by using SSH (2)",
     "lab": 34,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab34_q11_now_check_the_banner_by_using_ssh"
   },
   {
-    "name": "Lab 34 Q12 - Get me all the LOGS!",
+    "name": "Get me all the LOGS! (2)",
     "lab": 34,
     "difficulty": "Expert",
     "points": 500,
     "flag": "lab34_q12_get_me_all_the_logs"
   },
   {
-    "name": "Lab 34 Q13 - The Challenge...",
+    "name": "The Challenge... (2)",
     "lab": 34,
     "difficulty": "Expert",
     "points": 500,

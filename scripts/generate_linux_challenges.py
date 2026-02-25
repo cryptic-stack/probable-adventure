@@ -201,7 +201,41 @@ def build_flag(lab_num: int, q_num: int, prompt: str, seen: Dict[str, int]) -> s
     return token
 
 
-def build_connection_info(runtime_image: str, flag: str) -> str:
+def extract_autograde_commands(commands: List[str]) -> List[str]:
+    out: List[str] = []
+    for command in commands:
+        value = command.strip()
+        if not value:
+            continue
+        lowered = value.lower()
+        if any(
+            bad in lowered
+            for bad in (
+                "insert flag",
+                "flag #",
+                "linux-vpn.sh",
+                "checkit",
+                "runme",
+                "supercat",
+            )
+        ):
+            continue
+
+        first = value.split()[0].strip("`")
+        if not re.match(r"^[a-zA-Z][a-zA-Z0-9+._-]*$", first):
+            continue
+
+        candidate = " ".join(value.split()[:4])
+        candidate = re.sub(r"\b127\.0\.0\.\d+\b", "localhost", candidate)
+        if candidate not in out:
+            out.append(candidate)
+        if len(out) >= 3:
+            break
+    return out
+
+
+def build_connection_info(runtime_image: str, flag: str, commands: List[str]) -> str:
+    autograde_commands = extract_autograde_commands(commands)
     payload = {
         "schema": "ctfd-access-v1",
         "type": "terminal",
@@ -210,6 +244,10 @@ def build_connection_info(runtime_image: str, flag: str) -> str:
             "image": runtime_image,
             "startup_command": "while true; do sleep 3600; done",
             "flag": flag,
+        },
+        "autograde": {
+            "enabled": bool(autograde_commands),
+            "commands": autograde_commands,
         },
     }
     return json.dumps(payload, separators=(",", ":"))
@@ -343,7 +381,7 @@ def generate(
                 type=challenge_type,
                 state="visible",
                 requirements="",
-                connection_info=build_connection_info(runtime_image, flag),
+                connection_info=build_connection_info(runtime_image, flag, commands),
                 flags=json.dumps([{"type": "static", "content": flag}]),
                 tags=tags,
                 hints=hints,
