@@ -99,6 +99,9 @@
                         <span x-show="!connecting">Start Terminal</span>
                         <span x-show="connecting">Starting...</span>
                       </button>
+                      <a class="btn btn-sm btn-outline-info ms-2" x-show="access.directUrl" :href="access.directUrl" target="_blank" rel="noopener">
+                        Open Terminal Directly
+                      </a>
                     </div>
                     <div class="mb-2" x-show="access.type === 'rdp'">
                       <button class="btn btn-sm btn-warning" @click="activateConnection()" :disabled="connecting">

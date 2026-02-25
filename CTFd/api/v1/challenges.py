@@ -1,6 +1,7 @@
 import math
 from datetime import datetime, timedelta
 from typing import List  # noqa: I001
+from urllib.parse import urlsplit, urlunsplit
 
 from flask import abort, render_template, request, session, url_for
 from flask_restx import Namespace, Resource
@@ -1041,6 +1042,22 @@ class ChallengeConnect(Resource):
         data, error = activate_challenge_container(challenge)
         if error:
             return {"success": False, "errors": {"connection": [error]}}, 400
+
+        # Ensure returned terminal URLs are reachable from the current client host.
+        if isinstance(data, dict) and data.get("url"):
+            try:
+                parsed = urlsplit(data["url"])
+                url_host = (parsed.hostname or "").lower()
+                if url_host in {"localhost", "127.0.0.1", "::1"}:
+                    client_host = (request.host or "").split(":")[0].strip()
+                    if client_host:
+                        netloc = f"{client_host}:{parsed.port}" if parsed.port else client_host
+                        data["url"] = urlunsplit(
+                            (parsed.scheme, netloc, parsed.path, parsed.query, parsed.fragment)
+                        )
+                        data["host"] = client_host
+            except Exception:
+                pass
 
         return {"success": True, "data": data}
 

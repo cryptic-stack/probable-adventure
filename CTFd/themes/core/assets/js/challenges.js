@@ -84,6 +84,7 @@ Alpine.data("Challenge", () => ({
   access: {
     type: "",
     url: "",
+    directUrl: "",
     embeddedUrl: "",
     embedTerminal: false,
     host: "",
@@ -105,6 +106,7 @@ Alpine.data("Challenge", () => ({
     const empty = {
       type: "",
       url: "",
+      directUrl: "",
       embeddedUrl: "",
       embedTerminal: false,
       host: "",
@@ -160,6 +162,7 @@ Alpine.data("Challenge", () => ({
       this.access = {
         type,
         url: (parsed.url || "").trim(),
+        directUrl: "",
         embeddedUrl: "",
         embedTerminal: false,
         host,
@@ -180,6 +183,7 @@ Alpine.data("Challenge", () => ({
         ...empty,
         type: "url",
         url: value,
+        directUrl: value,
         hasData: true,
       };
       return;
@@ -217,6 +221,7 @@ Alpine.data("Challenge", () => ({
       const data = payload.data || {};
       if (data.url) {
         this.access.url = data.url;
+        this.access.directUrl = data.url;
         if (this.access.type === "terminal") {
           this.access.embeddedUrl = data.url;
           this.access.embedTerminal = true;
