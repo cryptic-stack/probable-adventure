@@ -110,18 +110,32 @@ Alpine.data("Challenge", () => ({
       hasData: false,
     };
 
-    const value = (raw || "").trim();
-    if (!value) {
+    if (!raw) {
       this.access = empty;
       return;
     }
 
     let parsed = null;
-    try {
-      parsed = JSON.parse(value);
-    } catch (_e) {}
+    let value = "";
 
-    if (parsed && parsed.schema === "ctfd-access-v1") {
+    if (typeof raw === "object") {
+      parsed = raw;
+    } else if (typeof raw === "string") {
+      value = raw.trim();
+      if (!value) {
+        this.access = empty;
+        return;
+      }
+
+      try {
+        parsed = JSON.parse(value);
+      } catch (_e) {}
+    } else {
+      this.access = empty;
+      return;
+    }
+
+    if (parsed && (parsed.schema === "ctfd-access-v1" || parsed.type || parsed.url || parsed.host)) {
       const type = (parsed.type || "").toLowerCase();
       const host = (parsed.host || "").trim();
       const port = (parsed.port || "").toString().trim();
