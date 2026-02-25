@@ -189,11 +189,11 @@ def _build_lab_command(
     if access_type == "terminal":
         port = internal_port or 7681
         startup_bg = f"({startup}) & " if startup else ""
-        # ttyd provides browser-based PTY access to bash.
+        # Keep runtime setup as root, but always drop player terminal to unprivileged ctf.
         script = (
             f"{setup} "
             f"{startup_bg}"
-            f"exec ttyd -W -p {port} -i 0.0.0.0 bash -lc 'exec bash -li'"
+            f"exec ttyd -W -p {port} -i 0.0.0.0 bash -lc 'exec sudo -u ctf -H bash -lc \"cd /home/ctf && exec bash -li\"'"
         )
         return ["sh", "-lc", script]
 
@@ -226,6 +226,8 @@ def _provision_challenge_container(
         "ctfd.challenge_id": str(challenge_id),
         "ctfd.access_type": (access_type or "terminal"),
     }
+    if access_type == "terminal":
+        labels["ctfd.shell_user"] = "ctf"
     ports = None
     if internal_port and internal_port > 0:
         labels["ctfd.internal_port"] = str(internal_port)
@@ -505,7 +507,10 @@ def activate_challenge(
     # Re-provision stale terminal containers that were created before port mapping logic.
     if container is not None:
         labels = (container.attrs.get("Config") or {}).get("Labels") or {}
-        if requested_access_type == "terminal" and not labels.get("ctfd.internal_port"):
+        if requested_access_type == "terminal" and (
+            not labels.get("ctfd.internal_port")
+            or labels.get("ctfd.shell_user") != "ctf"
+        ):
             container.remove(force=True)
             container = None
 
