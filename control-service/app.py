@@ -392,9 +392,41 @@ def _tokenize_command(value: str) -> List[str]:
         return value.split()
 
 
+def _expand_common_aliases(tokens: List[str]) -> List[str]:
+    if not tokens:
+        return tokens
+    alias = tokens[0]
+    mapping = {
+        "ll": ["ls", "-l"],
+        "la": ["ls", "-A"],
+        "l": ["ls", "-CF"],
+    }
+    expansion = mapping.get(alias)
+    if not expansion:
+        return tokens
+    return expansion + tokens[1:]
+
+
+def _normalize_tokens(tokens: List[str]) -> List[str]:
+    normalized = [t.strip() for t in tokens if t and t.strip()]
+    normalized = _expand_common_aliases(normalized)
+    while normalized and normalized[0] in {"sudo", "command"}:
+        normalized = normalized[1:]
+    return normalized
+
+
+def _arg_matches(actual_arg: str, expected_arg: str) -> bool:
+    if actual_arg == expected_arg:
+        return True
+    # Accept equivalent path forms like "newfile" vs "./newfile" or "/tmp/newfile".
+    if expected_arg and "/" not in expected_arg:
+        return os.path.basename(actual_arg) == expected_arg
+    return False
+
+
 def _line_matches_expected(line: str, expected: str) -> bool:
-    actual = _tokenize_command(line.strip())
-    target = _tokenize_command(expected.strip())
+    actual = _normalize_tokens(_tokenize_command(line.strip()))
+    target = _normalize_tokens(_tokenize_command(expected.strip()))
     if not actual or not target:
         return False
     if actual[0] != target[0]:
@@ -417,7 +449,7 @@ def _line_matches_expected(line: str, expected: str) -> bool:
             if not required.issubset(present):
                 return False
             continue
-        if token not in actual_args:
+        if not any(_arg_matches(arg, token) for arg in actual_args):
             return False
     return True
 
@@ -427,7 +459,11 @@ def _read_command_history(container) -> List[str]:
         [
             "sh",
             "-lc",
-            "tail -n 4000 /home/ctf/.ctfd_commands 2>/dev/null || tail -n 4000 /home/ctf/.bash_history 2>/dev/null || true",
+            "if [ -s /home/ctf/.ctfd_commands ]; then "
+            "tail -n 4000 /home/ctf/.ctfd_commands; "
+            "elif [ -s /home/ctf/.bash_history ]; then "
+            "tail -n 4000 /home/ctf/.bash_history; "
+            "fi",
         ]
     )
     if result.exit_code != 0:
