@@ -95,22 +95,28 @@
                       <strong>Challenge Access</strong>
                     </div>
                     <div class="mb-2" x-show="access.type === 'terminal'">
-                      <button class="btn btn-sm btn-success" @click="activateConnection()" :disabled="connecting">
-                        <span x-show="!connecting">Start Terminal</span>
-                        <span x-show="connecting">Starting...</span>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-success"
+                        @click="launchEmbeddedTerminal($event)"
+                      >
+                        Start Terminal
                       </button>
+                      <a class="btn btn-sm btn-outline-secondary ms-2" href="{{ url_for('challenges.launch', challenge_id=challenge.id) }}" target="_blank" rel="noopener">
+                        Launch (Fallback)
+                      </a>
                       <a class="btn btn-sm btn-outline-info ms-2" x-show="access.directUrl" :href="access.directUrl" target="_blank" rel="noopener">
                         Open Terminal Directly
                       </a>
                     </div>
                     <div class="mb-2" x-show="access.type === 'rdp'">
-                      <button class="btn btn-sm btn-warning" @click="activateConnection()" :disabled="connecting">
+                      <button type="button" class="btn btn-sm btn-warning" @click.prevent="activateConnection()" :disabled="connecting">
                         <span x-show="!connecting">Open RDP Session</span>
                         <span x-show="connecting">Starting...</span>
                       </button>
                     </div>
                     <div class="mb-2" x-show="access.type === 'url'">
-                      <button class="btn btn-sm btn-info" @click="activateConnection()" :disabled="connecting">
+                      <button type="button" class="btn btn-sm btn-info" @click.prevent="activateConnection()" :disabled="connecting">
                         <span x-show="!connecting">Open Challenge Service</span>
                         <span x-show="connecting">Starting...</span>
                       </button>
@@ -147,7 +153,8 @@
                     <button class="btn btn-sm btn-outline-light" @click="closeEmbeddedTerminal()">Hide</button>
                   </div>
                   <iframe
-                    :src="access.embeddedUrl"
+                    :src="access.embeddedUrl || 'about:blank'"
+                    :name="terminalFrameName()"
                     title="Challenge terminal"
                     style="width: 100%; min-height: 560px; border: 0;"
                     referrerpolicy="no-referrer"

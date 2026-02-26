@@ -85,6 +85,7 @@ Alpine.data("Challenge", () => ({
     type: "",
     url: "",
     directUrl: "",
+    launchPath: "",
     embeddedUrl: "",
     embedTerminal: false,
     host: "",
@@ -107,6 +108,7 @@ Alpine.data("Challenge", () => ({
       type: "",
       url: "",
       directUrl: "",
+      launchPath: "",
       embeddedUrl: "",
       embedTerminal: false,
       host: "",
@@ -163,6 +165,7 @@ Alpine.data("Challenge", () => ({
         type,
         url: (parsed.url || "").trim(),
         directUrl: "",
+        launchPath: this.id ? `/challenges/${this.id}/launch` : "",
         embeddedUrl: "",
         embedTerminal: false,
         host,
@@ -197,12 +200,50 @@ Alpine.data("Challenge", () => ({
     };
   },
 
+  terminalFrameName() {
+    return `challenge-terminal-frame-${this.id || "active"}`;
+  },
+
+  launchEmbeddedTerminal(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    if (!this.id) {
+      alert("Challenge context is not initialized. Refresh and try again.");
+      return;
+    }
+    const launchPath = this.access.launchPath || `/challenges/${this.id}/launch`;
+    this.access.launchPath = launchPath;
+    this.access.url = launchPath;
+    this.access.directUrl = launchPath;
+    this.access.embedTerminal = true;
+    // Force a navigation refresh in the iframe each launch click.
+    const sep = launchPath.includes("?") ? "&" : "?";
+    this.access.embeddedUrl = `${launchPath}${sep}embed=1&t=${Date.now()}`;
+    this.startAutoCheck();
+  },
+
   async activateConnection() {
-    if (!this.id || !this.access.hasData || this.connecting) {
+    if (!this.id) {
+      alert("Challenge context is not initialized. Refresh and try again.");
+      return;
+    }
+    if (!this.access.hasData) {
+      alert("No connection profile is configured for this challenge.");
+      return;
+    }
+    if (this.connecting) {
       return;
     }
     this.connecting = true;
     try {
+      // For browser terminals, use the server-side launch endpoint directly so
+      // split-screen embed works even when async connect calls fail in-browser.
+      if (this.access.type === "terminal") {
+        this.launchEmbeddedTerminal();
+        return;
+      }
+
       const response = await CTFd.fetch(`/api/v1/challenges/${this.id}/connect`, {
         method: "POST",
         credentials: "same-origin",

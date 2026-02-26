@@ -176,6 +176,22 @@ def _infer_autograde_commands(challenge) -> List[str]:
         ]
     ).lower()
 
+    if "disk space" in text:
+        return ["df", "df -h"]
+    if "memory is available" in text or "memory available" in text:
+        return ["free", "free -h"]
+    if "how long has this system been running" in text:
+        return ["uptime"]
+    if "uptime options" in text or "different uptime options" in text:
+        return ["uptime -p", "uptime -s", "uptime"]
+    if "banner" in text:
+        return ["cat /etc/motd", "nano /etc/motd", "vi /etc/motd", "vim /etc/motd"]
+    if "restart the ssh daemon" in text:
+        return ["systemctl restart ssh", "service ssh restart"]
+    if "check the banner by using ssh" in text:
+        return ["ssh localhost", "ssh 127.0.0.1"]  # allow-local-ref
+    if "all the logs" in text or "all the logs!" in text:
+        return ["journalctl", "cat /var/log/auth.log", "tail -n 100 /var/log/auth.log"]
     if "current working directory" in text or " with pwd" in text:
         return ["pwd"]
     if "logged in as" in text or "whoami" in text:

@@ -1048,7 +1048,7 @@ class ChallengeConnect(Resource):
             try:
                 parsed = urlsplit(data["url"])
                 url_host = (parsed.hostname or "").lower()
-                if url_host in {"localhost", "127.0.0.1", "::1"}:
+                if url_host == "localhost" or url_host.startswith("127.") or url_host == "::1":
                     client_host = (request.host or "").split(":")[0].strip()
                     if client_host:
                         netloc = f"{client_host}:{parsed.port}" if parsed.port else client_host
