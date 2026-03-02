@@ -1,0 +1,160 @@
+# AI Code Agent Playbook: Web-Launched Terminal + RDP Sessions
+
+## Goal
+Build a challenge platform where users launch isolated container sessions and access them in-browser:
+- Terminal sessions (web shell)
+- Desktop/RDP-style sessions (web desktop via noVNC/Guacamole/xrdp-web bridge)
+
+The system must support per-user/per-team isolation, session lifecycle controls, and safe multi-tenant operation.
+
+## Primary Stack
+- Backend control plane: Python (`FastAPI` or `Flask`)
+- Frontend: JavaScript with `Vite`
+  - Option A: `Vue 3`
+  - Option B: `React`
+- Runtime: Docker containers (one session container per account/team/challenge)
+- Proxy/gateway: `Nginx` (or Traefik) for same-origin browser access
+- Data: MySQL/Postgres + Redis (session metadata, locks, TTLs)
+
+## Optional Java Role
+If Java is required, use a separate Spring Boot service as:
+- API gateway for session metadata + authz
+- Event/telemetry processor
+- Not the first choice for direct Docker orchestration unless team is Java-first
+
+## Required Capabilities
+1. Session identity
+- Derive `session_id` from team or account (`team-<id>` preferred in team mode).
+- Every runtime action is scoped by `challenge_id + session_id`.
+
+2. Lifecycle APIs
+- `start`, `stop`, `reset`, `remove`
+- `list sessions`
+- `prune expired (TTL)`
+
+3. Access URL model
+- Terminal embed: `/terminal/<challenge_id>/<session_id>/...`
+- Desktop embed: `/desktop/<challenge_id>/<session_id>/<internal_port>/...`
+- External URL fallback allowed when embed is unavailable.
+
+4. Frontend behavior
+- Dedicated right-side workspace panel in challenge UI.
+- Left-side challenge content remains readable.
+- Session controls in UI: launch/open/reset/reconnect.
+
+5. Security
+- Signed auth between app and control service (bearer token at minimum).
+- Same-origin proxy for browser clients; no direct Docker host exposure.
+- Container hardening:
+  - non-root shell user
+  - readonly where possible
+  - resource limits (CPU/RAM/PIDs)
+  - network policy and egress controls
+
+## Backend Implementation Guide (Python)
+1. Create control service endpoints:
+- `PUT /challenges/{id}/provision`
+- `POST /challenges/{id}/activate`
+- `POST /challenges/{id}/sessions/{session_id}/action`
+- `GET /challenges/{id}/sessions`
+- `POST /maintenance/prune-expired`
+
+2. Container naming convention
+- `ctfd-challenge-{challenge_id}-session-{session_id}-lab`
+- Keep temporary backward-compatible fallback to legacy challenge-only names.
+
+3. Store labels on container
+- `ctfd.challenge_id`
+- `ctfd.session_id`
+- `ctfd.user_id` (optional)
+- `ctfd.team_id` (optional)
+- `ctfd.access_type`
+
+4. Normalize returned access payload
+- `access_type`
+- `url`
+- `embed_url`
+- `external_url`
+- `host`, `port`, `session_id`
+
+5. Add TTL cleanup
+- Remove managed session containers older than configured TTL.
+- Support `dry_run=true` mode.
+
+## Frontend Implementation Guide (Vite + Vue/React)
+1. Challenge modal layout
+- Two-column desktop:
+  - Left: challenge text/files/hints/submission
+  - Right: workspace card (terminal iframe/xterm, RDP iframe)
+- Mobile: stack columns.
+
+2. Session controls
+- Buttons: `Start`, `Reset`, `Open in new tab`
+- Status badges: `connecting/connected/error`
+- Auto-reconnect only on explicit user action.
+
+3. Terminal embedding
+- Use `xterm.js` websocket path on same-origin proxy.
+- Resize handling on panel and window changes.
+
+4. RDP/desktop embedding
+- Prefer embeddable web URL in right panel.
+- Fall back to external URL if embed cannot be rendered.
+
+## Nginx/Proxy Requirements
+- Proxy websocket upgrades for terminal.
+- Route session-aware paths to corresponding container DNS names.
+- Long read/send timeouts for interactive sessions.
+
+## Data + Domain Model
+Minimum session record fields:
+- `challenge_id`
+- `session_id`
+- `user_id`
+- `team_id`
+- `container_id`
+- `access_type`
+- `state`
+- `created_at`
+- `last_activity_at`
+- `expires_at`
+
+Use DB as source of truth for UI/ops; container labels are runtime hints.
+
+## Testing Requirements
+1. Unit tests
+- URL normalization
+- session route generation
+- action validation
+
+2. Integration/API tests
+- connect endpoint rewrites localhost correctly
+- session actions proxy correctly
+- TTL prune behavior (`dry_run` and actual delete)
+
+3. UI tests
+- right workspace renders terminal and desktop
+- reset button re-establishes session
+- mobile layout remains usable
+
+## Definition of Done
+- Users can open challenge and use a persistent right-side workspace.
+- Session isolation is per team/account.
+- Admin can list/reset/stop/remove sessions and prune expired sessions.
+- No direct host-port dependency for normal browser usage.
+- Tests pass for runtime, API, and critical UI flows.
+
+## Agent Execution Order
+1. Implement/verify control-service session APIs.
+2. Implement CTF app runtime wrapper + challenge API endpoints.
+3. Add nginx session routes.
+4. Add challenge modal workspace UX (right panel).
+5. Add admin live sessions page.
+6. Add tests and docs.
+
+## Common Failure Modes
+- Missing `session_id` propagation from app -> control service.
+- Returning direct localhost URLs to browser clients.
+- Terminal websocket blocked by proxy headers/timeouts.
+- Session reset recreates container but UI still points to stale URL.
+- Team mode mismatch (`user` sessions accidentally used in team events).

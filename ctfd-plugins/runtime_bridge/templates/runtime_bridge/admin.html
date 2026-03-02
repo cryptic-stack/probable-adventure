@@ -1,0 +1,124 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="jumbotron">
+  <div class="container">
+    <h1>Runtime Management</h1>
+  </div>
+</div>
+
+<div class="container runtime-admin" id="runtime-admin-root">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="alert alert-info">
+        Configure per-challenge runtime profiles and manage active session containers.
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-7">
+      <h4>Challenge Runtime Profiles</h4>
+      <div class="table-responsive">
+        <table class="table table-striped border">
+          <thead>
+            <tr>
+              <th class="text-center">ID</th>
+              <th>Name</th>
+              <th class="text-center">Runtime</th>
+              <th>Type</th>
+              <th>Image</th>
+              <th class="text-center">Port</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+            {% set p = row.profile or {} %}
+            <tr>
+              <td class="text-center">{{ row.id }}</td>
+              <td>{{ row.name }}</td>
+              <td class="text-center">
+                {% if row.runtime_enabled %}
+                <span class="badge badge-success">Enabled</span>
+                {% else %}
+                <span class="badge badge-secondary">Disabled</span>
+                {% endif %}
+              </td>
+              <td>{{ p.get("type", "-") }}</td>
+              <td class="text-truncate runtime-image-col">{{ p.get("image", "-") }}</td>
+              <td class="text-center">{{ p.get("internal_port", "-") }}</td>
+              <td class="text-right">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-primary rb-edit-profile"
+                  data-challenge-id="{{ row.id }}"
+                  data-payload='{{ (row.profile or {"type":"terminal","image":default_image,"internal_port":7681}) | tojson }}'
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-info rb-load-sessions"
+                  data-challenge-id="{{ row.id }}"
+                >
+                  Sessions
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <h4>Profile Editor</h4>
+      <form id="rb-profile-form">
+        <div class="form-group">
+          <label for="rb-challenge-id">Challenge ID</label>
+          <input id="rb-challenge-id" class="form-control" type="number" min="1" required>
+        </div>
+        <div class="form-group">
+          <label for="rb-profile-json">Profile JSON</label>
+          <textarea id="rb-profile-json" class="form-control runtime-json" rows="14" required>{
+  "type": "terminal",
+  "image": "{{ default_image }}",
+  "internal_port": 7681
+}</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Profile</button>
+        <span id="rb-profile-status" class="ml-2 text-muted"></span>
+      </form>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <h4>Live Sessions</h4>
+      <div id="rb-session-status" class="text-muted mb-2">Select "Sessions" from a challenge row to load.</div>
+      <div class="table-responsive">
+        <table class="table table-striped border">
+          <thead>
+            <tr>
+              <th>Session</th>
+              <th>Container</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Access</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="rb-sessions-body">
+            <tr>
+              <td colspan="6" class="text-center text-muted">No session data loaded.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

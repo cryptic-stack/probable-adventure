@@ -1,0 +1,14 @@
+.runtime-admin .runtime-json {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.9rem;
+}
+
+.runtime-admin .runtime-image-col {
+  max-width: 240px;
+}
+
+.runtime-admin .rb-action-row {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}

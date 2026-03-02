@@ -1,0 +1,139 @@
+/* Challenge board card density */
+.challenges-row .challenge-button {
+  min-height: 92px;
+}
+
+.challenges-row .challenge-inner {
+  margin: 0.35rem 0;
+}
+
+.challenges-row .challenge-inner p {
+  margin-bottom: 0.2rem;
+  font-size: 0.95rem;
+}
+
+.challenges-row .challenge-inner span {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+@media (min-width: 1200px) {
+  .challenges-row .col-lg-3 {
+    flex: 0 0 20%;
+    max-width: 20%;
+  }
+}
+
+/* Larger modal for side-by-side challenge + workspace */
+#challenge-window .modal-dialog {
+  max-width: min(1480px, 96vw);
+}
+
+#challenge-window .rb-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 42%);
+  gap: 1rem;
+  align-items: start;
+}
+
+#challenge-window .rb-main {
+  min-width: 0;
+}
+
+#challenge-window .rb-workspace {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  background: rgba(10, 14, 22, 0.78);
+  padding: 0.75rem;
+  position: sticky;
+  top: 0.5rem;
+}
+
+#challenge-window .rb-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+}
+
+#challenge-window .rb-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+#challenge-window .rb-status {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+}
+
+#challenge-window .rb-status.is-idle {
+  color: #bdc6d6;
+  background: rgba(189, 198, 214, 0.18);
+}
+
+#challenge-window .rb-status.is-active {
+  color: #c8f7dc;
+  background: rgba(27, 140, 68, 0.42);
+}
+
+#challenge-window .rb-status.is-busy {
+  color: #ffe9bf;
+  background: rgba(167, 100, 0, 0.45);
+}
+
+#challenge-window .rb-status.is-error {
+  color: #ffd0d6;
+  background: rgba(173, 42, 60, 0.5);
+}
+
+#challenge-window .rb-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 0.7rem;
+}
+
+#challenge-window .rb-canvas {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #080d13;
+  min-height: 420px;
+}
+
+#challenge-window .rb-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b0b8c5;
+  font-size: 0.9rem;
+  padding: 2rem 1.25rem;
+  text-align: center;
+  min-height: 420px;
+}
+
+#challenge-window .rb-open-link {
+  color: #89c9ff;
+}
+
+#challenge-window .rb-frame {
+  display: block;
+  width: 100%;
+  height: 620px;
+  border: 0;
+  background: #000;
+}
+
+@media (max-width: 1199px) {
+  #challenge-window .rb-layout {
+    grid-template-columns: 1fr;
+  }
+
+  #challenge-window .rb-workspace {
+    position: static;
+  }
+}

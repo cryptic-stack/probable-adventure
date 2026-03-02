@@ -1,0 +1,111 @@
+services:
+  control-service:
+    build: ./control-service
+    environment:
+      - CONTROL_SERVICE_TOKEN=${CONTROL_SERVICE_TOKEN:-change-me}
+      - CHALLENGE_RUNTIME_NETWORK=probable-adventure_default
+      - CHALLENGE_EXPOSE_HOST_PORTS=false
+      - CONTROL_PUBLIC_HOST=localhost
+      - CHALLENGE_DEFAULT_IMAGE=${CHALLENGE_DEFAULT_IMAGE:-ghcr.io/your-org/probable-adventure-lab-base:latest}
+      - CHALLENGE_FILESHARE_URL=${CHALLENGE_FILESHARE_URL:-http://fileshare:8080}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://127.0.0.1:9001/health', timeout=3).raise_for_status()"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  ctfd:
+    image: ctfd/ctfd:latest
+    environment:
+      - UPLOAD_FOLDER=/var/uploads
+      - DATABASE_URL=mysql+pymysql://ctfd:ctfd@ctfd-db/ctfd
+      - REDIS_URL=redis://ctfd-cache:6379
+      - WORKERS=1
+      - LOG_FOLDER=/var/log/CTFd
+      - ACCESS_LOG=-
+      - ERROR_LOG=-
+      - REVERSE_PROXY=true
+      - CHALLENGE_CONTROL_URL=http://control-service:9001
+      - CHALLENGE_CONTROL_TOKEN=${CONTROL_SERVICE_TOKEN:-change-me}
+    volumes:
+      - ctfd-logs:/var/log/CTFd
+      - ctfd-uploads:/var/uploads
+      - ./ctfd-plugins/runtime_bridge:/opt/CTFd/CTFd/plugins/runtime_bridge
+    depends_on:
+      control-service:
+        condition: service_healthy
+      ctfd-db:
+        condition: service_started
+      ctfd-cache:
+        condition: service_started
+    networks:
+      - default
+      - internal
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://127.0.0.1:8000', timeout=5).raise_for_status()"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  ctfd-db:
+    image: mariadb:10.11
+    environment:
+      - MARIADB_ROOT_PASSWORD=ctfd
+      - MARIADB_USER=ctfd
+      - MARIADB_PASSWORD=ctfd
+      - MARIADB_DATABASE=ctfd
+    command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
+    volumes:
+      - ctfd-db:/var/lib/mysql
+    networks:
+      - internal
+
+  ctfd-cache:
+    image: redis:7-alpine
+    volumes:
+      - ctfd-cache:/data
+    networks:
+      - internal
+
+  fileshare:
+    build: ./images/challenge-fileshare
+    environment:
+      - FILE_SHARE_PORT=8080
+      - FILE_SHARE_ROOT=/srv/challenge-files
+    volumes:
+      - ./challenge-files:/srv/challenge-files
+    networks:
+      - default
+      - internal
+
+  nginx:
+    image: nginx:stable
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      ctfd:
+        condition: service_healthy
+      fileshare:
+        condition: service_started
+    networks:
+      - default
+      - internal
+
+networks:
+  default:
+  internal:
+    internal: true
+
+volumes:
+  ctfd-logs:
+  ctfd-uploads:
+  ctfd-db:
+  ctfd-cache:
