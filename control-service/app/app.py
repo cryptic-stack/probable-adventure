@@ -11,6 +11,11 @@ from pydantic import BaseModel
 app = FastAPI(title="Container Control Service")
 
 
+@app.exception_handler(HTTPException)
+def http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(status_code=int(exc.status_code), content={"success": False, "error": str(exc.detail)})
+
+
 @app.exception_handler(Exception)
 def unhandled_exception_handler(request: Request, exc: Exception):
     message = getattr(exc, "detail", None) or str(exc) or exc.__class__.__name__

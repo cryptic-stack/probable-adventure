@@ -153,7 +153,7 @@ def _control_request(method: str, path: str, payload: Optional[Dict[str, Any]] =
     except ValueError:
         return None, "control-service non-json response", 502
     if not response.ok or not body.get("success", False):
-        return None, body.get("error") or "control-service error", response.status_code
+        return None, body.get("error") or body.get("detail") or "control-service error", response.status_code
     return body.get("data"), None, 200
 
 
