@@ -130,6 +130,30 @@
   }
 
   root.addEventListener("click", function (event) {
+    const catalogBtn = event.target.closest(".rb-apply-catalog");
+    if (catalogBtn) {
+      const raw = catalogBtn.dataset.catalog || "{}";
+      try {
+        const item = JSON.parse(raw);
+        const current = challengeIdInput.value ? Number(challengeIdInput.value) : null;
+        const profile = item.default_profile && typeof item.default_profile === "object" ? item.default_profile : {};
+        const payload = {
+          ...profile,
+          image: item.image || profile.image || "",
+        };
+        if (!payload.type) payload.type = "terminal";
+        if (!payload.internal_port) payload.internal_port = payload.type === "terminal" ? 7681 : 6080;
+        profileJsonInput.value = JSON.stringify(payload, null, 2);
+        if (current) {
+          challengeIdInput.value = String(current);
+        }
+        setProfileStatus("Loaded preset: " + (item.name || item.id || "catalog image"), false);
+      } catch (err) {
+        setProfileStatus("Invalid catalog preset", true);
+      }
+      return;
+    }
+
     const editBtn = event.target.closest(".rb-edit-profile");
     if (editBtn) {
       challengeIdInput.value = editBtn.dataset.challengeId || "";

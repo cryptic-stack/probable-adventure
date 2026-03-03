@@ -32,6 +32,7 @@ Includes:
 
 Default lab image is controlled by:
 - `CHALLENGE_DEFAULT_IMAGE`
+- `RUNTIME_IMAGE_NAMESPACE` (used by runtime catalog presets in admin UI)
 
 Current compose default:
 - `ghcr.io/your-org/probable-adventure-lab-base:latest`
@@ -41,6 +42,11 @@ Override locally (example):
 set CHALLENGE_DEFAULT_IMAGE=probable-adventure-lab-base:local
 docker build -t probable-adventure-lab-base:local ./images/lab-base
 docker compose up --build
+```
+
+Set your GHCR namespace once (example):
+```bash
+set RUNTIME_IMAGE_NAMESPACE=ghcr.io/<your-gh-owner>
 ```
 
 ## Challenge File Share Image
@@ -70,6 +76,26 @@ Workflow:
 Builds and pushes on `main` (or manual dispatch):
 - `ghcr.io/<owner>/probable-adventure-lab-base:latest`
 - `ghcr.io/<owner>/probable-adventure-challenge-fileshare:latest`
+- `ghcr.io/<owner>/probable-adventure-kali-terminal:latest`
+- `ghcr.io/<owner>/probable-adventure-forensics-terminal:latest`
+- `ghcr.io/<owner>/probable-adventure-windows-rdp:latest`
+
+## Planning More Images
+
+Runtime image catalog:
+- `images/catalog.json`
+
+Add a new image in 3 steps:
+1. Add `images/<new-image>/Dockerfile`.
+2. Add a `matrix` entry in `.github/workflows/build-runtime-images.yml`.
+3. Add a catalog record in `images/catalog.json` with:
+   - `id`, `name`, `description`, `image`
+   - `default_profile` (type/port/env/capabilities)
+
+The Runtime admin page reads the catalog and exposes `Apply Preset` buttons so new images can be adopted without UI code changes.
+
+Planning reference:
+- `docs/RUNTIME_IMAGE_PLAN.md`
 
 ## API Summary
 

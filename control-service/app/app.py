@@ -102,7 +102,7 @@ def _expose_ports() -> bool:
     }
 
 
-def _build_command(access_type: str, startup_command: Optional[str], internal_port: int) -> List[str]:
+def _build_command(access_type: str, startup_command: Optional[str], internal_port: int) -> Optional[List[str]]:
     startup = (startup_command or "").strip()
     if access_type == "terminal":
         # Requires ttyd in the session image.
@@ -113,8 +113,10 @@ def _build_command(access_type: str, startup_command: Optional[str], internal_po
             f"exec ttyd -W -p {internal_port} -i 0.0.0.0 bash -lc 'exec bash -li'"
         )
         return ["sh", "-lc", script]
-    idle = startup or "while true; do sleep 3600; done"
-    return ["sh", "-lc", idle]
+    # For desktop/webapp images, keep image entrypoint/cmd by default.
+    if startup:
+        return ["sh", "-lc", startup]
+    return None
 
 
 def _create_or_replace(client, challenge_id: int, payload: RuntimePayload):
@@ -130,9 +132,22 @@ def _create_or_replace(client, challenge_id: int, payload: RuntimePayload):
     if access_type not in {"terminal", "rdp", "url"}:
         raise HTTPException(status_code=400, detail="invalid access_type")
 
-    internal_port = payload.internal_port or (7681 if access_type == "terminal" else 6080)
+    if access_type == "terminal":
+        default_port = 7681
+    elif access_type == "rdp":
+        default_port = 8006
+    else:
+        default_port = 6080
+    internal_port = payload.internal_port or default_port
     if internal_port <= 0:
         raise HTTPException(status_code=400, detail="internal_port must be > 0")
+
+    needs_kvm = any("/dev/kvm" in str(item) for item in (payload.devices or []))
+    if needs_kvm and not os.path.exists("/dev/kvm"):
+        raise HTTPException(
+            status_code=400,
+            detail="Requested /dev/kvm device but host does not expose KVM. Use a KVM-capable Docker host.",
+        )
 
     existing = _find_container(client, challenge_id, session_id)
     if existing is not None:

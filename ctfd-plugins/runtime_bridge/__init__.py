@@ -21,8 +21,46 @@ PLUGIN_NAMESPACE = "runtime_bridge"
 CONFIG_KEY = "runtime_profiles_v1"
 
 
+def _runtime_image_namespace() -> str:
+    return os.getenv("RUNTIME_IMAGE_NAMESPACE", "ghcr.io/your-org").strip().rstrip("/")
+
+
 def _default_runtime_image() -> str:
-    return os.getenv("CHALLENGE_DEFAULT_IMAGE", "ghcr.io/your-org/probable-adventure-lab-base:latest").strip()
+    return os.getenv(
+        "CHALLENGE_DEFAULT_IMAGE",
+        f"{_runtime_image_namespace()}/probable-adventure-lab-base:latest",
+    ).strip()
+
+
+def _resolve_catalog_value(value: Any, namespace: str) -> Any:
+    if isinstance(value, str):
+        return value.replace("{runtime_image_namespace}", namespace)
+    if isinstance(value, list):
+        return [_resolve_catalog_value(v, namespace) for v in value]
+    if isinstance(value, dict):
+        return {k: _resolve_catalog_value(v, namespace) for k, v in value.items()}
+    return value
+
+
+def _load_image_catalog() -> Dict[str, Any]:
+    catalog_path = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "images", "catalog.json")
+    )
+    try:
+        with open(catalog_path, "r", encoding="utf-8") as handle:
+            payload = json.load(handle)
+    except (OSError, ValueError):
+        payload = {}
+    if not isinstance(payload, dict):
+        payload = {}
+    images = payload.get("images")
+    if not isinstance(images, list):
+        images = []
+    namespace = _runtime_image_namespace()
+    payload["images"] = [
+        _resolve_catalog_value(row, namespace) for row in images if isinstance(row, dict) and row.get("id")
+    ]
+    return payload
 
 
 def _control_base() -> str:
@@ -94,6 +132,33 @@ def _challenge_profile(challenge_id: int) -> Optional[Dict[str, Any]]:
     profiles = _load_profiles()
     profile = profiles.get(str(challenge_id))
     return profile if isinstance(profile, dict) else None
+
+
+def _profile_from_catalog(profile_id: str) -> Optional[Dict[str, Any]]:
+    target = (profile_id or "").strip()
+    if not target:
+        return None
+    catalog = _load_image_catalog()
+    for item in catalog.get("images", []):
+        if not isinstance(item, dict):
+            continue
+        if str(item.get("id", "")).strip() != target:
+            continue
+        default_profile = item.get("default_profile")
+        if not isinstance(default_profile, dict):
+            return None
+        merged = dict(default_profile)
+        if item.get("image"):
+            merged["image"] = item.get("image")
+        return merged
+    return None
+
+
+def _resolve_runtime_profile(challenge_id: int, body: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    profile_id = str((body or {}).get("profile_id") or "").strip()
+    if profile_id:
+        return _profile_from_catalog(profile_id)
+    return _challenge_profile(challenge_id)
 
 
 def _render_templates(value: Any, fields: Dict[str, Any]) -> Any:
@@ -189,6 +254,7 @@ def load(app):
     def admin_panel():
         profiles = _load_profiles()
         default_image = _default_runtime_image()
+        image_catalog = _load_image_catalog()
         rows = []
         for challenge in Challenges.query.order_by(Challenges.id.asc()).all():
             profile = profiles.get(str(challenge.id))
@@ -205,11 +271,17 @@ def load(app):
             rows=rows,
             profiles=profiles,
             default_image=default_image,
+            image_catalog=image_catalog,
         )
 
     @bp.get("/health")
     def health():
         return jsonify({"success": True, "data": {"ok": True, "plugin": PLUGIN_NAMESPACE}})
+
+    @bp.get("/catalog")
+    @authed_only
+    def image_catalog():
+        return jsonify({"success": True, "data": _load_image_catalog()})
 
     @bp.get("/capabilities")
     @authed_only
@@ -239,7 +311,8 @@ def load(app):
     @bp.post("/challenges/<int:challenge_id>/connect")
     @authed_only
     def challenge_connect(challenge_id: int):
-        profile = _challenge_profile(challenge_id)
+        body = request.get_json(silent=True) or {}
+        profile = _resolve_runtime_profile(challenge_id, body)
         if not profile:
             return jsonify({"success": False, "error": "No runtime profile configured"}), 400
 
@@ -285,7 +358,7 @@ def load(app):
         if action not in {"start", "stop", "reset", "remove"}:
             return jsonify({"success": False, "error": "Invalid action"}), 400
 
-        profile = _challenge_profile(challenge_id)
+        profile = _resolve_runtime_profile(challenge_id, body)
         if not profile:
             return jsonify({"success": False, "error": "No runtime profile configured"}), 400
 

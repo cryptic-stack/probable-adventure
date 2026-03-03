@@ -17,6 +17,28 @@
   </div>
 
   <div class="row">
+    <div class="col-md-12 mb-4">
+      <h4>Image Catalog</h4>
+      <div class="runtime-catalog-grid">
+        {% for item in image_catalog.get("images", []) %}
+        <div class="runtime-catalog-card">
+          <h5>{{ item.get("name") }}</h5>
+          <div class="text-muted mb-2">{{ item.get("description", "") }}</div>
+          <div><code>{{ item.get("image") }}</code></div>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-primary mt-3 rb-apply-catalog"
+            data-catalog='{{ item | tojson }}'
+          >
+            Apply Preset
+          </button>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
     <div class="col-lg-7">
       <h4>Challenge Runtime Profiles</h4>
       <div class="table-responsive">
