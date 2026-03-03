@@ -4,10 +4,20 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 import docker
-from fastapi import FastAPI, Header, HTTPException, Query
+from fastapi import FastAPI, Header, HTTPException, Query, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 app = FastAPI(title="Container Control Service")
+
+
+@app.exception_handler(Exception)
+def unhandled_exception_handler(request: Request, exc: Exception):
+    message = getattr(exc, "detail", None) or str(exc) or exc.__class__.__name__
+    status = 500
+    if isinstance(exc, HTTPException):
+        status = int(exc.status_code)
+    return JSONResponse(status_code=status, content={"success": False, "error": message})
 
 
 class RuntimePayload(BaseModel):

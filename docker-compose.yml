@@ -6,8 +6,8 @@ services:
       - CHALLENGE_RUNTIME_NETWORK=probable-adventure_default
       - CHALLENGE_EXPOSE_HOST_PORTS=false
       - CONTROL_PUBLIC_HOST=localhost
-      - RUNTIME_IMAGE_NAMESPACE=${RUNTIME_IMAGE_NAMESPACE:-ghcr.io/your-org}
-      - CHALLENGE_DEFAULT_IMAGE=${CHALLENGE_DEFAULT_IMAGE:-ghcr.io/your-org/probable-adventure-lab-base:latest}
+      - RUNTIME_IMAGE_NAMESPACE=${RUNTIME_IMAGE_NAMESPACE:-ghcr.io/cryptic-stack}
+      - CHALLENGE_DEFAULT_IMAGE=${CHALLENGE_DEFAULT_IMAGE:-ghcr.io/cryptic-stack/probable-adventure-lab-base:latest}
       - CHALLENGE_FILESHARE_URL=${CHALLENGE_FILESHARE_URL:-http://fileshare:8080}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -33,8 +33,8 @@ services:
       - REVERSE_PROXY=true
       - CHALLENGE_CONTROL_URL=http://control-service:9001
       - CHALLENGE_CONTROL_TOKEN=${CONTROL_SERVICE_TOKEN:-change-me}
-      - RUNTIME_IMAGE_NAMESPACE=${RUNTIME_IMAGE_NAMESPACE:-ghcr.io/your-org}
-      - CHALLENGE_DEFAULT_IMAGE=${CHALLENGE_DEFAULT_IMAGE:-ghcr.io/your-org/probable-adventure-lab-base:latest}
+      - RUNTIME_IMAGE_NAMESPACE=${RUNTIME_IMAGE_NAMESPACE:-ghcr.io/cryptic-stack}
+      - CHALLENGE_DEFAULT_IMAGE=${CHALLENGE_DEFAULT_IMAGE:-ghcr.io/cryptic-stack/probable-adventure-lab-base:latest}
     volumes:
       - ctfd-logs:/var/log/CTFd
       - ctfd-uploads:/var/uploads
