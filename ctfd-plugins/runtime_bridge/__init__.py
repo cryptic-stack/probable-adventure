@@ -20,6 +20,66 @@ from CTFd.utils.user import get_current_team, get_current_user
 PLUGIN_NAMESPACE = "runtime_bridge"
 CONFIG_KEY = "runtime_profiles_v1"
 
+DEFAULT_IMAGE_CATALOG: Dict[str, Any] = {
+    "version": 1,
+    "images": [
+        {
+            "id": "ubuntu-terminal",
+            "name": "Ubuntu Terminal Base",
+            "description": "General purpose terminal lab with bash, curl, nano, tshark, ttyd.",
+            "image": "{runtime_image_namespace}/probable-adventure-lab-base:latest",
+            "default_profile": {
+                "type": "terminal",
+                "internal_port": 7681,
+                "startup_command": "",
+                "environment": {},
+            },
+        },
+        {
+            "id": "windows-rdp",
+            "name": "Windows RDP (Dockur)",
+            "description": "Windows desktop in containerized QEMU, requires KVM-capable host.",
+            "image": "{runtime_image_namespace}/probable-adventure-windows-rdp:latest",
+            "default_profile": {
+                "type": "rdp",
+                "internal_port": 8006,
+                "environment": {
+                    "VERSION": "11",
+                    "RAM_SIZE": "6G",
+                    "CPU_CORES": "4",
+                    "DISK_SIZE": "64G",
+                },
+                "privileged": True,
+                "devices": ["/dev/kvm:/dev/kvm"],
+            },
+        },
+        {
+            "id": "kali-terminal",
+            "name": "Kali Terminal",
+            "description": "Kali-based terminal lab with bash, curl, nano, tshark, ttyd.",
+            "image": "{runtime_image_namespace}/probable-adventure-kali-terminal:latest",
+            "default_profile": {
+                "type": "terminal",
+                "internal_port": 7681,
+                "startup_command": "",
+                "environment": {},
+            },
+        },
+        {
+            "id": "forensics-terminal",
+            "name": "Forensics Terminal",
+            "description": "Forensics terminal lab with sleuthkit, yara, tshark, and volatility3.",
+            "image": "{runtime_image_namespace}/probable-adventure-forensics-terminal:latest",
+            "default_profile": {
+                "type": "terminal",
+                "internal_port": 7681,
+                "startup_command": "",
+                "environment": {},
+            },
+        },
+    ],
+}
+
 
 def _runtime_image_namespace() -> str:
     return os.getenv("RUNTIME_IMAGE_NAMESPACE", "ghcr.io/your-org").strip().rstrip("/")
@@ -50,7 +110,7 @@ def _load_image_catalog() -> Dict[str, Any]:
         with open(catalog_path, "r", encoding="utf-8") as handle:
             payload = json.load(handle)
     except (OSError, ValueError):
-        payload = {}
+        payload = dict(DEFAULT_IMAGE_CATALOG)
     if not isinstance(payload, dict):
         payload = {}
     images = payload.get("images")

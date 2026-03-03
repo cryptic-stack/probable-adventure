@@ -39,6 +39,7 @@ services:
       - ctfd-logs:/var/log/CTFd
       - ctfd-uploads:/var/uploads
       - ./ctfd-plugins/runtime_bridge:/opt/CTFd/CTFd/plugins/runtime_bridge
+      - ./images:/opt/CTFd/images:ro
     depends_on:
       control-service:
         condition: service_healthy
