@@ -8,6 +8,8 @@
   const challengeIdInput = document.getElementById("rb-challenge-id");
   const profileJsonInput = document.getElementById("rb-profile-json");
   const profileStatus = document.getElementById("rb-profile-status");
+  const catalogSelect = document.getElementById("rb-catalog-select");
+  const applyCatalogBtn = document.getElementById("rb-apply-selected-catalog");
   const sessionStatus = document.getElementById("rb-session-status");
   const sessionsBody = document.getElementById("rb-sessions-body");
   let currentChallengeId = null;
@@ -55,6 +57,18 @@
   function setSessionStatus(text, error) {
     sessionStatus.textContent = text || "";
     sessionStatus.classList.toggle("text-danger", Boolean(error));
+  }
+
+  function applyCatalogItem(item) {
+    const profile = item.default_profile && typeof item.default_profile === "object" ? item.default_profile : {};
+    const payload = {
+      ...profile,
+      image: item.image || profile.image || "",
+    };
+    if (!payload.type) payload.type = "terminal";
+    if (!payload.internal_port) payload.internal_port = payload.type === "terminal" ? 7681 : 6080;
+    profileJsonInput.value = JSON.stringify(payload, null, 2);
+    setProfileStatus("Loaded preset: " + (item.name || item.id || "catalog image"), false);
   }
 
   function actionButtons(challengeId, sessionId) {
@@ -135,19 +149,7 @@
       const raw = catalogBtn.dataset.catalog || "{}";
       try {
         const item = JSON.parse(raw);
-        const current = challengeIdInput.value ? Number(challengeIdInput.value) : null;
-        const profile = item.default_profile && typeof item.default_profile === "object" ? item.default_profile : {};
-        const payload = {
-          ...profile,
-          image: item.image || profile.image || "",
-        };
-        if (!payload.type) payload.type = "terminal";
-        if (!payload.internal_port) payload.internal_port = payload.type === "terminal" ? 7681 : 6080;
-        profileJsonInput.value = JSON.stringify(payload, null, 2);
-        if (current) {
-          challengeIdInput.value = String(current);
-        }
-        setProfileStatus("Loaded preset: " + (item.name || item.id || "catalog image"), false);
+        applyCatalogItem(item);
       } catch (err) {
         setProfileStatus("Invalid catalog preset", true);
       }
@@ -195,6 +197,21 @@
         });
     }
   });
+
+  if (applyCatalogBtn) {
+    applyCatalogBtn.addEventListener("click", function () {
+      const raw = catalogSelect ? catalogSelect.value : "";
+      if (!raw) {
+        setProfileStatus("Select a preset first", true);
+        return;
+      }
+      try {
+        applyCatalogItem(JSON.parse(raw));
+      } catch (err) {
+        setProfileStatus("Invalid catalog preset", true);
+      }
+    });
+  }
 
   if (profileForm) {
     profileForm.addEventListener("submit", function (event) {

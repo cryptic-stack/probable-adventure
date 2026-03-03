@@ -97,25 +97,6 @@
   margin-bottom: 0.7rem;
 }
 
-#challenge-window .rb-runtime-picker {
-  margin-bottom: 0.65rem;
-}
-
-#challenge-window .rb-runtime-picker label {
-  display: block;
-  font-size: 0.78rem;
-  color: #b7c0cf;
-  margin-bottom: 0.3rem;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-
-#challenge-window .rb-runtime-select {
-  background: rgba(11, 17, 27, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  color: #dce6f8;
-}
-
 #challenge-window .rb-canvas {
   border-radius: 8px;
   overflow: hidden;

@@ -39,41 +39,6 @@
     return body.data || {};
   }
 
-  async function getJSON(path) {
-    const response = await fetch(path, {
-      method: "GET",
-      credentials: "same-origin",
-    });
-    let body = null;
-    try {
-      body = await response.json();
-    } catch (err) {
-      // Non-JSON errors are surfaced as generic HTTP failures below.
-    }
-    if (!response.ok || !body || body.success !== true) {
-      const message = (body && body.error) || "Runtime request failed";
-      throw new Error(message);
-    }
-    return body.data || {};
-  }
-
-  let catalogPromise = null;
-  async function loadCatalog() {
-    if (!catalogPromise) {
-      catalogPromise = getJSON("/plugins/runtime/catalog")
-        .then(function (data) {
-          const rows = data && Array.isArray(data.images) ? data.images : [];
-          return rows.filter(function (item) {
-            return item && item.id && item.default_profile && typeof item.default_profile === "object";
-          });
-        })
-        .catch(function () {
-          return [];
-        });
-    }
-    return catalogPromise;
-  }
-
   function setWorkspaceStatus(workspace, state, text) {
     const badge = workspace.querySelector(".rb-status");
     if (!badge) return;
@@ -130,25 +95,12 @@
     const startBtn = workspace.querySelector(".rb-start");
     const resetBtn = workspace.querySelector(".rb-reset");
     const stopBtn = workspace.querySelector(".rb-stop");
-    const runtimeSelect = workspace.querySelector(".rb-runtime-select");
-
-    function profilePayload(action) {
-      const payload = {};
-      if (action) payload.action = action;
-      if (runtimeSelect && runtimeSelect.value) {
-        payload.profile_id = runtimeSelect.value;
-      }
-      return payload;
-    }
 
     if (startBtn) {
       startBtn.addEventListener("click", async function handleStart() {
         try {
           setWorkspaceStatus(workspace, "is-busy", "Starting");
-          const data = await postJSON(
-            "/plugins/runtime/challenges/" + challengeId + "/connect",
-            profilePayload("")
-          );
+          const data = await postJSON("/plugins/runtime/challenges/" + challengeId + "/connect", {});
           updateWorkspaceFrame(workspace, data);
           setWorkspaceStatus(workspace, "is-active", "Connected");
         } catch (err) {
@@ -161,10 +113,9 @@
       resetBtn.addEventListener("click", async function handleReset() {
         try {
           setWorkspaceStatus(workspace, "is-busy", "Resetting");
-          const data = await postJSON(
-            "/plugins/runtime/challenges/" + challengeId + "/session",
-            profilePayload("reset")
-          );
+          const data = await postJSON("/plugins/runtime/challenges/" + challengeId + "/session", {
+            action: "reset",
+          });
           updateWorkspaceFrame(workspace, data);
           setWorkspaceStatus(workspace, "is-active", "Connected");
         } catch (err) {
@@ -177,10 +128,9 @@
       stopBtn.addEventListener("click", async function handleStop() {
         try {
           setWorkspaceStatus(workspace, "is-busy", "Stopping");
-          await postJSON(
-            "/plugins/runtime/challenges/" + challengeId + "/session",
-            profilePayload("stop")
-          );
+          await postJSON("/plugins/runtime/challenges/" + challengeId + "/session", {
+            action: "stop",
+          });
           updateWorkspaceFrame(workspace, {});
           setWorkspaceStatus(workspace, "is-idle", "Stopped");
         } catch (err) {
@@ -190,26 +140,6 @@
     }
   }
 
-  function fillRuntimeOptions(workspace, items) {
-    const select = workspace.querySelector(".rb-runtime-select");
-    if (!select) return;
-    select.innerHTML = "";
-
-    const defaultOption = document.createElement("option");
-    defaultOption.value = "";
-    defaultOption.textContent = "Challenge default runtime";
-    select.appendChild(defaultOption);
-
-    items.forEach(function (item) {
-      const option = document.createElement("option");
-      const profile = item.default_profile || {};
-      const type = String(profile.type || "").toLowerCase() || "runtime";
-      option.value = String(item.id);
-      option.textContent = item.name + " (" + type + ")";
-      select.appendChild(option);
-    });
-  }
-
   function createWorkspace(challengeId) {
     const aside = document.createElement("aside");
     aside.className = "rb-workspace";
@@ -217,16 +147,6 @@
       "<div class=\"rb-header\">" +
       "<h4 class=\"rb-title\">Workspace</h4>" +
       "<span class=\"rb-status is-idle\">Idle</span>" +
-      "</div>" +
-      "<div class=\"rb-runtime-picker\">" +
-      "<label for=\"rb-runtime-select-" +
-      challengeId +
-      "\">Runtime</label>" +
-      "<select id=\"rb-runtime-select-" +
-      challengeId +
-      "\" class=\"form-control form-control-sm rb-runtime-select\">" +
-      "<option value=\"\">Challenge default runtime</option>" +
-      "</select>" +
       "</div>" +
       "<div class=\"rb-actions\">" +
       "<button type=\"button\" class=\"btn btn-sm btn-primary rb-start\">Start</button>" +
@@ -239,9 +159,6 @@
       "<iframe class=\"rb-frame d-none\" title=\"Challenge Workspace\" allowfullscreen></iframe>" +
       "</div>";
     bindWorkspaceHandlers(aside, challengeId);
-    loadCatalog().then(function (items) {
-      fillRuntimeOptions(aside, items || []);
-    });
     return aside;
   }
 

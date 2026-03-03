@@ -134,33 +134,6 @@ def _challenge_profile(challenge_id: int) -> Optional[Dict[str, Any]]:
     return profile if isinstance(profile, dict) else None
 
 
-def _profile_from_catalog(profile_id: str) -> Optional[Dict[str, Any]]:
-    target = (profile_id or "").strip()
-    if not target:
-        return None
-    catalog = _load_image_catalog()
-    for item in catalog.get("images", []):
-        if not isinstance(item, dict):
-            continue
-        if str(item.get("id", "")).strip() != target:
-            continue
-        default_profile = item.get("default_profile")
-        if not isinstance(default_profile, dict):
-            return None
-        merged = dict(default_profile)
-        if item.get("image"):
-            merged["image"] = item.get("image")
-        return merged
-    return None
-
-
-def _resolve_runtime_profile(challenge_id: int, body: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    profile_id = str((body or {}).get("profile_id") or "").strip()
-    if profile_id:
-        return _profile_from_catalog(profile_id)
-    return _challenge_profile(challenge_id)
-
-
 def _render_templates(value: Any, fields: Dict[str, Any]) -> Any:
     if isinstance(value, str):
         rendered = value
@@ -311,8 +284,7 @@ def load(app):
     @bp.post("/challenges/<int:challenge_id>/connect")
     @authed_only
     def challenge_connect(challenge_id: int):
-        body = request.get_json(silent=True) or {}
-        profile = _resolve_runtime_profile(challenge_id, body)
+        profile = _challenge_profile(challenge_id)
         if not profile:
             return jsonify({"success": False, "error": "No runtime profile configured"}), 400
 
@@ -358,7 +330,7 @@ def load(app):
         if action not in {"start", "stop", "reset", "remove"}:
             return jsonify({"success": False, "error": "Invalid action"}), 400
 
-        profile = _resolve_runtime_profile(challenge_id, body)
+        profile = _challenge_profile(challenge_id)
         if not profile:
             return jsonify({"success": False, "error": "No runtime profile configured"}), 400
 

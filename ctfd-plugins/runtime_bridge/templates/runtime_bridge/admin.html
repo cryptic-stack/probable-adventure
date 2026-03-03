@@ -98,6 +98,18 @@
       <h4>Profile Editor</h4>
       <form id="rb-profile-form">
         <div class="form-group">
+          <label for="rb-catalog-select">Runtime Preset</label>
+          <div class="d-flex">
+            <select id="rb-catalog-select" class="form-control">
+              <option value="">Select preset</option>
+              {% for item in image_catalog.get("images", []) %}
+              <option value='{{ item | tojson }}'>{{ item.get("name") }} ({{ item.get("id") }})</option>
+              {% endfor %}
+            </select>
+            <button type="button" class="btn btn-outline-primary ml-2" id="rb-apply-selected-catalog">Apply</button>
+          </div>
+        </div>
+        <div class="form-group">
           <label for="rb-challenge-id">Challenge ID</label>
           <input id="rb-challenge-id" class="form-control" type="number" min="1" required>
         </div>
