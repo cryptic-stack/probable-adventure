@@ -22,8 +22,14 @@
 
   async function getJSON(path) {
     const res = await fetch(path, { credentials: "same-origin" });
-    const data = await res.json();
-    if (!res.ok || !data.success) throw new Error(data.error || "Request failed");
+    const raw = await res.text();
+    let data = null;
+    try {
+      data = JSON.parse(raw);
+    } catch (err) {
+      throw new Error("Non-JSON response (" + res.status + ")");
+    }
+    if (!res.ok || !data.success) throw new Error(data.error || data.detail || "Request failed");
     return data.data;
   }
 
@@ -34,8 +40,14 @@
       headers: { "Content-Type": "application/json", ...csrfHeader() },
       body: JSON.stringify(payload || {}),
     });
-    const data = await res.json();
-    if (!res.ok || !data.success) throw new Error(data.error || "Request failed");
+    const raw = await res.text();
+    let data = null;
+    try {
+      data = JSON.parse(raw);
+    } catch (err) {
+      throw new Error("Non-JSON response (" + res.status + ")");
+    }
+    if (!res.ok || !data.success) throw new Error(data.error || data.detail || "Request failed");
     return data.data;
   }
 
