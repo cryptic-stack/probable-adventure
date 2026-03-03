@@ -1,5 +1,20 @@
 ﻿{% extends "admin/base.html" %}
 {% block content %}
 <div class="jumbotron"><div class="container"><h1>Shared Terminal</h1></div></div>
-<div class="container"><div class="alert alert-info">Scaffold module loaded. Next steps: collaborative lock manager and role policy.</div></div>
+<div class="container" id="shared-terminal-admin-root">
+  <div class="d-flex mb-3">
+    <button id="st-refresh" type="button" class="btn btn-outline-primary">Refresh</button>
+  </div>
+  <div id="st-status" class="text-muted mb-2"></div>
+  <div class="table-responsive">
+    <table class="table table-striped border">
+      <thead>
+        <tr>
+          <th>Challenge</th><th>Session</th><th>Actor</th><th>User</th><th>Expires</th><th></th>
+        </tr>
+      </thead>
+      <tbody id="st-body"><tr><td colspan="6" class="text-center text-muted">Loading...</td></tr></tbody>
+    </table>
+  </div>
+</div>
 {% endblock %}

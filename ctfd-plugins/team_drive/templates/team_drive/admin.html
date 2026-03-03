@@ -1,5 +1,20 @@
 ﻿{% extends "admin/base.html" %}
 {% block content %}
 <div class="jumbotron"><div class="container"><h1>Team Drive</h1></div></div>
-<div class="container"><div class="alert alert-info">Scaffold module loaded. Next steps: storage backend, signed URLs, malware scan and quotas.</div></div>
+<div class="container" id="team-drive-admin-root">
+  <div class="d-flex mb-3">
+    <button id="td-refresh" type="button" class="btn btn-outline-primary">Refresh</button>
+  </div>
+  <div id="td-status" class="text-muted mb-2"></div>
+  <div class="table-responsive">
+    <table class="table table-striped border">
+      <thead>
+        <tr>
+          <th>ID</th><th>Scope</th><th>Name</th><th>Path</th><th>Notes</th><th>Created</th><th></th>
+        </tr>
+      </thead>
+      <tbody id="td-body"><tr><td colspan="7" class="text-center text-muted">Loading...</td></tr></tbody>
+    </table>
+  </div>
+</div>
 {% endblock %}

@@ -1,5 +1,23 @@
 ﻿{% extends "admin/base.html" %}
 {% block content %}
 <div class="jumbotron"><div class="container"><h1>Session Recorder</h1></div></div>
-<div class="container"><div class="alert alert-info">Scaffold module loaded. Next steps: event ingestion, retention policy, replay viewer.</div></div>
+<div class="container" id="session-recorder-admin-root">
+  <div class="d-flex mb-3">
+    <input id="sr-challenge" class="form-control mr-2" style="max-width: 180px;" placeholder="Challenge ID">
+    <input id="sr-session" class="form-control mr-2" style="max-width: 220px;" placeholder="Session ID">
+    <button id="sr-refresh" type="button" class="btn btn-outline-primary">Refresh</button>
+    <button id="sr-prune" type="button" class="btn btn-outline-danger ml-2">Prune to 1000</button>
+  </div>
+  <div id="sr-status" class="text-muted mb-2"></div>
+  <div class="table-responsive">
+    <table class="table table-striped border">
+      <thead>
+        <tr>
+          <th>ID</th><th>Challenge</th><th>Session</th><th>Type</th><th>Actor</th><th>Created</th>
+        </tr>
+      </thead>
+      <tbody id="sr-body"><tr><td colspan="6" class="text-center text-muted">Loading...</td></tr></tbody>
+    </table>
+  </div>
+</div>
 {% endblock %}

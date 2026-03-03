@@ -155,4 +155,20 @@ def load(app):
     def admin_all():
         return jsonify({"success": True, "data": _load_items()})
 
+    @bp.post("/admin/files/<int:item_id>/delete")
+    @admins_only
+    def admin_delete(item_id: int):
+        rows = _load_items()
+        kept: List[Dict[str, Any]] = []
+        deleted = False
+        for row in rows:
+            if row.get("id") == item_id:
+                deleted = True
+                continue
+            kept.append(row)
+        if not deleted:
+            return jsonify({"success": False, "error": "File entry not found"}), 404
+        _save_items(kept)
+        return jsonify({"success": True, "data": {"deleted": item_id}})
+
     app.register_blueprint(bp)

@@ -153,4 +153,29 @@ def load(app):
     def admin():
         return render_template("shared_terminal/admin.html")
 
+    @bp.get("/admin/locks")
+    @admins_only
+    def admin_locks():
+        rows = _load_locks()
+        active: Dict[str, Any] = {}
+        for key, row in rows.items():
+            if isinstance(row, dict) and _is_active(row):
+                active[key] = row
+        return jsonify({"success": True, "data": active})
+
+    @bp.post("/admin/locks/release")
+    @admins_only
+    def admin_release():
+        body = request.get_json(silent=True) or {}
+        challenge_id = str(body.get("challenge_id") or "").strip()
+        session_id = str(body.get("session_id") or "").strip()
+        if not challenge_id or not session_id:
+            return jsonify({"success": False, "error": "challenge_id and session_id are required"}), 400
+        key = f"{challenge_id}:{session_id}"
+        rows = _load_locks()
+        existed = key in rows
+        rows.pop(key, None)
+        _save_locks(rows)
+        return jsonify({"success": True, "data": {"released": existed, "key": key}})
+
     app.register_blueprint(bp)

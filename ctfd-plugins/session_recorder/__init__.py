@@ -138,4 +138,35 @@ def load(app):
     def admin():
         return render_template("session_recorder/admin.html")
 
+    @bp.get("/admin/events")
+    @admins_only
+    def admin_events():
+        try:
+            limit = int((request.args.get("limit") or "500").strip())
+        except ValueError:
+            limit = 500
+        limit = max(1, min(limit, 5000))
+        rows = _load_events()
+        challenge_id = str(request.args.get("challenge_id") or "").strip()
+        session_id = str(request.args.get("session_id") or "").strip()
+        if challenge_id:
+            rows = [row for row in rows if str(row.get("challenge_id")) == challenge_id]
+        if session_id:
+            rows = [row for row in rows if str(row.get("session_id") or "") == session_id]
+        return jsonify({"success": True, "data": rows[-limit:]})
+
+    @bp.post("/admin/events/prune")
+    @admins_only
+    def admin_prune():
+        body = request.get_json(silent=True) or {}
+        try:
+            keep = int(body.get("keep") or 1000)
+        except ValueError:
+            keep = 1000
+        keep = max(0, min(keep, 5000))
+        rows = _load_events()
+        removed = max(0, len(rows) - keep)
+        _save_events(rows[-keep:] if keep else [])
+        return jsonify({"success": True, "data": {"removed": removed, "kept": keep}})
+
     app.register_blueprint(bp)

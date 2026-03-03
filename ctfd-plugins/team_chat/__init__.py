@@ -138,6 +138,48 @@ def load(app):
                 counts[room] = counts.get(room, 0) + 1
         return jsonify({"success": True, "data": counts})
 
+    @bp.get("/admin/messages")
+    @admins_only
+    def admin_messages():
+        room = str(request.args.get("room") or "").strip()
+        try:
+            limit = int((request.args.get("limit") or "200").strip())
+        except ValueError:
+            limit = 200
+        limit = max(1, min(limit, 1000))
+        rows = _load_messages()
+        if room:
+            rows = [row for row in rows if str(row.get("room") or "") == room]
+        return jsonify({"success": True, "data": rows[-limit:]})
+
+    @bp.post("/admin/messages/<int:message_id>/delete")
+    @admins_only
+    def admin_delete_message(message_id: int):
+        rows = _load_messages()
+        kept: List[Dict[str, Any]] = []
+        deleted = False
+        for row in rows:
+            if row.get("id") == message_id:
+                deleted = True
+                continue
+            kept.append(row)
+        if not deleted:
+            return jsonify({"success": False, "error": "Message not found"}), 404
+        _save_messages(kept)
+        return jsonify({"success": True, "data": {"deleted": message_id}})
+
+    @bp.post("/admin/rooms/<room>/purge")
+    @admins_only
+    def admin_purge_room(room: str):
+        target = str(room or "").strip()
+        if not target:
+            return jsonify({"success": False, "error": "Invalid room"}), 400
+        rows = _load_messages()
+        kept = [row for row in rows if str(row.get("room") or "") != target]
+        removed = len(rows) - len(kept)
+        _save_messages(kept)
+        return jsonify({"success": True, "data": {"room": target, "removed": removed}})
+
     @bp.get("/admin")
     @admins_only
     def admin():
