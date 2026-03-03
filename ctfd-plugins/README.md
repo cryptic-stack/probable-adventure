@@ -6,11 +6,11 @@ Scaffold modules added:
 - shared_terminal
 - session_recorder
 
-Each plugin currently includes:
-- load hook and blueprint
-- health endpoint
-- admin page
-- placeholder API routes returning scaffold/not-implemented status
+Current MVP capabilities:
+- `team_chat`: room-scoped message list/post with bounded persistence
+- `team_drive`: scope-scoped file registry (metadata/path) with create/list/delete
+- `shared_terminal`: collaborative lock acquire/release with TTL
+- `session_recorder`: session event ingest/list with team/user scope filters
 
 Recommended next implementation layers:
 1. SQLAlchemy models and migrations.
