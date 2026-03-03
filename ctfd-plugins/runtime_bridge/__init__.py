@@ -77,6 +77,20 @@ DEFAULT_IMAGE_CATALOG: Dict[str, Any] = {
                 "environment": {},
             },
         },
+        {
+            "id": "ubuntu-xfce-desktop",
+            "name": "Ubuntu XFCE Desktop",
+            "description": "Ubuntu XFCE desktop via noVNC web access.",
+            "image": "{runtime_image_namespace}/probable-adventure-ubuntu-xfce-desktop:latest",
+            "default_profile": {
+                "type": "rdp",
+                "internal_port": 6901,
+                "environment": {
+                    "VNC_RESOLUTION": "1600x900",
+                    "VNC_PW": "ctf",
+                },
+            },
+        },
     ],
 }
 

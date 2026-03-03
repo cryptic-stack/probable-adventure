@@ -35,7 +35,7 @@ Default lab image is controlled by:
 - `RUNTIME_IMAGE_NAMESPACE` (used by runtime catalog presets in admin UI)
 
 Current compose default:
-- `ghcr.io/your-org/probable-adventure-lab-base:latest`
+- `ghcr.io/cryptic-stack/probable-adventure-lab-base:latest`
 
 Override locally (example):
 ```bash
@@ -79,6 +79,7 @@ Builds and pushes on `main` (or manual dispatch):
 - `ghcr.io/<owner>/probable-adventure-kali-terminal:latest`
 - `ghcr.io/<owner>/probable-adventure-forensics-terminal:latest`
 - `ghcr.io/<owner>/probable-adventure-windows-rdp:latest`
+- `ghcr.io/<owner>/probable-adventure-ubuntu-xfce-desktop:latest`
 
 ## Planning More Images
 
@@ -122,12 +123,12 @@ Runtime profile payload example for challenge `3`:
 ```json
 {
   "type": "rdp",
-  "image": "ghcr.io/your-org/probable-adventure-lab-base:latest",
-  "internal_port": 8006,
+  "image": "ghcr.io/cryptic-stack/probable-adventure-ubuntu-xfce-desktop:latest",
+  "internal_port": 6901,
   "environment": {
-    "FETCH_URL": "http://fileshare:8080/challenge-3/bootstrap.sh"
-  },
-  "startup_command": "curl -fsSL \"$FETCH_URL\" | bash"
+    "VNC_RESOLUTION": "1600x900",
+    "VNC_PW": "ctf"
+  }
 }
 ```
 

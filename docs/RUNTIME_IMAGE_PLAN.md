@@ -31,7 +31,12 @@ These defaults live in `images/catalog.json` and are surfaced in CTFd Runtime ad
 - Port: `7681`
 - Packages: sleuthkit, yara, volatility
 
-4. `probable-adventure-webapp`
+4. `probable-adventure-ubuntu-xfce-desktop` (implemented)
+- Use case: Linux desktop challenge environments
+- Access type: `rdp` (web desktop path)
+- Port: `6901`
+
+5. `probable-adventure-webapp`
 - Use case: vulnerable web app labs
 - Access type: `url`
 - Port: app-specific (for example `8080`)

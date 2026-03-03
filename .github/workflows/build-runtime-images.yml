@@ -35,6 +35,9 @@ jobs:
           - id: windows-rdp
             context: ./images/windows-rdp
             image: ghcr.io/${{ github.repository_owner }}/probable-adventure-windows-rdp
+          - id: ubuntu-xfce-desktop
+            context: ./images/ubuntu-xfce-desktop
+            image: ghcr.io/${{ github.repository_owner }}/probable-adventure-ubuntu-xfce-desktop
 
     steps:
       - name: Checkout
