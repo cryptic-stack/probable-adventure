@@ -118,6 +118,20 @@ From CTFd admin navigation, use `Runtime` to:
 - View live session containers by challenge
 - Trigger `start/stop/reset/remove` on specific sessions
 
+## Additional Plugin Scaffolds
+
+Scaffold modules are included under `ctfd-plugins/`:
+- `team_chat`
+- `team_drive`
+- `shared_terminal`
+- `session_recorder`
+
+Each module currently provides:
+- plugin load hook + routes
+- health endpoint
+- admin page entry
+- placeholder APIs for next-phase implementation
+
 Runtime profile payload example for challenge `3`:
 
 ```json

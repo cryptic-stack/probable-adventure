@@ -39,6 +39,10 @@ services:
       - ctfd-logs:/var/log/CTFd
       - ctfd-uploads:/var/uploads
       - ./ctfd-plugins/runtime_bridge:/opt/CTFd/CTFd/plugins/runtime_bridge
+      - ./ctfd-plugins/team_chat:/opt/CTFd/CTFd/plugins/team_chat
+      - ./ctfd-plugins/team_drive:/opt/CTFd/CTFd/plugins/team_drive
+      - ./ctfd-plugins/shared_terminal:/opt/CTFd/CTFd/plugins/shared_terminal
+      - ./ctfd-plugins/session_recorder:/opt/CTFd/CTFd/plugins/session_recorder
       - ./images:/opt/CTFd/images:ro
     depends_on:
       control-service:
